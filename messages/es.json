@@ -1,0 +1,10 @@
+{
+  "Setting": {
+    "global-settings": "Ajustes globales",
+    "select-language": "Seleccione el idioma",
+    "language": "Idioma",
+    "dark-mode": "Modo oscuro"
+  },
+  "Home": {},
+  "App": {}
+}

@@ -1,0 +1,10 @@
+{
+  "Setting": {
+    "global-settings": "全体設定",
+    "select-language": "言語を選択する",
+    "language": "言語",
+    "dark-mode": "ダークモード"
+  },
+  "Home": {},
+  "App": {}
+}

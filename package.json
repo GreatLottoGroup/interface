@@ -1,0 +1,31 @@
+{
+  "name": "interface",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --experimental-https",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "blo": "^1.1.1",
+    "bootstrap": "^5.3.2",
+    "bootstrap-icons": "^1.11.2",
+    "connectkit": "^1.5.3",
+    "dayjs": "^1.11.10",
+    "next": "14.0.3",
+    "next-intl": "^3.1.2",
+    "react": "^18",
+    "react-bootstrap": "^2.9.1",
+    "react-dom": "^18",
+    "use-immer": "^0.9.0",
+    "viem": "^1.19.7",
+    "wagmi": "^1.4.7"
+  },
+  "devDependencies": {
+    "eslint": "^8",
+    "eslint-config-next": "14.0.3",
+    "sass": "^1.69.5"
+  }
+}

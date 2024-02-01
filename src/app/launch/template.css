@@ -1,0 +1,13 @@
+.bi {
+    vertical-align: -.125em;
+    fill: currentColor;
+}
+
+.link-primary-hover:hover{
+    color: #0d6efd !important;
+}
+
+.cursor-pointer:hover{
+    cursor: pointer;
+}
+

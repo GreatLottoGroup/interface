@@ -1,0 +1,10 @@
+{
+  "Setting": {
+    "global-settings": "全局设置",
+    "select-language": "选择语言",
+    "language": "语言",
+    "dark-mode": "深色模式"
+  },
+  "Home": {},
+  "App": {}
+}

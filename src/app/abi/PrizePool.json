@@ -1,0 +1,1015 @@
+[
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "coin",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "guaranteePoolAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "investmentCoinAddr",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "investmentBenefitPoolAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "daoCoinAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "daoBenefitPoolAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "chn",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_caller",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "constructor"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "previousCaller",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "newCaller",
+            "type": "address"
+          }
+        ],
+        "name": "CallerTransferred",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "localAmount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "shares",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "_amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "InvestmentDeposited",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "recipient",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "assets",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "shares",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "_amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "InvestmentWithdrawn",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "previousOwner",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+      },
+      {
+        "inputs": [],
+        "name": "CHANNEL_BENEFIT_RATE",
+        "outputs": [
+          {
+            "internalType": "uint16",
+            "name": "",
+            "type": "uint16"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "DAOBenefitPoolAddress",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "DAOCoinAddress",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "DAO_MINT_RATE",
+        "outputs": [
+          {
+            "internalType": "uint16",
+            "name": "",
+            "type": "uint16"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "GreatLottoCoinAddress",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "GuaranteePoolAddress",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "INVEST_BENEFIT_RATE",
+        "outputs": [
+          {
+            "internalType": "uint16",
+            "name": "",
+            "type": "uint16"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "InvestmentBenefitPoolAddress",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "InvestmentCoinAddress",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "MIN_INVEST_AMOUNT",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "MIN_REDEEM_SHARES",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "OPENER_BENEFIT_BLOCK_STEP",
+        "outputs": [
+          {
+            "internalType": "uint8",
+            "name": "",
+            "type": "uint8"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "OPENER_BENEFIT_MAX_RATE",
+        "outputs": [
+          {
+            "internalType": "uint16",
+            "name": "",
+            "type": "uint16"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "OPENER_BENEFIT_MIN_RATE",
+        "outputs": [
+          {
+            "internalType": "uint16",
+            "name": "",
+            "type": "uint16"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "OPENER_BENEFIT_RATE_STEP",
+        "outputs": [
+          {
+            "internalType": "uint8",
+            "name": "",
+            "type": "uint8"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "SELL_BENEFIT_RATE",
+        "outputs": [
+          {
+            "internalType": "uint16",
+            "name": "",
+            "type": "uint16"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "SalesChannelAddress",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "X_BONUS_MAX",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "caller",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "components": [
+              {
+                "internalType": "uint8[][3][]",
+                "name": "numbers",
+                "type": "uint8[][3][]"
+              },
+              {
+                "internalType": "uint8",
+                "name": "multiple",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint8",
+                "name": "periods",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "count",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "payToken",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "blockNumber",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "targetBlockNumber",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "channelId",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nonce",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct IGreatLottoNFT.Ticket",
+            "name": "ticket",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint8",
+            "name": "v",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "r",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "s",
+            "type": "bytes32"
+          }
+        ],
+        "name": "collect",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "components": [
+              {
+                "internalType": "uint8[][3][]",
+                "name": "numbers",
+                "type": "uint8[][3][]"
+              },
+              {
+                "internalType": "uint8",
+                "name": "multiple",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint8",
+                "name": "periods",
+                "type": "uint8"
+              },
+              {
+                "internalType": "uint256",
+                "name": "count",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "tokenId",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "payToken",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "blockNumber",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "targetBlockNumber",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "channelId",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nonce",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct IGreatLottoNFT.Ticket",
+            "name": "ticket",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "payer",
+            "type": "address"
+          }
+        ],
+        "name": "collect",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "blockNumber",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "actualBlockNumber",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8[7]",
+                "name": "drawNumber",
+                "type": "uint8[7]"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nomalAwardSumAmount",
+                "type": "uint256"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "address",
+                    "name": "winner",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "amount",
+                    "type": "uint256"
+                  }
+                ],
+                "internalType": "struct IPrizePool.NomalAwardDraw[]",
+                "name": "nomalAwardDrawList",
+                "type": "tuple[]"
+              },
+              {
+                "internalType": "uint256",
+                "name": "topBonusMultiples",
+                "type": "uint256"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "address",
+                    "name": "winner",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "multiples",
+                    "type": "uint256"
+                  }
+                ],
+                "internalType": "struct IPrizePool.TopBonusDraw[]",
+                "name": "topBonusDrawList",
+                "type": "tuple[]"
+              }
+            ],
+            "internalType": "struct IPrizePool.DrawParam",
+            "name": "drawParam",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "opener",
+            "type": "address"
+          }
+        ],
+        "name": "draw",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          }
+        ],
+        "name": "getBlockBalance",
+        "outputs": [
+          {
+            "internalType": "int256",
+            "name": "",
+            "type": "int256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          }
+        ],
+        "name": "getBlockDrawStatus",
+        "outputs": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "isDraw",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "isJackpot",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "topBonusSumAmount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "topBonusMultiples",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nomalAwardSumAmount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint16",
+                "name": "benefitRate",
+                "type": "uint16"
+              },
+              {
+                "internalType": "uint256",
+                "name": "benefitAmount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "actualBlockNumber",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8[7]",
+                "name": "drawNumber",
+                "type": "uint8[7]"
+              },
+              {
+                "internalType": "address",
+                "name": "opener",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct IPrizePool.DrawStatus",
+            "name": "",
+            "type": "tuple"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getRecentDrawBlockNumber",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getRollupBalance",
+        "outputs": [
+          {
+            "internalType": "int256",
+            "name": "",
+            "type": "int256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "name": "investmentDeposit",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint8",
+            "name": "v",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "r",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "s",
+            "type": "bytes32"
+          }
+        ],
+        "name": "investmentDepositWithSign",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "shares",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "name": "investmentRedeem",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "owner",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "renounceCaller",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "renounceOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "blockNumber",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "actualBlockNumber",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint8[7]",
+                "name": "drawNumber",
+                "type": "uint8[7]"
+              },
+              {
+                "internalType": "uint256",
+                "name": "nomalAwardSumAmount",
+                "type": "uint256"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "address",
+                    "name": "winner",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "amount",
+                    "type": "uint256"
+                  }
+                ],
+                "internalType": "struct IPrizePool.NomalAwardDraw[]",
+                "name": "nomalAwardDrawList",
+                "type": "tuple[]"
+              },
+              {
+                "internalType": "uint256",
+                "name": "topBonusMultiples",
+                "type": "uint256"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "address",
+                    "name": "winner",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "tokenId",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "uint256",
+                    "name": "multiples",
+                    "type": "uint256"
+                  }
+                ],
+                "internalType": "struct IPrizePool.TopBonusDraw[]",
+                "name": "topBonusDrawList",
+                "type": "tuple[]"
+              }
+            ],
+            "internalType": "struct IPrizePool.DrawParam",
+            "name": "drawParam",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "opener",
+            "type": "address"
+          }
+        ],
+        "name": "rollupPool",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "newCaller",
+            "type": "address"
+          }
+        ],
+        "name": "transferCaller",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "transferOwnership",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      }
+    ]

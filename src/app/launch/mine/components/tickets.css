@@ -1,0 +1,10 @@
+
+.nft-ticket{
+    margin-top: 0.4rem;
+    cursor: pointer;
+}
+
+.link-primary-hover:hover{
+    color: #0d6efd !important;
+}
+

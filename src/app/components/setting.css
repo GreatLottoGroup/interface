@@ -1,0 +1,35 @@
+.form-check-input,
+.dropdown-item,
+.global-setting label,
+.global-setting .row{
+    cursor: pointer;
+}
+
+.global-setting {
+    width: 17rem;
+    transform: translate3d(2rem, 40px, 0px) !important ;
+}
+
+.language-setting-toggle::after {
+    position: absolute;
+    right: 0.2rem;
+    top: 0.5rem;
+    color: var(--bs-tertiary-color)!important;
+}
+.language-setting-menu{
+    width: 12rem;
+    transform: translate3d(6rem, 1.5rem, 0px) !important ;
+}
+.language-setting-menu img{
+    width:1.3rem;
+    margin-right: 0.6rem;
+    position: relative;
+    top: -0.1rem;
+}
+.language-setting-menu .bi{
+    display: none;
+    float: right;
+}
+.language-setting-menu .active .bi{
+    display: inline-block;
+}

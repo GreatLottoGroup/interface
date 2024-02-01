@@ -1,0 +1,31 @@
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+
+.lottey-ball{
+    width:30px;
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px;
+    --bs-btn-padding-x: 0;
+    --bs-btn-padding-y: 0;
+}
+
+.btn-blue-light,
+.btn-outline-primary:hover{
+    --bs-btn-bg: #{$blue-300};
+    --bs-btn-border-color: #{$blue-300};
+    --bs-btn-hover-bg: #{shade-color($blue-300, 10%)};
+    --bs-btn-hover-border-color:#{shade-color($blue-300, 10%)};
+    --bs-btn-active-bg: #{shade-color($blue-300, 20%)};
+    --bs-btn-active-border-color: #{shade-color($blue-300, 20%)};
+}
+
+.lottey-ball-draw .bi::before{
+    font-weight: 700 !important;
+}
+.lottey-ball-draw .badge{
+    padding: 0.2rem;
+}
+.lottey-ball-draw .badge:empty {
+    display: block;
+}

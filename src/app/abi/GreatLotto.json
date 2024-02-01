@@ -1,0 +1,360 @@
+[
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "blockNumber",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "actualBlockNumber",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint8[7]",
+          "name": "drawNumber",
+          "type": "uint8[7]"
+        },
+        {
+          "components": [
+            {
+              "internalType": "bool",
+              "name": "isEmpty",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "isDraw",
+              "type": "bool"
+            },
+            {
+              "internalType": "bool",
+              "name": "isJackpot",
+              "type": "bool"
+            },
+            {
+              "internalType": "uint256",
+              "name": "topBonusSumAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "topBonusMultiples",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nomalAwardSumAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nomalAwardBenefit",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "topBonusBenefit",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "actualBlockNumber",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint8[7]",
+              "name": "drawNumber",
+              "type": "uint8[7]"
+            }
+          ],
+          "indexed": false,
+          "internalType": "struct IPrizePool.DrawStatus",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "name": "LottoTicketBlockDrawed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "payer",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "LottoTicketMinted",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "NFTAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "PrizePoolAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "blockNumber",
+          "type": "uint256"
+        }
+      ],
+      "name": "checkBlockBonus",
+      "outputs": [
+        {
+          "internalType": "uint8[7]",
+          "name": "drawNumber",
+          "type": "uint8[7]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "nomalAwardSumAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "topBonusMultiples",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "draw",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "findFirstDrawBlock",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "blockNumber",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8[7]",
+          "name": "drawNumber",
+          "type": "uint8[7]"
+        },
+        {
+          "internalType": "uint256",
+          "name": "nomalAwardSumAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "topBonusMultiples",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8[][3][]",
+          "name": "numbers",
+          "type": "uint8[][3][]"
+        },
+        {
+          "internalType": "uint8",
+          "name": "multiple",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "periods",
+          "type": "uint8"
+        },
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "targetBlockNumber",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "channelId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        }
+      ],
+      "name": "issueTicket",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8[][3][]",
+          "name": "numbers",
+          "type": "uint8[][3][]"
+        },
+        {
+          "internalType": "uint8",
+          "name": "multiple",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "periods",
+          "type": "uint8"
+        },
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "targetBlockNumber",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "channelId",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint8",
+          "name": "v",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "r",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "s",
+          "type": "bytes32"
+        }
+      ],
+      "name": "issueTicketWithSign",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8[][3][]",
+          "name": "numbers",
+          "type": "uint8[][3][]"
+        },
+        {
+          "internalType": "uint8",
+          "name": "multiple",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "periods",
+          "type": "uint8"
+        }
+      ],
+      "name": "quoteTicket",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "totalCount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalPrice",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ]
+
