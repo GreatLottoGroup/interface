@@ -1,15 +1,16 @@
 'use client';
 
 import { useEffect } from 'react'
-import { useAccount, usePublicClient } from 'wagmi'
-import { GreatCoinDecimals, formatAmount } from '@/launch/hooks/globalVars'
+import { useAccount } from 'wagmi'
+import { formatAmount } from '@/launch/hooks/globalVars'
+import Card from '@/launch/components/card'
+import WriteBtn from '@/launch/components/writeBtn'
 
 export default function BenefitPool({poolBalance, setPoolBalance, useBenefit}) {
 
-    const publicClient = usePublicClient()
     const { address: accountAddress } = useAccount()
 
-    const { getExecutorReward, executeBenefit, getPoolBalance, error, setError, isLoading, isSuccess } = useBenefit()
+    const { getExecutorReward, executeBenefit, getPoolBalance, isLoading, isPending } = useBenefit()
 
     
     const getBenefitPoolBalance = async () => {
@@ -31,21 +32,18 @@ export default function BenefitPool({poolBalance, setPoolBalance, useBenefit}) {
         getBenefitPoolBalance()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [accountAddress, publicClient])
+    }, [accountAddress])
 
   return (
     <>
+        <Card title="Benefit Pool" reload={getBenefitPoolBalance}>
+            <p className="card-text mb-1">Balance: {formatAmount(poolBalance)} GLC</p>
+            <p className="card-text mb-1">Executor Reward: {formatAmount(getExecutorReward(poolBalance))} GLC</p>
+            {poolBalance && (
+                <WriteBtn action={executeShareBenefit} isLoading={isLoading || isPending} className="mt-3">Share Benefit</WriteBtn>
+            )}
 
-        <div className="card" >
-            <div className="card-body">
-                <h5 className="card-title">Benefit Pool:</h5>
-                <p className="card-text mb-1">Balance: {formatAmount(poolBalance, GreatCoinDecimals)} GLC</p>
-                <p className="card-text mb-1">Executor Reward: {formatAmount(getExecutorReward(poolBalance), GreatCoinDecimals)} GLC</p>
-                {poolBalance && (
-                    <button type="button" disabled={!!isLoading} className='btn btn-primary mt-3'  onClick={()=>{executeShareBenefit()}}> Share Benefit {isLoading ? '...' : ''}</button>
-                )}
-            </div>
-        </div>
+        </Card>
 
     </>
 

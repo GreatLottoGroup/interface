@@ -1,49 +1,56 @@
 
 import { isAddressEqual } from 'viem'
+import { useAccount, useConfig } from 'wagmi'
+import { readContract, getChainId } from '@wagmi/core'
 
-import { useAccount, usePublicClient } from 'wagmi'
 import useWrite from './write';
 
-import { CoinList } from '@/launch/hooks/globalVars'
+import useAddress from "@/launch/hooks/address"
+
 import PermitABI from '@/abi/permit_abi.json'
 
 export default function usePermit() {
 
-    const publicClient = usePublicClient()
-    const { address: accountAddress } = useAccount()
+    const config = useConfig();
+    const { address: accountAddress } = useAccount()    
+    const { CoinList } = useAddress();
 
     const { sign, error, setError, isLoading, isSuccess} = useWrite()
 
 
     const getSignMessage = async (token, spender, amount, deadline) => {
 
-        let chainId = 1; 
-        //let chainId = publicClient.chain.id
+        let chainId = getChainId(config);
+        
+        // hardhat
+        if(chainId == 31337){
+            chainId = 1;
+        }
 
-        let name =  await publicClient.readContract({
+        let name =  await readContract(config, {
             address: token,
             abi: PermitABI,
             functionName: 'name'
         });
 
-        let version = await publicClient.readContract({
+        let version = await readContract(config, {
             address: token,
             abi: PermitABI,
             functionName: 'version'
         });
         version = version || '1';
 
-        let nonce = await publicClient.readContract({
+        let nonce = await readContract(config, {
             address: token,
             abi: PermitABI,
             functionName: 'nonces', 
             args: [accountAddress]
         });
 
-        let config;
+        let signReq;
         if(isAddressEqual(token, CoinList['DAI'].address)){
             let allowed = amount ? true : false;
-            config = {
+            signReq = {
                 types: {Permit: [
                     {name: "holder", type: "address"},
                     {name: "spender", type: "address"},
@@ -54,7 +61,7 @@ export default function usePermit() {
                 message: {holder: accountAddress, spender, nonce, expiry: deadline, allowed}
             }
         }else{
-            config = {
+            signReq = {
                 types: {Permit: [
                     {name: "owner", type: "address"},
                     {name: "spender", type: "address"},
@@ -66,13 +73,13 @@ export default function usePermit() {
             }
         }
 
-        console.log(config)
+        console.log(signReq)
 
         let signMsg = await sign({
             account: accountAddress,
             domain: {name, version, chainId, verifyingContract: token },
             primaryType: 'Permit',
-            ...config
+            ...signReq
         });
 
         return signMsg;

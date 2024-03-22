@@ -1,32 +1,31 @@
 
 import { useState, useEffect } from 'react'
-import { usePublicClient } from 'wagmi'
+import { useBlockNumber, useConfig } from 'wagmi'
+import { getBlock } from '@wagmi/core'
 
 
 export default function useCurrentBlock() {
 
-    const publicClient = usePublicClient()
+    const { data: blockNumber } = useBlockNumber({ watch: true }) 
+
+    const config = useConfig();
 
     const [curBlock, setCurBlock] = useState({})
 
     const setCurrentBlock = async () => {
-        const curBlockNumber = await publicClient.getBlockNumber()
-
-        const cBlock = await publicClient.getBlock({
-            blockNumber: curBlockNumber
-        })
-
+        const cBlock = await getBlock(config)
         setCurBlock(cBlock);
     }
-
+    
     useEffect(()=>{
 
-        setCurrentBlock()
+        // 10个块自动更新
+        if (!blockNumber || !curBlock.number || blockNumber % 10n === 0n) {
+            setCurrentBlock()
+        }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[publicClient])
-
-
+    },[blockNumber])
 
     return {
         currentBlock: curBlock,

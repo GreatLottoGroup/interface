@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react'
-import { usePublicClient } from 'wagmi'
-
+import { useConfig } from 'wagmi'
+import { getBlockNumber } from '@wagmi/core'
 import { dateFormatLocal, dateFormatMid, dateFormatUTC } from '@/launch/hooks/dateFormat'
 import { PerBlockTime } from '@/launch/hooks/globalVars'
 
@@ -12,15 +12,14 @@ const blockIssuePeriods = 300n
 
 export default function BlockNumberSelect({lotteryBlockNumber, setLotteryBlockNumber, currentBlock, setCurrentBlock}) {
 
+    const config = useConfig();
+
     const [numberSelectType, setNumberSelectType] = useState(0)
     const [isCycle, setIsCycle] = useState(true)
-
-    const publicClient = usePublicClient()
 
     const lotteryBlockCycleEl = useRef(null)
     const lotteryBlockNumberEl = useRef(null)
     const lotteryBlockNumberTimeEl = useRef(null)
-
 
     const getLotteryBlockTime = (n) => {
         if(n && currentBlock?.number){
@@ -81,7 +80,7 @@ export default function BlockNumberSelect({lotteryBlockNumber, setLotteryBlockNu
     }
     
     const initInfo = async () => {
-        const curBlockNumber = await publicClient.getBlockNumber()
+        const curBlockNumber = await getBlockNumber(config);
         lotteryBlockNumberEl.current.value =  Number(curBlockNumber + nearestBlockCount)
         lotteryBlockNumberTimeEl.current.value = dateFormatMid(getLotteryBlockTime(curBlockNumber + nearestBlockCount))
         // setDefault
@@ -94,7 +93,7 @@ export default function BlockNumberSelect({lotteryBlockNumber, setLotteryBlockNu
         initInfo();  
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentBlock, publicClient])
+    }, [currentBlock])
 
 
     return (

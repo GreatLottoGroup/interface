@@ -20,7 +20,7 @@ export default function Home() {
             {name: 'About', href: './'},
         ]}>
           <div className="col-md-5 text-end">
-            <Link href="./launch" className="btn btn-primary">Launch App</Link>
+            <Link href="./launch/issue" className="btn btn-primary">Launch App</Link>
           </div>  
         </Header>
 

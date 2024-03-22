@@ -1,7 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react'
-import { usePublicClient, useAccount } from 'wagmi'
 
 import MyChannel from './components/myChannel'
 import ChannelList from './components/channelList'

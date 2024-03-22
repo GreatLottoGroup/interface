@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react'
-import { useAccount, usePublicClient } from 'wagmi'
-import { GreatCoinDecimals, formatAmount } from '@/launch/hooks/globalVars'
+import { useAccount } from 'wagmi'
+import { formatAmount } from '@/launch/hooks/globalVars'
+import Card from '@/launch/components/card'
 
 export default function BeneficiaryList({poolBalance, useBenefit, finalBenefitAddress, currentBlock}) {
 
-    const publicClient = usePublicClient()
     const { address: accountAddress } = useAccount()
 
     const [benefitList, setBenefitList] = useState([])
@@ -29,36 +29,33 @@ export default function BeneficiaryList({poolBalance, useBenefit, finalBenefitAd
         getBenefitList()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [accountAddress, publicClient, poolBalance, currentBlock])
+    }, [accountAddress, poolBalance, currentBlock])
 
   return (
     <>
+        <Card title="Beneficiary List" reload={getBenefitList}>
+            <table className='table table-hover'>
+                <thead>
+                    <tr>
+                        <th>Address</th>
+                        <th>Rate</th>
+                        <th>Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {benefitList.map((item, i) => 
+                    <tr key={i}>
+                        <td>{item.address}</td>
+                        <td>{item.rate == 0n ? (
+                            <span className="badge text-bg-danger">Final Benefit</span>
+                        ) : Number(item.rate)/10**8 + ' %'}</td>
+                        <td>{formatAmount(item.amount)} GLC</td>
+                    </tr>
+                )}
+                </tbody>
+            </table>
 
-        <div className="card" >
-            <div className="card-body">
-                <h5 className="card-title">Beneficiary List:</h5>
-                <table className='table table-hover'>
-                    <thead>
-                        <tr>
-                            <th>Address</th>
-                            <th>Rate</th>
-                            <th>Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {benefitList.map((item, i) => 
-                        <tr key={i}>
-                            <td>{item.address}</td>
-                            <td>{item.rate == 0n ? (
-                                <span className="badge text-bg-danger">Final Benefit</span>
-                            ) : Number(item.rate)/10**8 + ' %'}</td>
-                            <td>{formatAmount(item.amount, GreatCoinDecimals)} GLC</td>
-                        </tr>
-                    )}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        </Card>
 
     </>
 

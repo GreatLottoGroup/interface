@@ -1,40 +1,15 @@
 'use client';
 
-import { parseUnits } from 'viem'
-
 import  useCoin  from '@/launch/hooks/coin'
-import DAIAbi from '@/abi/dai_abi.json'
-import USDTAbi from '@/abi/usdt_abi.json'
 
-import { GreatCoinContractAddress, PrizePoolContractAddress, CoinList, shortAddress, formatAmount } from '@/launch/hooks/globalVars'
-
-const payCoinList = {
-    'GLC': {
-        ...CoinList['GLC'],
-        isPermit: true
-    },
-    'DAI': {
-        ...CoinList['DAI'],
-        abi: DAIAbi,
-        isPermit: true
-    },
-    'USDC': {
-        ...CoinList['USDC'],
-        isPermit: true
-    },
-    'USDT': {
-        ...CoinList['USDT'],
-        abi: USDTAbi
-    }
-}
-
-const getApproveSpender = (name) => {
-    return name == 'GLC' ? PrizePoolContractAddress : GreatCoinContractAddress;
-}
+import { shortAddress, formatAmount, parseAmount } from '@/launch/hooks/globalVars'
+import useAddress from "@/launch/hooks/address"
+import WriteBtn from '@/launch/components/writeBtn'
 
 export function usePayCoin(payCoin, setPayCoin) {
 
-    const { getAllowance, increaseAllowance, getBalance, error, setError, isLoading, isSuccess } = useCoin();
+    const { getAllowance, increaseAllowance, getBalance, error, setError, isLoading, isSuccess, isPending, isConfirm } = useCoin();
+    const { getApproveSpender } = useAddress();
 
     const updatePayCoin = async (t) => {
         let allowance, balance;
@@ -55,7 +30,7 @@ export function usePayCoin(payCoin, setPayCoin) {
 
     const payExecute = async (payAction, payPermitAction, payAmount) => {
 
-        payAmount = parseUnits(payAmount + '', payCoin.decimals);
+        payAmount = parseAmount(payAmount, payCoin.decimals);
 
         // balance
         if(payCoin.balance < payAmount){
@@ -75,7 +50,7 @@ export function usePayCoin(payCoin, setPayCoin) {
                 txPay = await payPermitAction(payCoin, payAmount)
             }else{
                 // allowance
-                let tx = await increaseAllowance(payCoin.address, getApproveSpender(payCoin.name), payCoin.balance, payCoin.abi)
+                let tx = await increaseAllowance(payCoin.address, getApproveSpender(payCoin.name), payCoin.balance)
                 if(tx){
                     let [, _a] = await updatePayCoin('allowance')
                     if(_a < payAmount){
@@ -102,25 +77,26 @@ export function usePayCoin(payCoin, setPayCoin) {
     return {
         updatePayCoin,
         payExecute, 
-        getApproveSpender,
 
         error,
         setError,
         isLoading,
         isSuccess,
+        isPending,
+        isConfirm
     }
 }
 
 export function PayCoin({payCoin, setPayCoin, setCurrentBlock}) {
 
-    const { getAllowance, increaseAllowance, getBalance, error, setError, isLoading, isSuccess } = useCoin();
-
+    const { getAllowance, increaseAllowance, getBalance, isLoading, isPending } = useCoin();
+    const { getApproveSpender, CoinList } = useAddress();
 
     const changeCoin = async (coin) => {
         if(!coin){
             setPayCoin({});
         }else{
-            let coinData = {...payCoinList[coin]}
+            let coinData = {...CoinList[coin]}
             coinData.name = coin
 
             let allowance = await getAllowance(coinData.address, getApproveSpender(coin))
@@ -140,7 +116,7 @@ export function PayCoin({payCoin, setPayCoin, setCurrentBlock}) {
             val = 0n;
         }
         let approveSpender = getApproveSpender(payCoin.name);
-        let tx = await increaseAllowance(payCoin.address, approveSpender, val, payCoin.abi)
+        let tx = await increaseAllowance(payCoin.address, approveSpender, val)
         if(tx){
             let newCoin = {...payCoin};
             newCoin.allowance = await getAllowance(payCoin.address, approveSpender)
@@ -154,7 +130,7 @@ export function PayCoin({payCoin, setPayCoin, setCurrentBlock}) {
             <div className='col me-3'>
                 <select className="form-select form-select-lg mb-3" onChange={(e) =>{changeCoin(e.target.value)}}>
                     <option value=''>Select Coin...</option>
-                    {Object.keys(payCoinList).map( name =>
+                    {Object.keys(CoinList).map( name =>
                         <option key={name} value={name}>{name}</option>
                     )}
                 </select>
@@ -176,16 +152,7 @@ export function PayCoin({payCoin, setPayCoin, setCurrentBlock}) {
                 <div>Balance: {formatAmount(payCoin?.balance, payCoin?.decimals)}</div>
                 <div>Allowance: {formatAmount(((payCoin?.allowance > payCoin?.balance) ? payCoin?.balance : payCoin?.allowance), payCoin?.decimals)}
                     {(payCoin?.allowance < payCoin?.balance) && (
-                        <button type="button" disabled={isLoading} className='btn btn-outline-success btn-sm ms-4' onClick={async () => {
-                            increaseCoinAllowance()
-                        }}>Increase Allowance {isLoading ? '...' : ''}</button>
-                    )}
-                </div>
-                <div>{error && (
-                    <>
-                    <code>Error: {error?.message} </code>
-                    <button type="button" className="btn-close" onClick={()=>{setError()}}></button>
-                    </>
+                        <WriteBtn action={increaseCoinAllowance} isLoading={isLoading || isPending} className="btn-outline-success btn-sm ms-4"> Increase Allowance </WriteBtn>
                     )}
                 </div>
             </div>

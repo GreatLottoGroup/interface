@@ -1,23 +1,27 @@
 
 
-import { useAccount, usePublicClient, erc20ABI } from 'wagmi'
+import { useAccount, useConfig } from 'wagmi'
+import { readContract } from '@wagmi/core'
+import { erc20Abi } from 'viem' 
 
-import {  getDeadline, isOwner, GreatCoinContractAddress } from '@/launch/hooks/globalVars'
+import { getDeadline, isOwner } from '@/launch/hooks/globalVars'
+import useAddress from "@/launch/hooks/address"
 
 import useCoin from '@/launch/hooks/coin'
 import  useWrite  from './write';
 
 export default function useBenefitCoin(coinAddress, poolAddress, coinAbi, poolAbi, coinMaxSupply, executorRewardRate) {
 
-    const publicClient = usePublicClient()
+    const config = useConfig();
     const { address: accountAddress } = useAccount()
+    const { GreatCoinContractAddress } = useAddress();
 
-    const { write, error, setError, isLoading, isSuccess} = useWrite()
+    const { write, error, setError, isLoading, isSuccess, isPending, isConfirm} = useWrite()
 
     const { getBalance } = useCoin()
 
     const getBeneficiaryList = async () => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: coinAddress,
             abi: coinAbi,
             functionName: 'getBeneficiaryList'
@@ -27,7 +31,7 @@ export default function useBenefitCoin(coinAddress, poolAddress, coinAbi, poolAb
     }
 
     const getBenefitRate = async (addr) => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: coinAddress,
             abi: coinAbi,
             functionName: 'getBenefitRate',
@@ -48,9 +52,9 @@ export default function useBenefitCoin(coinAddress, poolAddress, coinAbi, poolAb
     }
 
     const totalSupply = async () => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: coinAddress,
-            abi: erc20ABI,
+            abi: erc20Abi,
             functionName: 'totalSupply'
         })
         return data;
@@ -146,6 +150,8 @@ export default function useBenefitCoin(coinAddress, poolAddress, coinAbi, poolAb
         setError,
         isLoading,
         isSuccess,
+        isPending,
+        isConfirm
     }
 
 

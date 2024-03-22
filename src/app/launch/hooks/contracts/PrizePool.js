@@ -1,23 +1,25 @@
 
 
-import { useAccount, usePublicClient } from 'wagmi'
-import { parseUnits } from 'viem'
+import { useAccount, useConfig } from 'wagmi'
+import { readContract } from '@wagmi/core'
 
 import  useWrite  from '../write';
 import  usePermit  from '../permit'
-import { PrizePoolContractAddress, GreatCoinContractAddress, getDeadline, getTokendDecimals } from '@/launch/hooks/globalVars'
+import { getDeadline, parseAmount } from '@/launch/hooks/globalVars'
+import useAddress from "@/launch/hooks/address"
+
 import PrizePoolABI from '@/abi/PrizePool.json'
 
 export default function usePrizePool() {
 
-    const publicClient = usePublicClient()
+    const config = useConfig();
     const { address: accountAddress } = useAccount()
-    const { write, error, setError, isLoading, isSuccess} = useWrite()
+    const { write, error, setError, isLoading, isSuccess, isPending, isConfirm} = useWrite()
     const permit = usePermit();
-
+    const { PrizePoolContractAddress, GreatCoinContractAddress, getTokenDecimals } = useAddress();
 
     const getBlockDrawStatus = async (blockNumber) => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: PrizePoolContractAddress,
             abi: PrizePoolABI,
             functionName: 'getBlockDrawStatus',
@@ -28,7 +30,7 @@ export default function usePrizePool() {
     }
 
     const getBlockBalance = async (blockNumber) => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: PrizePoolContractAddress,
             abi: PrizePoolABI,
             functionName: 'getBlockBalance',
@@ -39,7 +41,7 @@ export default function usePrizePool() {
     }
 
     const getRollupBalance = async () => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: PrizePoolContractAddress,
             abi: PrizePoolABI,
             functionName: 'getRollupBalance'
@@ -49,7 +51,7 @@ export default function usePrizePool() {
     }
 
     const getRecentDrawBlockNumber = async () => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: PrizePoolContractAddress,
             abi: PrizePoolABI,
             functionName: 'getRecentDrawBlockNumber'
@@ -77,7 +79,7 @@ export default function usePrizePool() {
 
         let deadline = getDeadline();
 
-        let sign = permit.getSignMessage(token, GreatCoinContractAddress, parseUnits(amount+'', getTokendDecimals(token)), deadline)
+        let sign = permit.getSignMessage(token, GreatCoinContractAddress, parseAmount(amount, getTokenDecimals(token)), deadline)
 
         if(!sign){
             return false;
@@ -128,7 +130,8 @@ export default function usePrizePool() {
         },
         isLoading: isLoading || permit.isLoading,
         isSuccess: isSuccess || permit.isSuccess,
-
+        isPending,
+        isConfirm,
     }
 
 

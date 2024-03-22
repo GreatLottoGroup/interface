@@ -1,19 +1,24 @@
 
-import { useAccount, usePublicClient } from 'wagmi'
+import { useAccount, useConfig } from 'wagmi'
+import { readContract } from '@wagmi/core'
+
 import  useWrite  from '../write';
 
-import { SalesChannelContractAddress, getDeadline } from '@/launch/hooks/globalVars'
+import { getDeadline } from '@/launch/hooks/globalVars'
+import useAddress from "@/launch/hooks/address"
+
 import SalesChannelABI from '@/abi/SalesChannel.json'
 
 export default function useSalesChannel() {
 
-    const publicClient = usePublicClient()
+   const config = useConfig();
     const { address: accountAddress } = useAccount()
+    const { SalesChannelContractAddress } = useAddress();
 
-    const { write, error, setError, isLoading, isSuccess} = useWrite()
+    const { write, error, setError, isLoading, isSuccess, isPending, isConfirm } = useWrite()
 
     const getChannelByAddr = async (addr) => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: SalesChannelContractAddress,
             abi: SalesChannelABI,
             functionName: 'getChannelByAddr',
@@ -23,7 +28,7 @@ export default function useSalesChannel() {
     }
 
     const getChannelById = async (id) => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: SalesChannelContractAddress,
             abi: SalesChannelABI,
             functionName: 'getChannelById',
@@ -33,7 +38,7 @@ export default function useSalesChannel() {
     }
 
     const getChannelCount = async () => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: SalesChannelContractAddress,
             abi: SalesChannelABI,
             functionName: 'getChannelCount'
@@ -120,6 +125,8 @@ export default function useSalesChannel() {
         isLoading,
         isSuccess,
 
+        isPending,
+        isConfirm,
         
     }
 

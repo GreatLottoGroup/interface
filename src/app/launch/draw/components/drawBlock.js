@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react'
-import { usePublicClient } from 'wagmi'
-import { GreatCoinDecimals } from '@/launch/hooks/globalVars'
-import { formatUnits } from 'viem'
+import { useConfig } from 'wagmi'
+import { getBlockNumber } from '@wagmi/core'
+import { formatAmount } from '@/launch/hooks/globalVars'
 
 import { DrawGroupBalls } from '@/launch/hooks/balls'
+import Card from '@/launch/components/card'
+import WriteBtn from '@/launch/components/writeBtn'
 
 import { getBenefit, getBenefitRate} from '@/launch/hooks/drawNumbers'
 
@@ -14,24 +16,24 @@ import usePrizePool from '@/launch/hooks/contracts/PrizePool'
 
 export default function DrawBlock({setCurrentBlock}) {
 
-    const publicClient = usePublicClient()
+    const config = useConfig();
 
     const [drawBlock, setDrawBlock] = useState({})
     const [isDrawBlockLoading, setIsDrawBlockLoading] = useState(false)
 
 
-    const { findFirstDrawBlock, draw, error, setError, isLoading, isSuccess } = useGreatLotto()
+    const { findFirstDrawBlock, draw, isLoading, isPending } = useGreatLotto()
     const { getBlockBalance, getRollupBalance } = usePrizePool()
 
 
     const getDrawBlock = async () => {
         setIsDrawBlockLoading(true)
 
-        let curBlockNumber = await publicClient.getBlockNumber()
+        let curBlockNumber = await getBlockNumber(config)
 
-        let [blockNumber, drawNumber, nomalAwardSumAmount, topBonusMultiples] = await findFirstDrawBlock();
+        let [blockNumber, drawNumber, normalAwardSumAmount, topBonusMultiples] = await findFirstDrawBlock();
 
-        console.log(blockNumber, drawNumber, nomalAwardSumAmount, topBonusMultiples)
+        console.log(blockNumber, drawNumber, normalAwardSumAmount, topBonusMultiples)
 
         if(blockNumber > 0n){
             let blockBalance = await getBlockBalance(blockNumber);
@@ -44,12 +46,12 @@ export default function DrawBlock({setCurrentBlock}) {
                 curBlockNumber, 
                 blockNumber,
                 drawNumber, 
-                nomalAwardSumAmount,
+                normalAwardSumAmount,
                 topBonusMultiples,
-                blockBalance: formatUnits(blockBalance, GreatCoinDecimals),
-                rollupBalance: formatUnits(rollupBalance + blockBalance - benefit, GreatCoinDecimals) - Number(nomalAwardSumAmount),
+                blockBalance: formatAmount(blockBalance),
+                rollupBalance: formatAmount(rollupBalance + blockBalance - benefit) - Number(normalAwardSumAmount),
                 benefitRate,
-                benefit: formatUnits(benefit, GreatCoinDecimals),
+                benefit: formatAmount(benefit),
             })
         }else{
             setDrawBlock({});
@@ -75,20 +77,15 @@ export default function DrawBlock({setCurrentBlock}) {
     useEffect(()=>{
 
         console.log('useEffect~')
-
         getDrawBlock()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [publicClient])
+    }, [])
 
     return (
     <>
 
-
-        <div className="card" >
-            <div className="card-body position-relative">
-                <a className="btn btn-sm btn-outline-secondary position-absolute end-0 me-3" onClick={()=>{getDrawBlock();}}>ReLoad</a>
-                <h5 className="card-title">Draw Ticket: </h5>
+        <Card title="Draw Ticket" reload={getDrawBlock}>
             {isDrawBlockLoading ? (
                     <p className='card-text'>Loading...
                         <span className="spinner-border" role="status">
@@ -102,21 +99,21 @@ export default function DrawBlock({setCurrentBlock}) {
                         DrawNumber: &nbsp;
                         <DrawGroupBalls drawNumbers={drawBlock.drawNumber} />
                     </p>
-                    <p className='card-text mb-1'>Nomal Award Sum Amount: {drawBlock.nomalAwardSumAmount.toString()} GLC</p>
-                    <p className='card-text mb-1'>Top Bouns Count: {drawBlock.topBonusMultiples || 0}</p>
+                    <p className='card-text mb-1'>Normal Award Sum Amount: {drawBlock.normalAwardSumAmount.toString()} GLC</p>
+                    <p className='card-text mb-1'>Top Bonus Count: {drawBlock.topBonusMultiples || 0}</p>
                     <p className='card-text mb-1'>Block Prize: {drawBlock.blockBalance || 0} GLC</p>
                     <p className='card-text mb-1'>Rollup Prize: {drawBlock.rollupBalance} GLC</p>
                     <p className='card-text mb-1'>Benefit Rate: {Number(drawBlock.benefitRate)/10}%</p>
                     <p className='card-text'>Benefit Amount: {drawBlock.benefit} GLC</p>
-                    <button type="button" disabled={!!isLoading} className='btn btn-primary'  onClick={()=>{drawExecute()}}> DRAW {isLoading ? '...' : ''}</button>
+
+                    <WriteBtn action={drawExecute} isLoading={isLoading || isPending} >DRAW</WriteBtn>
+
                 </>
             ) : (
                 <p className='card-text'>No Block</p>
             ))}
 
-            </div>
-        </div>
-
+        </Card>
 
     </>
 

@@ -1,19 +1,22 @@
 'use client';
 
-import { usePublicClient } from 'wagmi'
+import { useConfig } from 'wagmi'
+import { getBlockNumber } from '@wagmi/core'
+
 import useGreatLotto from '@/launch/hooks/contracts/GreatLotto'
 import { usePayCoin } from './payCoin'
 import { sumCount } from './ball';
+import WriteBtn from '@/launch/components/writeBtn'
 
 const nearestBlockCount = 400n;
 
 export default function Issue({numberList, setNumberList, multiple, periods, lotteryBlockNumber, payCoin, setPayCoin, setCurrentBlock, channel}) {
 
-    const publicClient = usePublicClient()
+   const config = useConfig();
 
-    const { issueTicket, quoteTicket, issueTicketWithSign,  error: issueError, setError: setIssueError, isLoading: issueIsLoading, isSuccess: issueIsSuccess} = useGreatLotto()
+    const { issueTicket, quoteTicket, issueTicketWithSign, isLoading: issueIsLoading, isPending: issueIsPending} = useGreatLotto()
 
-    const { payExecute, error: coinError, setError: setCoinError, isLoading: coinIsLoading } = usePayCoin(payCoin, setPayCoin)
+    const { payExecute, isLoading: coinIsLoading, isPending: coinIsPending } = usePayCoin(payCoin, setPayCoin)
 
     const checkData = (curbn) => {
         if(numberList.length < 1) {
@@ -39,7 +42,7 @@ export default function Issue({numberList, setNumberList, multiple, periods, lot
 
         // console.log(channel)
 
-        const curBlockNumber = await publicClient.getBlockNumber();
+        const curBlockNumber = await getBlockNumber(config);
         console.log(curBlockNumber);
 
         // check data
@@ -73,18 +76,7 @@ export default function Issue({numberList, setNumberList, multiple, periods, lot
     return (
 
     <>
-
-        <button type="button" disabled={issueIsLoading || coinIsLoading} className='btn btn-success btn-lg'  onClick={()=>{issueTicketExecute()}}> Issue {(issueIsLoading || coinIsLoading) ? '...' : ''}</button>
-
-        <div>{issueIsLoading && 'Loading'} {issueIsSuccess && 'Success'}</div>
-
-        <div>{ (coinError || issueError)  && (
-            <>
-            <code>Error: {(coinError || issueError)?.message} </code>
-            <button type="button" className="btn-close" onClick={()=>{setCoinError();setIssueError()}}></button>
-            </>
-            )}
-        </div>
+        <WriteBtn action={issueTicketExecute} isLoading={issueIsLoading || coinIsLoading || issueIsPending || coinIsPending} className="btn-success btn-lg">Issue Ticket</WriteBtn>
 
     </>
 

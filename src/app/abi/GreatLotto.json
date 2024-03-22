@@ -1,4 +1,223 @@
-[
+[{
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "caller",
+        "type": "address"
+      }
+    ],
+    "name": "CallableInvalidCaller",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "CallableUnauthorizedAccount",
+    "type": "error"
+  },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "pool",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "nft",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "coin",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "DeadLineExpiredTransaction",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "thiscall",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "original",
+          "type": "address"
+        }
+      ],
+      "name": "DelegateCalled",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "number",
+          "type": "uint256"
+        }
+      ],
+      "name": "DrawUtilsErrorNumber",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "blockNumber",
+          "type": "uint256"
+        }
+      ],
+      "name": "DrawUtilsInvalidBlock",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "balance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "ErrorInsufficientBalance",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "ErrorInvalidAmount",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "blockNumber",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "currentNumber",
+          "type": "uint256"
+        }
+      ],
+      "name": "ErrorInvalidBlock",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ErrorPaymentUnsuccessful",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "ErrorZeroAddress",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "blockNumber",
+          "type": "uint256"
+        }
+      ],
+      "name": "GreatLottoEmptyBlock",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "name": "NumberUtilsInvalidMultiple",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8[][3][]",
+          "name": "",
+          "type": "uint8[][3][]"
+        }
+      ],
+      "name": "NumberUtilsInvalidNumbers",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "name": "NumberUtilsInvalidPeriod",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "NumberUtilsInvalidTicket",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "TokenAddressUnsupportedToken",
+      "type": "error"
+    },
     {
       "anonymous": false,
       "inputs": [
@@ -24,11 +243,6 @@
           "components": [
             {
               "internalType": "bool",
-              "name": "isEmpty",
-              "type": "bool"
-            },
-            {
-              "internalType": "bool",
               "name": "isDraw",
               "type": "bool"
             },
@@ -49,17 +263,17 @@
             },
             {
               "internalType": "uint256",
-              "name": "nomalAwardSumAmount",
+              "name": "normalAwardSumAmount",
               "type": "uint256"
             },
             {
-              "internalType": "uint256",
-              "name": "nomalAwardBenefit",
-              "type": "uint256"
+              "internalType": "uint16",
+              "name": "benefitRate",
+              "type": "uint16"
             },
             {
               "internalType": "uint256",
-              "name": "topBonusBenefit",
+              "name": "benefitAmount",
               "type": "uint256"
             },
             {
@@ -71,6 +285,11 @@
               "internalType": "uint8[7]",
               "name": "drawNumber",
               "type": "uint8[7]"
+            },
+            {
+              "internalType": "address",
+              "name": "opener",
+              "type": "address"
             }
           ],
           "indexed": false,
@@ -106,6 +325,49 @@
       ],
       "name": "LottoTicketMinted",
       "type": "event"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "fallback"
+    },
+    {
+      "inputs": [],
+      "name": "DRAW_WAIT_PERIODS",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "GreatLottoCoinAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "ISSUE_WAIT_PERIODS",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     },
     {
       "inputs": [],
@@ -150,7 +412,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "nomalAwardSumAmount",
+          "name": "normalAwardSumAmount",
           "type": "uint256"
         },
         {
@@ -197,7 +459,7 @@
         },
         {
           "internalType": "uint256",
-          "name": "nomalAwardSumAmount",
+          "name": "normalAwardSumAmount",
           "type": "uint256"
         },
         {
@@ -355,6 +617,9 @@
       ],
       "stateMutability": "pure",
       "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
     }
   ]
-

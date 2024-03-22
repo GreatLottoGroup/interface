@@ -1,19 +1,22 @@
 
 
-import { useAccount, usePublicClient } from 'wagmi'
+import { useAccount, useConfig } from 'wagmi'
+import { readContract } from '@wagmi/core'
 
-import { GreatNftContractAddress } from '@/launch/hooks/globalVars'
+import useAddress from "@/launch/hooks/address"
+
 import GreatNftABI from '@/abi/GreatLottoNFT.json'
 import  useWrite  from '../write';
 
 export default function useGreatLottoNft() {
 
-    const publicClient = usePublicClient()
+    const config = useConfig();
     const { address: accountAddress } = useAccount()
-    const { write, error, setError, isLoading, isSuccess} = useWrite()
+    const { write, error, setError, isLoading, isSuccess, isPending, isConfirm} = useWrite()
+    const { GreatNftContractAddress } = useAddress();
 
     const getNftBalance = async (address) => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: GreatNftContractAddress,
             abi: GreatNftABI,
             functionName: 'balanceOf',
@@ -23,7 +26,7 @@ export default function useGreatLottoNft() {
     }
 
     const getNftToken = async (index, address) => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: GreatNftContractAddress,
             abi: GreatNftABI,
             functionName: 'tokenOfOwnerByIndex',
@@ -33,7 +36,7 @@ export default function useGreatLottoNft() {
     }
 
     const getNftTicket = async (token) => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: GreatNftContractAddress,
             abi: GreatNftABI,
             functionName: 'getTicket',
@@ -43,7 +46,7 @@ export default function useGreatLottoNft() {
     } 
 
     const getNftSVG = async (token) => {
-        let uri = await publicClient.readContract({
+        let uri = await readContract(config, {
             address: GreatNftContractAddress,
             abi: GreatNftABI,
             functionName: 'tokenURI',
@@ -60,7 +63,7 @@ export default function useGreatLottoNft() {
     } 
 
     const getNFTSVGAddress = async () => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: GreatNftContractAddress,
             abi: GreatNftABI,
             functionName: 'NFTSVGAddress'
@@ -80,7 +83,7 @@ export default function useGreatLottoNft() {
     }
 
     const getTicketsByTargetNumber = async (blockNumber) => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: GreatNftContractAddress,
             abi: GreatNftABI,
             functionName: 'getTicketsByTargetNumber',
@@ -102,6 +105,8 @@ export default function useGreatLottoNft() {
         setError,
         isLoading,
         isSuccess,
+        isPending,
+        isConfirm,
     }
 
 

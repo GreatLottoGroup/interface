@@ -4,12 +4,15 @@ import './tickets.css'
 import Modal from 'react-bootstrap/Modal';
 
 import { useState, useEffect } from 'react'
-import { usePublicClient } from 'wagmi'
+import { useConfig, useAccount } from 'wagmi'
+import { getBlockNumber } from '@wagmi/core'
 
 import { useDrawNumbers, drawTicketList } from '@/launch/hooks/drawNumbers'
 import { dateFormatLocal } from '@/launch/hooks/dateFormat'
 
-import { BlockPeriods, PerBlockTime, getTokenName } from '@/launch/hooks/globalVars'
+import { BlockPeriods, PerBlockTime } from '@/launch/hooks/globalVars'
+import useAddress from "@/launch/hooks/address"
+
 import { Ball } from '@/launch/hooks/balls'
 import { usePageNav, PageNav } from '@/launch/hooks/pageNav'
 
@@ -17,9 +20,14 @@ import useGreatLottoNft from '@/launch/hooks/contracts/GreatLottoNft'
 import usePrizePool from '@/launch/hooks/contracts/PrizePool'
 
 
-export default function Tickets({accountAddress, currentBlock, setCurrentBlock}) {
+export default function Tickets({currentBlock, setCurrentBlock}) {
 
-    const publicClient = usePublicClient()
+    const config = useConfig();
+    const chainId = config.state.chainId;
+    const { address: accountAddress } = useAccount()
+
+    const { getTokenName, GreatNftContractAddress } = useAddress();
+
     const [nftList, setNftList] = useState([])
     const [tickets, setTickets] = useState({})
     const [ticketsShow, setTicketsShow] = useState({})
@@ -29,18 +37,19 @@ export default function Tickets({accountAddress, currentBlock, setCurrentBlock})
 
     const { getDrawNumber } = useDrawNumbers()
 
-    const { getPageNavInfo, pageCurrent, pageCount, setPageCurrnet } = usePageNav()
+    const { getPageNavInfo, pageCurrent, pageCount, setPageCurrent } = usePageNav()
     
     const getNftList = async () => {
 
         let page = pageCurrent || 1
 
         let balance = await getNftBalance();
-        let curBlockNumber = await publicClient.getBlockNumber()
+        let curBlockNumber = await getBlockNumber(config);
 
         let list = [];
 
         if(balance == 0n){
+            setNftList(list);
             return false;
         }
 
@@ -87,6 +96,17 @@ export default function Tickets({accountAddress, currentBlock, setCurrentBlock})
             newList[token.toString()] = svg
             setTickets(newList);
         }
+    }
+
+    const getOpenSeaUrl = (tokenId) => {
+        let url;
+        if(chainId == '11155111'){
+            url = 'https://testnets.opensea.io/assets/sepolia/'
+        }else{
+            url = 'https://opensea.io/assets/'
+        }
+        url += GreatNftContractAddress + '/' + tokenId;
+        return url;
     }
 
     const toggleTicketShow = (token, isShow) => {
@@ -159,7 +179,7 @@ export default function Tickets({accountAddress, currentBlock, setCurrentBlock})
         drawNumbers[6] = 14
         */
 
-        let [bonus, topBouns] = drawTicketList(numsList, drawNumbers);
+        let [bonus, topBonus] = drawTicketList(numsList, drawNumbers);
 
         drawNumbers = [...drawNumbers.slice(0, 6).sort((a,b) => {return a-b;}), drawNumbers[6]]
 
@@ -177,12 +197,12 @@ export default function Tickets({accountAddress, currentBlock, setCurrentBlock})
                 ) : (
                     <span className="badge text-bg-danger">No Drawn</span>
                 )}
-                {(bonus == 0 && topBouns == 0) ? (
+                {(bonus == 0 && topBonus == 0) ? (
                     <div>Losing Lottery</div>
                 ) : (
                 <>
                     <div>Ordinary Prize: {bonus}</div>
-                    <div>Top Prize: {topBouns}</div>
+                    <div>Top Prize: {topBonus}</div>
                 </>
                 )}
             </div>
@@ -198,7 +218,7 @@ export default function Tickets({accountAddress, currentBlock, setCurrentBlock})
         getNftList()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [accountAddress, currentBlock, publicClient, pageCurrent])
+    }, [accountAddress, currentBlock, pageCurrent])
 
 
   return (
@@ -207,7 +227,8 @@ export default function Tickets({accountAddress, currentBlock, setCurrentBlock})
     <div className='border px-3 py-3 mb-3 row'>
         <div className='col'>
             <div className='h5'>My Tickets
-                <a className="btn btn-sm btn-outline-secondary ms-3" onClick={()=>{setCurrentBlock();}}>ReLoad</a>
+                <span className='badge text-bg-light ms-3 px-2'>{currentBlock.number?.toString()}</span>
+                <a className="btn btn-sm btn-outline-secondary ms-3" onClick={()=>{setCurrentBlock(); getNftList();}}>ReLoad</a>
             </div>
             {nftList.length > 0 ? (
                 <>
@@ -233,8 +254,11 @@ export default function Tickets({accountAddress, currentBlock, setCurrentBlock})
                                         <Modal.Title>TokenId: {item.tokenId.toString()}</Modal.Title>
                                     </Modal.Header>
                                     <Modal.Body>
+                                    <p>GreatLottoNFT: {GreatNftContractAddress}</p>
                                         {tickets[item.tokenId.toString()] ? (
-                                            <div className='nft-ticket-svg text-center' dangerouslySetInnerHTML={{__html:tickets[item.tokenId.toString()]}}></div>
+                                            <a target='_blank' href={getOpenSeaUrl(item.tokenId.toString())}>
+                                                <div className='nft-ticket-svg text-center' dangerouslySetInnerHTML={{__html:tickets[item.tokenId.toString()]}}></div>
+                                            </a>
                                         ) : (
                                             <div className="text-center">
                                                 <div className="spinner-border" role="status">
@@ -285,7 +309,7 @@ export default function Tickets({accountAddress, currentBlock, setCurrentBlock})
                     ))}
                     </tbody>
                 </table>
-                <PageNav pageCount={pageCount} pageCurrent={pageCurrent} setPageCurrnet={setPageCurrnet} />
+                <PageNav pageCount={pageCount} pageCurrent={pageCurrent} setPageCurrent={setPageCurrent} />
                 </>
             ) : (
                 <div>No Tickets</div>

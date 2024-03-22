@@ -1,5 +1,6 @@
 
-import { usePublicClient } from 'wagmi'
+import { useConfig } from 'wagmi'
+import { getBlock } from '@wagmi/core'
 import { encodePacked, keccak256 } from 'viem'
 
 import { BlueCount, BlueMax, RedMax, C  } from './globalVars'
@@ -19,24 +20,23 @@ const OPENER_BENEFIT_RATE_STEP = 5n;
 
 export function useDrawNumbers() {
 
-    const publicClient = usePublicClient()
-
+    const config = useConfig();
     // 获取中奖号码
     const getDrawNumber =  async (blockNumber) => {
-        let drwaNumber = [];
+        let drawNumber = [];
         let curBlock = Number(blockNumber);
         // 获取前区号码
-        while(drwaNumber.length < BlueCount){
+        while(drawNumber.length < BlueCount){
             let num;
             [num, curBlock] = await _getNumber(curBlock, BlueMax, DRAW_FRONT_GROUP_Q);
-            if(drwaNumber.indexOf(num) == -1){
-                    drwaNumber.push(num);
+            if(drawNumber.indexOf(num) == -1){
+                    drawNumber.push(num);
             }
             curBlock ++;
         }
         // 获取后区号码
-        drwaNumber.push((await _getNumber(curBlock, RedMax, DRAW_BACK_GROUP_Q))[0]);
-        return drwaNumber;
+        drawNumber.push((await _getNumber(curBlock, RedMax, DRAW_BACK_GROUP_Q))[0]);
+        return drawNumber;
     };
 
     // 获取单个号码
@@ -59,10 +59,10 @@ export function useDrawNumbers() {
     // 获取存在的区块哈希
     const _getHash = async (blockNumber) => {
         let curBlock = blockNumber;
-        let hash = (await publicClient.getBlock({blockNumber: curBlock})).hash;
+        let hash = (await getBlock(config, {blockNumber: curBlock})).hash;
         while(hash == 0){
             curBlock ++;
-            hash = (await publicClient.getBlock({blockNumber: curBlock})).hash;
+            hash = (await getBlock(config, {blockNumber: curBlock})).hash;
         }  
         return [hash, curBlock];  
     };
@@ -77,29 +77,29 @@ export function useDrawNumbers() {
 // Draw
 export function drawTicketList(numList, drawNums){
     var bonus = 0;
-    var topBouns = 0;
+    var topBonus = 0;
     for(var i = 0; i < numList.length; i++){
         var [b, tb] = drawTicket(numList[i], drawNums);
         bonus += b;
-        topBouns += tb;
+        topBonus += tb;
     }
-    return [bonus, topBouns];
+    return [bonus, topBonus];
 }
 
 export function drawTicket(nums, drawNums){
     var drawCount = drawTicketCount(nums, drawNums);
     var bonus = 0;
-    var topBouns = 0;
+    var topBonus = 0;
     for(var i = 0; i < drawCount.length; i++){
         var v = DrawMap[drawCount[i][0]][drawCount[i][1]];
         if(v == 'x'){
-            topBouns += drawCount[i][2];
+            topBonus += drawCount[i][2];
         }else if(v > 0){
             bonus += drawCount[i][2] * v;
         }
     }
 
-    return [bonus, topBouns];
+    return [bonus, topBonus];
 }
 
 function drawTicketCount(nums, drawNums){

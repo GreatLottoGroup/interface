@@ -1,22 +1,15 @@
 'use client';
 
-import { useAccount } from 'wagmi'
-
 import DaoManagement from './components/daoM'
 import CoinManagement from './components/coinM'
+import GreatCoin from '../explore/components/greatCoin'
 import NftManagement from './components/nftM'
 import ChannelList from '../channel/components/channelList';
 
-import { isOwner } from '@/launch/hooks/globalVars'
-
 export default function Management() {
-
-  const { address: accountAddress } = useAccount()
 
   return (
     <>
-    {isOwner(accountAddress) ? (
-        <>
         <div className='mb-3 row'>
             <div className='col'>
                 <DaoManagement />
@@ -24,7 +17,9 @@ export default function Management() {
                 <NftManagement />
             </div>
             <div className='col'>
-                <CoinManagement />
+                <GreatCoin title="GreatLotto Coin Recover">
+                    <CoinManagement />
+                </GreatCoin>
             </div>
         </div>
         <div className='mb-3 row'>
@@ -32,15 +27,6 @@ export default function Management() {
                 <ChannelList hasActions={true} />
             </div>
         </div>
-        </>
-) : (
-        <div className='border px-3 py-3 mb-3 row'>
-            <div className='col'>
-                <h3>Please use the administrator account</h3>
-            </div>
-        </div>
-    )}
-
     </>
 
   )

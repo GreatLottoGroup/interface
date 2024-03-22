@@ -1,13 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react'
-import { usePublicClient } from 'wagmi'
 import useSalesChannel from '@/launch/hooks/contracts/SalesChannel'
 import {shortAddress} from '@/launch/hooks/globalVars'
 
 export default function Channel({channel, setChannel}) {
-
-    const publicClient = usePublicClient()
 
     const [channelData, setChannelData] = useState({})
 
@@ -36,7 +33,7 @@ export default function Channel({channel, setChannel}) {
         getChannel();  
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [publicClient])
+    }, [])
 
     return (
 

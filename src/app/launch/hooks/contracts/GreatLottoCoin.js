@@ -1,15 +1,17 @@
 
 
-import { useAccount, usePublicClient } from 'wagmi'
+import { useAccount } from 'wagmi'
 
-import { GreatCoinContractAddress } from '@/launch/hooks/globalVars'
+import useAddress from "@/launch/hooks/address"
+
 import GreatCoinABI from '@/abi/GreatLottoCoin'
 import  useWrite  from '../write';
 
 export default function useGreatLottoCoin() {
 
     const { address: accountAddress } = useAccount()
-    const { write, error, setError, isLoading, isSuccess} = useWrite()
+    const { write, error, setError, isLoading, isSuccess, isPending, isConfirm} = useWrite()
+    const { GreatCoinContractAddress } = useAddress();
 
     const withdrawTo = async (token, amount) => {
         let tx = await write({
@@ -40,6 +42,8 @@ export default function useGreatLottoCoin() {
         setError,
         isLoading,
         isSuccess,
+        isPending,
+        isConfirm,
     }
 
 

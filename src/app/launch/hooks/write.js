@@ -1,55 +1,67 @@
 'use client';
 
 import { useState } from 'react'
-import { usePublicClient, useWalletClient } from 'wagmi'
-import { hexToSignature, BaseError, ContractFunctionRevertedError } from 'viem'
+import { useConfig  } from 'wagmi'
+import { simulateContract, writeContract, signTypedData, waitForTransactionReceipt, getTransactionReceipt } from '@wagmi/core'
+import { hexToSignature } from 'viem'
+import { dateFormatLocalWithoutZone} from '@/launch/hooks/dateFormat'
+import { useContext } from 'react';
+import { SetTransactionContext } from '../hooks/transactionsContext';
+import { errorHandle } from '@/launch/hooks/globalVars'
+import { SetGlobalToastContext } from '@/launch/hooks/globalToastContext'
 
 export default function useWrite() {
 
-    const publicClient = usePublicClient()
-    const { data: walletClient } = useWalletClient()
+    const config = useConfig();
+
+    const setTransaction = useContext(SetTransactionContext);
+    const setGlobalToast = useContext(SetGlobalToastContext)
 
     const [error, setError] = useState()
     const [isLoading, setIsLoading] = useState(false)
     const [isSuccess, setIsSuccess] = useState(false)
+    const [isPending, setIsPending] = useState(false)
+    const [isConfirm, setIsConfirm] = useState(false)
+    const [status, setStatus] = useState('')
 
-    const errorHandle = (error) => {
-        setError(error);
-
-        if (error instanceof BaseError) {
-            const revertError = error.walk(err => err instanceof ContractFunctionRevertedError)
-            console.log('revertError');
-            console.log(revertError);
-            if (revertError instanceof ContractFunctionRevertedError) {
-                const errorName = revertError.data?.errorName ?? ''
-                console.log(errorName);
-            }
-        }
-
+    const _errorHandle = (err) => {
+        setStatus('error')
+        let _err = errorHandle(err);
+        setError(_err)
+        setGlobalToast({
+            status: 'error',
+            message: _err?.message ?? _err
+        })
     }
 
-    const write = async (config) => {
+    const write = async (req) => {
         setIsLoading(true)
         setIsSuccess(false)
+        setIsPending(false)
+        setIsConfirm(false)
         setError()
+        setStatus('loading')
 
-        console.log(config)
+        console.log(req)
+
+        let trans = {
+            action: req.functionName,
+            time: dateFormatLocalWithoutZone(new Date().getTime())
+        }
 
         let request
         try {
-            ({ request } = await publicClient.simulateContract(config))
-        } catch (error) {
-            errorHandle(error);
+            ({ request } = await simulateContract(config, req))
+        } catch (err) {
+            _errorHandle(err);
         }
-
-        console.log(request)
 
         let tx;
         if(request){
             try {
-                tx = await walletClient.writeContract(request)
-            } catch (error) {
-                errorHandle(error);
+                tx = await writeContract(config, request)
+            } catch (err) {
+                _errorHandle(err);
             }
         }
 
@@ -57,25 +69,61 @@ export default function useWrite() {
 
         setIsLoading(false)
         if(tx){
-            setIsSuccess(true)
-        }
+            setIsPending(true)
+            setStatus('pending')
+            setTransaction({
+                ...trans,
+                hash: tx,
+                status: 'pending'
+            }, [], true)
+            setGlobalToast({
+                status: 'pending',
+                subTitle: 'Waiting for confirmation',
+                message: req.functionName
+            })
+            let transactionReceipt;
+            try {
+                transactionReceipt = await waitForTransactionReceipt(config, {hash: tx});
+            } catch (err) {
+                _errorHandle(err);
+                transactionReceipt = await getTransactionReceipt(config, {hash: tx})
+            }
+            setIsPending(false)
+            setIsConfirm(true)
+            console.log(transactionReceipt)
+            setStatus(transactionReceipt.status);
+            setTransaction({
+                ...trans,
+                hash: tx,
+                status: transactionReceipt.status
+            }, [], true)
+            if(transactionReceipt.status == 'success'){
+                setGlobalToast({
+                    status: 'success',
+                    subTitle: 'Transaction Confirmed',
+                    message: req.functionName
+                })
+            }
+            }
 
         return tx;
 
     }
 
-    const sign = async (config) => {
+
+
+    const sign = async (req) => {
         setIsLoading(true)
         setIsSuccess(false)
         setError()
 
-        console.log(config)
+        console.log(req)
 
         let signature
         try {
-            signature = await walletClient.signTypedData(config);
-        } catch (error) {
-            errorHandle(error);
+            signature = await signTypedData(config, req);
+        } catch (err) {
+            _errorHandle(err);
         }
 
         console.log(signature)
@@ -104,6 +152,10 @@ export default function useWrite() {
         setError,
         isLoading,
         isSuccess,
+        isPending,
+        isConfirm,
+        status
+
     }
 
 }

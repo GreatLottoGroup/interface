@@ -1,6 +1,5 @@
 
-import { isAddressEqual, formatUnits, parseUnits } from 'viem'
-
+import { isAddressEqual, formatUnits, parseUnits, BaseError, ContractFunctionRevertedError, ContractFunctionExecutionError, CallExecutionError  } from 'viem'  
 
 const BlockPeriods = 30n;
 const PerBlockTime = 12n;
@@ -24,35 +23,30 @@ const InvestmentCoinMaxSupply = 10n ** 8n * 10n ** 18n
 const InvestmentMinDepositAssets = 10000
 const InvestmentMinRedeemShares = 10000
 
-const GreatLottoContractAddress = process.env.NEXT_PUBLIC_GREATLOTTO_CONTRACT_ADDRESS
-const PrizePoolContractAddress = process.env.NEXT_PUBLIC_PRIZEPOOL_CONTRACT_ADDRESS
-const GuaranteePoolContractAddress = process.env.NEXT_PUBLIC_GUARANTEEPOOL_CONTRACT_ADDRESS
-const GreatCoinContractAddress = process.env.NEXT_PUBLIC_GREATCOIN_CONTRACT_ADDRESS
-const GreatNftContractAddress = process.env.NEXT_PUBLIC_GREATNFT_CONTRACT_ADDRESS
-const InvestmentCoinContractAddress = process.env.NEXT_PUBLIC_INVESTMENTCOIN_CONTRACT_ADDRESS
-const InvestmentBenefitPoolContractAddress = process.env.NEXT_PUBLIC_INVESTMENTBENEFITPOOL_CONTRACT_ADDRESS
-const DaoCoinContractAddress = process.env.NEXT_PUBLIC_DAOCOIN_CONTRACT_ADDRESS
-const DaoBenefitPoolContractAddress = process.env.NEXT_PUBLIC_DAOBENEFITPOOL_CONTRACT_ADDRESS
-const SalesChannelContractAddress = process.env.NEXT_PUBLIC_SALESCHANNEL_CONTRACT_ADDRESS
+const chains = {
+    "31337": "hardhat",
+    "1": "mainnet",
+    "17000": "holesky",
+    "11155111": "sepolia"
+}
 
 const OwnerAddress = process.env.NEXT_PUBLIC_OWNER_ADDRESS
-const FinalBenefitAddress = process.env.NEXT_PUBLIC_OWNER_ADDRESS
+const FinalBenefitAddress = process.env.NEXT_PUBLIC_BENEFIT_ADDRESS
 
 const CoinList = {
     'GLC': {
-        address: GreatCoinContractAddress,
         decimals: GreatCoinDecimals,
+        isPermit: true
     },
     'DAI': {
-        address: process.env.NEXT_PUBLIC_COIN_DAI_ADDRESS,
         decimals: 18,
+        isPermit: true
     },
     'USDC': {
-        address: process.env.NEXT_PUBLIC_COIN_USDC_ADDRESS,
         decimals: 6,
+        isPermit: true
     },
     'USDT': {
-        address: process.env.NEXT_PUBLIC_COIN_USDT_ADDRESS,
         decimals: 6
     }
 }
@@ -70,36 +64,8 @@ const C = function(n, m){
     return F(n)/(F(n-m) * F(m));
 };
 
-const getTokenName = (addr) => {
-    let tokenName;
-    Object.keys(CoinList).forEach((name)=>{
-        if(isAddressEqual(CoinList[name].address, addr)){
-            tokenName = name;
-        }
-    })
-    return tokenName;
-}
-const getTokenAddress = (tokenName) => {
-    let tokenAddress;
-    Object.keys(CoinList).forEach((name)=>{
-        if(name == tokenName){
-            tokenAddress = CoinList[name].address;
-        }
-    })
-    return tokenAddress;
-}
-const getTokendDecimals = (addr) => {
-    let decimals;
-    Object.keys(CoinList).forEach((name)=>{
-        if(isAddressEqual(CoinList[name].address, addr)){
-            decimals = CoinList[name].decimals;
-        }
-    })
-    return decimals;
-}
-
 const getDeadline = () => {
-    return parseInt(new Date().getTime()/1000);
+    return parseInt(new Date().getTime()/1000 + Number(PerBlockTime) * 5);
 }
 
 const shortAddress = (address) => {
@@ -107,16 +73,16 @@ const shortAddress = (address) => {
 }
 
 const formatAmount = (amount, decimals) => {
-    if(amount && decimals){
-        return formatUnits(amount, decimals);
+    if(amount){
+        return formatUnits(amount, decimals ?? GreatCoinDecimals);
     }else{
         return 0;
     }
 }
 
 const parseAmount = (amount, decimals) => {
-    if(amount && decimals){
-        return parseUnits(amount.toString(), decimals);
+    if(amount){
+        return parseUnits(amount.toString(), decimals ?? GreatCoinDecimals);
     }else{
         return 0;
     }
@@ -126,7 +92,51 @@ const isOwner = (addr) => {
     return isAddressEqual(OwnerAddress, addr);
 }
 
+const toCamelCase = (str) => {
+    return str.slice(0,1).toUpperCase() + str.slice(1)
+}
+
+const errorHandle = (err) => {
+    console.log(err)
+    let result = err;
+    if (err instanceof BaseError) {                
+        console.log('ContractFunctionRevertedError')
+        let errorData = _errorHandle(err, ContractFunctionRevertedError);
+        if(errorData){
+            let errorName = errorData.data?.errorName ?? '';
+            let args = errorData.data?.args ?? [];
+            result = errorName + "(" + args.join(', ') + ")";
+        }
+        if(!errorData){
+            console.log('CallExecutionError')
+            errorData = _errorHandle(err, CallExecutionError);
+            if(errorData){
+                result = errorData.cause;
+            }
+        }
+        if(!errorData){
+            console.log('ContractFunctionExecutionError')
+            errorData = _errorHandle(err, ContractFunctionExecutionError);
+            if(errorData){
+                result = errorData.cause;
+            }
+        }
+    }
+    return result;
+}
+
+const _errorHandle = (err, errType) => {
+    const _error = err.walk(_err => _err instanceof errType)
+    if (_error instanceof errType) {
+        return _error;
+    }else{
+        return false;
+    }
+}
+
 export  {
+    chains,
+    toCamelCase,
 
     BlockPeriods,
     PerBlockTime,
@@ -137,9 +147,6 @@ export  {
     RedCount,
 
     CoinList,
-    getTokenName,
-    getTokendDecimals,
-    getTokenAddress,
 
     GreatCoinDecimals,
     DaoCoinDecimals,
@@ -147,17 +154,6 @@ export  {
 
     F,
     C,
-
-    GreatLottoContractAddress,
-    PrizePoolContractAddress,
-    GuaranteePoolContractAddress,
-    GreatCoinContractAddress,
-    GreatNftContractAddress,
-    InvestmentCoinContractAddress,
-    InvestmentBenefitPoolContractAddress,
-    DaoCoinContractAddress,
-    DaoBenefitPoolContractAddress,
-    SalesChannelContractAddress,
 
     OwnerAddress,
     FinalBenefitAddress,
@@ -176,5 +172,7 @@ export  {
 
     InvestmentMinDepositAssets,
     InvestmentMinRedeemShares,
+
+    errorHandle,
 
 }

@@ -1,20 +1,22 @@
 
-import { useAccount, usePublicClient, erc20ABI } from 'wagmi'
+import { useAccount, useConfig } from 'wagmi'
+import { readContract } from '@wagmi/core'
+import { erc20Abi } from 'viem' 
 
 import useWrite from './write'
 
 export default function useCoin() {
 
     const { address: accountAddress } = useAccount()
-    const publicClient = usePublicClient()
+    const config = useConfig();
 
-    const { write, error, setError, isLoading, isSuccess } = useWrite()
+    const { write, error, setError, isLoading, isSuccess, isPending, isConfirm } = useWrite()
 
-    const increaseAllowance = async (addr, to, amount, abi) => {
+    const increaseAllowance = async (addr, to, amount) => {
         let tx = write({
             account: accountAddress,
             address: addr,
-            abi: abi || erc20ABI,
+            abi: erc20Abi,
             functionName: 'approve',
             args: [to, amount]
         })
@@ -23,9 +25,9 @@ export default function useCoin() {
 
 
     const getAllowance = async (addr, to) => {
-        const data = await publicClient.readContract({
+        const data = await readContract(config, {
             address: addr,
-            abi: erc20ABI,
+            abi: erc20Abi,
             functionName: 'allowance',
             args: [accountAddress, to]
         })
@@ -34,9 +36,9 @@ export default function useCoin() {
     }
 
     const getBalance = async (addr, owner) => {
-        const data = await publicClient.readContract({
+        const data = await readContract(config, {
             address: addr,
-            abi: erc20ABI,
+            abi: erc20Abi,
             functionName: 'balanceOf',
             args: [owner || accountAddress]
         })
@@ -44,9 +46,9 @@ export default function useCoin() {
     }   
 
     const totalSupply = async (addr) => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: addr,
-            abi: erc20ABI,
+            abi: erc20Abi,
             functionName: 'totalSupply'
         })
         return data;
@@ -61,7 +63,9 @@ export default function useCoin() {
         error,
         setError,
         isLoading,
-        isSuccess
+        isSuccess,
+        isPending, 
+        isConfirm
     }
 
 }

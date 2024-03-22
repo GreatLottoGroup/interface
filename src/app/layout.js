@@ -1,10 +1,10 @@
 'use client';
 
-import { Inter } from 'next/font/google'
+//import { Inter } from 'next/font/google'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.min.css'
 
-const inter = Inter({ subsets: ['latin'] })
+//const inter = Inter({ subsets: ['latin'] })
 
 import { useDark } from "./hooks/dark";
 import { DarkContext, ToggleDarkContext } from './hooks/darkContext';
@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
             <title>Great Lotto</title>
             <meta name="description" content="Great Lotto"/>
         </head>
-        <body className={inter.className}>
+        <body>
             <DarkContext.Provider value={isDark}>
                 <ToggleDarkContext.Provider value={toggleDarkMode}>
                     <LocaleContext.Provider value={locale}>

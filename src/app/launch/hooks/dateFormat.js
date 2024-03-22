@@ -7,6 +7,9 @@ export function dateFormatLocal(date) {
     return dayjs(date).format('YYYY-MM-DD HH:mm:ss (Z)');
 }
 
+export function dateFormatLocalWithoutZone(date) {
+    return dayjs(date).format('YYYY-MM-DD HH:mm:ss');
+}
 export function dateFormatUTC(date) {
     dayjs.extend(utc);
     return dayjs.utc(date).format('YYYY-MM-DD HH:mm:ss');

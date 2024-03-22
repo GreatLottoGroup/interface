@@ -2,8 +2,9 @@
 
 import { useContext } from 'react';
 
-import { WagmiConfig, createConfig } from 'wagmi'
-import { mainnet, goerli, hardhat } from 'wagmi/chains'
+import { WagmiProvider, createConfig } from 'wagmi'
+import { mainnet, holesky, sepolia, hardhat } from 'wagmi/chains'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { getDefaultConfig, ConnectKitProvider  } from 'connectkit';
 
 import Image from 'next/image'
@@ -13,17 +14,23 @@ import { DarkContext } from '@/hooks/darkContext';
 import { LocaleContext } from '@/hooks/localeContext'
  
 hardhat.name = "Localhost 8545";
-console.log(hardhat)
+
+holesky.rpcUrls.default.http = ['https://rpc.holesky.ethpandaops.io'];
+sepolia.rpcUrls.default.http = ['https://eth-sepolia.g.alchemy.com/v2/' + process.env.NEXT_PUBLIC_ALCHEMY_API_KEY];
 
 const cnf = getDefaultConfig({
     appName: 'GreatLotto',
     infuraId: process.env.NEXT_PUBLIC_INFURA_ID,
     alchemyId:  process.env.NEXT_PUBLIC_ALCHEMY_ID,
-    chains: [mainnet, goerli, hardhat],
+    chains: [sepolia, holesky, hardhat, 
+        //mainnet
+    ],
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
 })
 
 const config = createConfig(cnf)
+
+const queryClient = new QueryClient()
 
 const MyAvatar = ({ address, ensImage, ensName, size, radius }) => {
     return (
@@ -50,14 +57,16 @@ export default function AppLayout({ children }) {
     const locale = useContext(LocaleContext)
 
   return (
-    <WagmiConfig config={config}>
-        <ConnectKitProvider theme="default" mode={isDark ? 'dark' : 'light'} options={{
-            customAvatar: MyAvatar,
-            language: connectKitLanguage[locale]
-        }}
-        >
-            { children }
-        </ConnectKitProvider>
-    </WagmiConfig>
+    <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}> 
+            <ConnectKitProvider theme="default" mode={isDark ? 'dark' : 'light'} options={{
+                customAvatar: MyAvatar,
+                language: connectKitLanguage[locale]
+            }}
+            >
+                { children }
+            </ConnectKitProvider>
+        </QueryClientProvider>
+    </WagmiProvider>
   )
 }

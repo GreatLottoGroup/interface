@@ -1,17 +1,20 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react'
-import { useAccount, usePublicClient } from 'wagmi'
-import { InvestmentMinDepositAssets, formatAmount } from '@/launch/hooks/globalVars'
+import { useAccount } from 'wagmi'
+import { InvestmentMinDepositAssets } from '@/launch/hooks/globalVars'
+
 import usePrizePool from '@/launch/hooks/contracts/PrizePool'
 import useInvestmentCoin from '@/launch/hooks/contracts/InvestmentCoin'
+import Card from '@/launch/components/card'
+import WriteBtn from '@/launch/components/writeBtn'
 
 import { PayCoin, usePayCoin } from '@/launch/issue/components/payCoin'
 
 export default function Deposit({setCurrentBlock}) {
 
-    const publicClient = usePublicClient()
     const { address: accountAddress } = useAccount()
+
 
     const [prizeByAssets, setPrizeByAssets] = useState(0)
     const [prizeByShare, setPrizeByShare] = useState(0)
@@ -23,11 +26,11 @@ export default function Deposit({setCurrentBlock}) {
 
     const [amountType, setAmountType] = useState('assets')
 
-    const depositAmouentEl = useRef(null)
+    const depositAmountEl = useRef(null)
 
     const [payCoin, setPayCoin] = useState({})
 
-    const { investmentDeposit, investmentDepositWithSign, error, setError, isLoading, isSuccess } = usePrizePool()
+    const { investmentDeposit, investmentDepositWithSign, isLoading, isPending } = usePrizePool()
     const { maxDeposit, maxMint, previewDeposit, previewMint } = useInvestmentCoin()
     const { payExecute } = usePayCoin(payCoin, setPayCoin)
 
@@ -44,7 +47,7 @@ export default function Deposit({setCurrentBlock}) {
     const updateDepositAssets = async (type, value) => {
         console.log(value)
         if(!value || value <= 0){
-            depositAmouentEl.current.value = '';
+            depositAmountEl.current.value = '';
             setDepositAssets(0)
             setMintShares(0)
             return false;
@@ -52,14 +55,14 @@ export default function Deposit({setCurrentBlock}) {
         if(type == 'assets'){
             if(value > Number(maxAssets)){
                 value = Number(maxAssets);
-                depositAmouentEl.current.value = value;
+                depositAmountEl.current.value = value;
             }
             setDepositAssets(value)
             setMintShares(await previewDeposit(value))
         }else{
             if(value > Number(maxShares)){
                 value = Number(maxShares);
-                depositAmouentEl.current.value = value;
+                depositAmountEl.current.value = value;
             }
             setMintShares(value)
             setDepositAssets(await previewMint(value))
@@ -95,50 +98,45 @@ export default function Deposit({setCurrentBlock}) {
         initData()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [accountAddress, publicClient])
+    }, [accountAddress])
 
   return (
     <>
-
-        <div className="card" >
-            <div className="card-body">
-                <h5 className="card-title">Deposit:</h5>
-                <p className="card-text mb-1">Max Deposit: {maxAssets} USD ( {maxShares} GLIC )</p>
-                <p className="card-text mb-3">Deposit Prize: {prizeByShare} USD / GLIC  ( {prizeByAssets} GLIC / USD )</p>
-                <div className='row mb-3'>
-                    <PayCoin payCoin={payCoin} setPayCoin={setPayCoin} setCurrentBlock={setCurrentBlock}/>
+        <Card title="Deposit" reload={initData}>
+            <p className="card-text mb-1">Max Deposit: {maxAssets} USD ( {maxShares} GLIC )</p>
+            <p className="card-text mb-3">Deposit Prize: {prizeByShare} USD / GLIC  ( {prizeByAssets} GLIC / USD )</p>
+            <div className='row mb-3'>
+                <PayCoin payCoin={payCoin} setPayCoin={setPayCoin} setCurrentBlock={setCurrentBlock}/>
+            </div>
+            <div className='row'>
+                <div className='col me-3'>
+                    <div className="input-group">
+                        <select className='form-select' value={amountType} onChange={(e)=>{
+                            let type = e.currentTarget.value;
+                            setAmountType(type);
+                            updateDepositAssets(type, depositAmountEl.current.value)
+                        }}>
+                            <option value="assets">Assets</option>
+                            <option value="shares">Shares</option>
+                        </select>
+                        <input type="number" className="form-control w-50" ref={depositAmountEl} onChange={(e)=>{
+                            updateDepositAssets(amountType, e.currentTarget.value)
+                        }}/>
+                    </div>
+                    <p className="card-text mx-3 mt-2">
+                        {amountType == 'assets' ? (
+                            <>Share: {mintShares}</>
+                        ) : (
+                            <>Assets: {depositAssets}</>
+                        )}
+                    </p>
                 </div>
-                <div className='row'>
-                    <div className='col me-3'>
-                        <div className="input-group">
-                            <select className='form-select' value={amountType} onChange={(e)=>{
-                                let type = e.currentTarget.value;
-                                setAmountType(type);
-                                updateDepositAssets(type, depositAmouentEl.current.value)
-                            }}>
-                                <option value="assets">Assets</option>
-                                <option value="shares">Shares</option>
-                            </select>
-                            <input type="number" className="form-control w-50" ref={depositAmouentEl} onChange={(e)=>{
-                                updateDepositAssets(amountType, e.currentTarget.value)
-                            }}/>
-                        </div>
-                        <p className="card-text mx-3 mt-2">
-                            {amountType == 'assets' ? (
-                                <>Share: {mintShares}</>
-                            ) : (
-                                <>Assets: {depositAssets}</>
-                            )}
-                        </p>
-                    </div>
-                    <div className='col-6'>
-                        <button className="btn btn-primary"  disabled={isLoading} onClick={()=>{
-                            depositExecute()
-                        }}>Deposit ( {depositAssets} {payCoin?.name} ) {isLoading ? '...' : ''}</button>
-                    </div>
+                <div className='col-6'>
+                    <WriteBtn action={depositExecute} isLoading={isLoading || isPending} className="mt-3">Deposit ( {depositAssets} {payCoin?.name} )</WriteBtn>
                 </div>
             </div>
-        </div>
+
+        </Card>
 
     </>
 

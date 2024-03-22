@@ -9,13 +9,15 @@ import BenefitPool from '@/launch/dao/components/benefitPool'
 import Redeem from './components/redeem'
 import Deposit from './components/deposit'
 
-import { DaoBenefitPoolContractAddress } from '@/launch/hooks/globalVars'
+import useAddress from "@/launch/hooks/address"
 
 import useCurrentBlock from '@/launch/hooks/currentBlock'
 
 import useInvestmentCoin from '@/launch/hooks/contracts/InvestmentCoin'
 
 export default function Dao() {
+
+    const { DaoBenefitPoolContractAddress } = useAddress();
 
     const { currentBlock, setCurrentBlock } = useCurrentBlock()
     const [poolBalance, setPoolBalance] = useState(0n)

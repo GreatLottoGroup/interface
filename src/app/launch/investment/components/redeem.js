@@ -1,15 +1,17 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react'
-import { useAccount, usePublicClient } from 'wagmi'
-import { InvestmentMinRedeemShares, formatAmount } from '@/launch/hooks/globalVars'
+import { useAccount } from 'wagmi'
+import { InvestmentMinRedeemShares } from '@/launch/hooks/globalVars'
 import usePrizePool from '@/launch/hooks/contracts/PrizePool'
 import useInvestmentCoin from '@/launch/hooks/contracts/InvestmentCoin'
+import Card from '@/launch/components/card'
+import WriteBtn from '@/launch/components/writeBtn'
 
-export default function Deposit({setCurrentBlock}) {
+export default function Redeem({setCurrentBlock}) {
 
-    const publicClient = usePublicClient()
     const { address: accountAddress } = useAccount()
+
 
     const [valueByAssets, setValueByAssets] = useState(0)
     const [valueByShare, setValueByShare] = useState(0)
@@ -19,9 +21,9 @@ export default function Deposit({setCurrentBlock}) {
     const [withdrawAssets, setWidthAssets] = useState(0)
     const [redeemShares, setRedeemShares] = useState(0)
 
-    const redeemAmouentEl = useRef(null)
+    const redeemAmountEl = useRef(null)
 
-    const { investmentRedeem, error, setError, isLoading, isSuccess } = usePrizePool()
+    const { investmentRedeem, isLoading, isPending } = usePrizePool()
     const { maxRedeem, maxWithdraw, previewRedeem, previewWithdraw, totalSupply } = useInvestmentCoin()
 
     const initData = async () => {
@@ -40,14 +42,14 @@ export default function Deposit({setCurrentBlock}) {
     const updateRedeemAssets = async (value) => {
         console.log(value)
         if(!value || value <= 0){
-            redeemAmouentEl.current.value = '';
+            redeemAmountEl.current.value = '';
             setWidthAssets(0)
             setRedeemShares(0)
             return false;
         }
         if(value > Number(maxShares)){
             value = Number(maxShares);
-            redeemAmouentEl.current.value = value;
+            redeemAmountEl.current.value = value;
         }
         setRedeemShares(value)
         setWidthAssets(await previewRedeem(value))
@@ -78,36 +80,31 @@ export default function Deposit({setCurrentBlock}) {
         initData()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [accountAddress, publicClient])
+    }, [accountAddress])
 
   return (
     <>
-
-        <div className="card" >
-            <div className="card-body">
-                <h5 className="card-title">Redeem:</h5>
-                <p className="card-text mb-1">Max Redeem: {maxShares} GLIC ( {maxAssets} USD )</p>
-                <p className="card-text mb-3">Redeem Value: {valueByAssets} GLIC / USD  ( {valueByShare} USD / GLIC )</p>
-                <div className='row'>
-                    <div className='col me-3'>
-                        <div className="input-group">
-                            <span className="input-group-text">Shares</span>
-                            <input type="number" className="form-control w-50" ref={redeemAmouentEl} onChange={(e)=>{
-                                updateRedeemAssets(e.currentTarget.value)
-                            }}/>
-                        </div>
-                        <p className="card-text mx-3 mt-2">
-                            <>Assets: {withdrawAssets} * 90% = {Number(withdrawAssets) * 0.9}</>
-                        </p>
+        <Card title="Redeem" reload={initData}>
+            <p className="card-text mb-1">Max Redeem: {maxShares} GLIC ( {maxAssets} USD )</p>
+            <p className="card-text mb-3">Redeem Value: {valueByAssets} GLIC / USD  ( {valueByShare} USD / GLIC )</p>
+            <div className='row'>
+                <div className='col me-3'>
+                    <div className="input-group">
+                        <span className="input-group-text">Shares</span>
+                        <input type="number" className="form-control w-50" ref={redeemAmountEl} onChange={(e)=>{
+                            updateRedeemAssets(e.currentTarget.value)
+                        }}/>
                     </div>
-                    <div className='col-6'>
-                        <button className="btn btn-primary"  disabled={isLoading} onClick={()=>{
-                            redeemExecute()
-                        }}>Redeem ( {redeemShares} ) {isLoading ? '...' : ''}</button>
-                    </div>
+                    <p className="card-text mx-3 mt-2">
+                        <>Assets: {withdrawAssets} * 90% = {Number(withdrawAssets) * 0.9}</>
+                    </p>
+                </div>
+                <div className='col-6'>
+                    <WriteBtn action={redeemExecute} isLoading={isLoading || isPending} > Redeem ( {redeemShares} ) </WriteBtn>
                 </div>
             </div>
-        </div>
+
+        </Card>
 
     </>
 

@@ -1,22 +1,27 @@
 
-import { useAccount, usePublicClient } from 'wagmi'
+import { useAccount, useConfig } from 'wagmi'
+import { readContract } from '@wagmi/core'
+
 import  useWrite  from '../write';
 import  usePermit  from '../permit'
 
-import { GreatLottoContractAddress, GreatCoinContractAddress, getDeadline, getTokendDecimals } from '@/launch/hooks/globalVars'
+import { getDeadline, parseAmount } from '@/launch/hooks/globalVars'
+import useAddress from "@/launch/hooks/address"
+
 import GreatLottoABI from '@/abi/GreatLotto.json'
 
 export default function useGreatLotto() {
 
-    const publicClient = usePublicClient()
+    const config = useConfig();
     const { address: accountAddress } = useAccount()
+    const { GreatLottoContractAddress, GreatCoinContractAddress, getTokenDecimals } = useAddress()
 
-    const { write, error, setError, isLoading, isSuccess} = useWrite()
+    const { write, error, setError, isLoading, isSuccess, isPending, isConfirm} = useWrite()
     const permit = usePermit();
 
 
     const findFirstDrawBlock = async () => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: GreatLottoContractAddress,
             abi: GreatLottoABI,
             functionName: 'findFirstDrawBlock'
@@ -25,7 +30,7 @@ export default function useGreatLotto() {
     }
 
     const checkBlockBonus = async (blockNumber) => {
-        let data = await publicClient.readContract({
+        let data = await readContract(config, {
             address: GreatLottoContractAddress,
             abi: GreatLottoABI,
             functionName: 'checkBlockBonus',
@@ -36,7 +41,7 @@ export default function useGreatLotto() {
 
 
     const quoteTicket = async (numberList, multiple, periods) => {
-        const [totalCount, totalPrize] = await publicClient.readContract({
+        const [totalCount, totalPrize] = await readContract(config, {
             address: GreatLottoContractAddress,
             abi: GreatLottoABI,
             functionName: 'quoteTicket',
@@ -66,7 +71,7 @@ export default function useGreatLotto() {
 
         let [, amount] = await quoteTicket(numberList, multiple, periods);
 
-        let sign = permit.getSignMessage(token, GreatCoinContractAddress, parseUnits(amount, getTokendDecimals(token)), deadline)
+        let sign = await permit.getSignMessage(token, GreatCoinContractAddress, parseAmount(amount, getTokenDecimals(token)), deadline)
 
         if(!sign){
             return false;
@@ -113,7 +118,8 @@ export default function useGreatLotto() {
         },
         isLoading: isLoading || permit.isLoading,
         isSuccess: isSuccess || permit.isSuccess,
-
+        isPending,
+        isConfirm
         
     }
 

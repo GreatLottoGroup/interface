@@ -1,24 +1,28 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react'
-import { useAccount, usePublicClient } from 'wagmi'
-import { GreatCoinDecimals, formatAmount, GreatCoinContractAddress, CoinList, getTokenAddress } from '@/launch/hooks/globalVars'
+import { useAccount } from 'wagmi'
+import { formatAmount } from '@/launch/hooks/globalVars'
+import useAddress from "@/launch/hooks/address"
+
 import useCoin from '@/launch/hooks/coin'
 import useGreatLottoCoin from '@/launch/hooks/contracts/GreatLottoCoin'
-
-const withdrawCoinList = Object.keys(CoinList).filter(name=>
-    name != 'GLC'
-)
+import Card from '@/launch/components/card'
+import WriteBtn from '@/launch/components/writeBtn'
 
 export default function MyCoin({currentBlock}) {
 
-    const publicClient = usePublicClient()
     const { address: accountAddress } = useAccount()
+    const { GreatCoinContractAddress, CoinList } = useAddress();
+
+    const withdrawCoinList = Object.keys(CoinList).filter(name=>
+        name != 'GLC'
+    )
 
     const [coinBalance, setCoinBalance] = useState(0)
 
     const { getBalance } = useCoin()
-    const { withdrawTo, error, setError, isLoading, isSuccess } = useGreatLottoCoin()
+    const { withdrawTo, isLoading, isPending } = useGreatLottoCoin()
     
     const withdrawAmountEl = useRef(null);
     const withdrawCoinEl = useRef(null)
@@ -31,7 +35,7 @@ export default function MyCoin({currentBlock}) {
 
     const withdrawExecute = async () => {
         let withdrawAmount = withdrawAmountEl.current.value
-        let withdrawCoin = getTokenAddress(withdrawCoinEl.current.value)
+        let withdrawCoin = CoinList[withdrawCoinEl.current.value].address;
         console.log(withdrawAmount)
         console.log(withdrawCoin)
         if(withdrawAmount > 0 && withdrawAmount <= coinBalance && withdrawCoin){
@@ -53,30 +57,25 @@ export default function MyCoin({currentBlock}) {
         getCoinBalance()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [accountAddress, publicClient, currentBlock])
+    }, [accountAddress, currentBlock])
 
   return (
     <>
+        <Card title="My GreatLotto Coin" reload={getCoinBalance}>
+            <p className="card-text">Balance: {formatAmount(coinBalance)} GLC</p>
 
-        <div className="card" >
-            <div className="card-body">
-                <h5 className="card-title">My GreatLotto Coin:</h5>
-                <p className="card-text">Balance: {formatAmount(coinBalance, GreatCoinDecimals)} GLC</p>
-
-                <div className="input-group input-group-sm mb-1">
-                    <input type="number" className="form-control" placeholder='Amount...' ref={withdrawAmountEl}/>
-                    <select className="form-select" ref={withdrawCoinEl}>
-                        <option value="">Coin...</option>
-                        {withdrawCoinList.map( name =>
-                            <option key={name} value={name}>{name}</option>
-                        )}
-                    </select>
-                    <button type="button" disabled={!!isLoading} className='btn btn-primary'  onClick={()=>{withdrawExecute()}}> Withdraw {isLoading ? '...' : ''}</button>
-                </div>
-
+            <div className="input-group input-group-sm mb-1">
+                <input type="number" className="form-control" placeholder='Amount...' ref={withdrawAmountEl}/>
+                <select className="form-select" ref={withdrawCoinEl}>
+                    <option value="">Coin...</option>
+                    {withdrawCoinList.map( name =>
+                        <option key={name} value={name}>{name}</option>
+                    )}
+                </select>
+                <WriteBtn action={withdrawExecute} isLoading={isLoading || isPending} > Withdraw </WriteBtn>
             </div>
-        </div>
-
+            
+        </Card>
     </>
 
   )

@@ -1,39 +1,30 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react'
-import { useAccount, usePublicClient } from 'wagmi'
 import {isAddress} from 'viem'
-import { DaoCoinDecimals, formatAmount, parseAmount } from '@/launch/hooks/globalVars'
+import { formatAmount, parseAmount } from '@/launch/hooks/globalVars'
 import useDaoCoin from '@/launch/hooks/contracts/DaoCoin'
+import Card from '@/launch/components/card'
+import WriteBtn from '@/launch/components/writeBtn'
 
 export default function DaoManagement() {
-
-    const publicClient = usePublicClient()
-    const { address: accountAddress } = useAccount()
 
     const [total, setTotal] = useState(0)
     const [disShare, setDisShare] = useState(0)
     const mintAmountEl = useRef(null)
     const mintAddressEl = useRef(null)
 
-    const { mint, totalSupply, getDistributableShares, error, setError, isLoading, isSuccess } = useDaoCoin()
+    const { mint, totalSupply, getDistributableShares, isLoading } = useDaoCoin()
 
-    const getTotalSupply = async () => {
-        let t = await totalSupply()
-        setTotal(t)
-        return t;
-    }
-
-    const getDisShare = async () => {
-        let share = await getDistributableShares()
-        setDisShare(share)
-        return share;
+    const initData = async () => {
+        setTotal(await totalSupply())
+        setDisShare(await getDistributableShares())
     }
 
     const mintExecute = async () => {
         let amount = mintAmountEl.current.value;
         let addr = mintAddressEl.current.value;
-        amount = parseAmount(amount, DaoCoinDecimals);
+        amount = parseAmount(amount);
         console.log(amount)
         console.log(disShare)
         if(amount <= disShare && isAddress(addr)){
@@ -52,30 +43,23 @@ export default function DaoManagement() {
     useEffect(()=>{
 
         console.log('useEffect~')
-        getTotalSupply()
-        getDisShare()
+        initData()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [accountAddress, publicClient])
+    }, [])
 
   return (
     <>
-
-        <div className="card" >
-            <div className="card-body">
-                <h5 className="card-title">Dao Coin Mint:</h5>
-                <p className="card-text mb-1">Total Supply: {formatAmount(total, DaoCoinDecimals)} GLDC</p>
-                <p className="card-text">Distributable Shares: {formatAmount(disShare, DaoCoinDecimals)} GLDC</p>
-                <div className="input-group mb-1">
-                    <input type="text" className="form-control w-25" placeholder='To Address...' ref={mintAddressEl}/>
-                    <input type="number" className="form-control" placeholder='Amount...' ref={mintAmountEl}/>
-                    <button type="button" disabled={!!isLoading} className='btn btn-primary'  onClick={()=>{mintExecute()}}> Mint {isLoading ? '...' : ''}</button>
-                </div>
-                {isSuccess && (
-                    <p className="card-text text-success">Success!</p>
-                )}
+        <Card title="Dao Coin Mint" reload={initData}>
+            <p className="card-text mb-1">Total Supply: {formatAmount(total)} GLDC</p>
+            <p className="card-text">Distributable Shares: {formatAmount(disShare)} GLDC</p>
+            <div className="input-group mb-1">
+                <input type="text" className="form-control w-25" placeholder='To Address...' ref={mintAddressEl}/>
+                <input type="number" className="form-control" placeholder='Amount...' ref={mintAmountEl}/>
+                <WriteBtn action={mintExecute} isLoading={isLoading} > Mint </WriteBtn>
             </div>
-        </div>
+
+        </Card>
 
     </>
 
