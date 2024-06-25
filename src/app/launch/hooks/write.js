@@ -34,6 +34,16 @@ export default function useWrite() {
         })
     }
 
+    const simulate = async (req) => {
+        let result, request;
+        try {
+            ({ request, result } = await simulateContract(config, req))
+        } catch (err) {
+            _errorHandle(err);
+        }
+        return [result, request]
+    }
+
     const write = async (req) => {
         setIsLoading(true)
         setIsSuccess(false)
@@ -42,22 +52,17 @@ export default function useWrite() {
         setError()
         setStatus('loading')
 
-        console.log(req)
+        //console.log(req)
 
         let trans = {
             action: req.functionName,
             time: dateFormatLocalWithoutZone(new Date().getTime())
         }
 
-        let request
-        try {
-            ({ request } = await simulateContract(config, req))
-        } catch (err) {
-            _errorHandle(err);
-        }
+        let [result, request] = await simulate(req);
 
         let tx;
-        if(request){
+        if(request && result){
             try {
                 tx = await writeContract(config, request)
             } catch (err) {
@@ -65,7 +70,7 @@ export default function useWrite() {
             }
         }
 
-        console.log(tx);
+        //console.log(tx);
 
         setIsLoading(false)
         if(tx){
@@ -90,7 +95,7 @@ export default function useWrite() {
             }
             setIsPending(false)
             setIsConfirm(true)
-            console.log(transactionReceipt)
+            //console.log(transactionReceipt)
             setStatus(transactionReceipt.status);
             setTransaction({
                 ...trans,
@@ -117,7 +122,7 @@ export default function useWrite() {
         setIsSuccess(false)
         setError()
 
-        console.log(req)
+        //console.log(req)
 
         let signature
         try {
@@ -146,10 +151,10 @@ export default function useWrite() {
 
     return {
         write,
+        simulate,
         sign,
 
         error,
-        setError,
         isLoading,
         isSuccess,
         isPending,

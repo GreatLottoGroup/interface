@@ -1,4 +1,5 @@
 'use client';
+import { useContext } from 'react';
 
 import { useConfig } from 'wagmi'
 import { getBlockNumber } from '@wagmi/core'
@@ -7,35 +8,32 @@ import useGreatLotto from '@/launch/hooks/contracts/GreatLotto'
 import { usePayCoin } from './payCoin'
 import { sumCount } from './ball';
 import WriteBtn from '@/launch/components/writeBtn'
+import { SetGlobalToastContext } from '@/launch/hooks/globalToastContext'
 
 const nearestBlockCount = 400n;
 
-export default function Issue({numberList, setNumberList, multiple, periods, lotteryBlockNumber, payCoin, setPayCoin, setCurrentBlock, channel}) {
+export default function Issue({numberList, setNumberList, multiple, periods, lotteryBlockNumber, payCoin, setPayCoin, setCurrentBlock, channel, isEth}) {
 
    const config = useConfig();
 
-    const { issueTicket, quoteTicket, issueTicketWithSign, isLoading: issueIsLoading, isPending: issueIsPending} = useGreatLotto()
+    const { quoteTicket, issueTicket, issueTicketWithSign, isLoading: issueIsLoading, isPending: issueIsPending} = useGreatLotto()
 
     const { payExecute, isLoading: coinIsLoading, isPending: coinIsPending } = usePayCoin(payCoin, setPayCoin)
 
+    const setGlobalToast = useContext(SetGlobalToastContext);
+
     const checkData = (curbn) => {
+        let err;
         if(numberList.length < 1) {
-            console.log('numberList is error')
-            return false;
+            err = 'numberList is error'
+        }else if(multiple > 100 || multiple < 1 || periods > 100 || periods < 1){
+            err = 'multiple & periods is error'
+        }else if(lotteryBlockNumber < curbn + nearestBlockCount){
+            err = 'lotteryBlockNumber is error: ' + lotteryBlockNumber.toString()
+        }else  if(!payCoin?.name){
+            err = 'payCoin is error'
         }
-        if(multiple > 100 || multiple < 1 || periods > 100 || periods < 1){
-            console.log('multiple & periods is error')
-            return false;
-        }
-        if(lotteryBlockNumber < curbn + nearestBlockCount){
-            console.log('lotteryBlockNumber is error: ' + lotteryBlockNumber.toString())
-            return false;
-        }
-        if(!payCoin?.name){
-            console.log('payCoin is error')
-            return false;
-        }
-        return true;
+        return err;
     }
 
     const issueTicketExecute = async () => {
@@ -46,15 +44,24 @@ export default function Issue({numberList, setNumberList, multiple, periods, lot
         console.log(curBlockNumber);
 
         // check data
-        if(!checkData(curBlockNumber)){
-            console.log('can not issue')
+        let checkErr = checkData(curBlockNumber);
+        if(checkErr){
+            setGlobalToast({
+                status: 'error',
+                subTitle: 'Issue',
+                message: checkErr
+            }) 
             return false;
         }
-
+        
         // issue test
-        let [totalCount, totalPrize] = await quoteTicket(numberList, multiple, periods);
+        let [totalCount, totalPrize] = await quoteTicket(numberList, multiple, periods, isEth);
         if(sumCount(numberList) != totalCount){
-            console.log('totalCount is error')
+            setGlobalToast({
+                status: 'error',
+                subTitle: 'Issue',
+                message: 'totalCount is error: ' + totalCount
+            })
             return false;
         }
 

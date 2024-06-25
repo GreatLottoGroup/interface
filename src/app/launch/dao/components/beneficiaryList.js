@@ -2,24 +2,29 @@
 
 import { useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
-import { formatAmount } from '@/launch/hooks/globalVars'
 import Card from '@/launch/components/card'
+import { glc, gleth } from "@/launch/components/coinShow"
 
-export default function BeneficiaryList({poolBalance, useBenefit, finalBenefitAddress, currentBlock}) {
+export default function BeneficiaryList({poolBalance, poolBalanceByEth, isEth,  useGovCoin, finalBenefitAddress, currentBlock}) {
 
     const { address: accountAddress } = useAccount()
 
     const [benefitList, setBenefitList] = useState([])
+    const [benefitListByEth, setBenefitListByEth] = useState([])
 
-    const { getBeneficiaryListData } = useBenefit()
+    const { getBeneficiaryListData } = useGovCoin()
 
     const getBenefitList = async () => {
 
-        let list = await getBeneficiaryListData(poolBalance, finalBenefitAddress)
+        let list = await getBeneficiaryListData(poolBalance, finalBenefitAddress);
+        setBenefitList(list);
 
-        setBenefitList(list)
+        if(poolBalanceByEth && poolBalanceByEth > 0n){
+            let listByEth =  await getBeneficiaryListData(poolBalance, finalBenefitAddress);
+            console.log(listByEth);
+            setBenefitListByEth(listByEth);
+        }
 
-        return list;
     }
 
 
@@ -40,6 +45,9 @@ export default function BeneficiaryList({poolBalance, useBenefit, finalBenefitAd
                         <th>Address</th>
                         <th>Rate</th>
                         <th>Amount</th>
+                        {poolBalanceByEth && poolBalanceByEth > 0n && (
+                            <th>Amount By Eth</th>
+                        )}
                     </tr>
                 </thead>
                 <tbody>
@@ -49,7 +57,10 @@ export default function BeneficiaryList({poolBalance, useBenefit, finalBenefitAd
                         <td>{item.rate == 0n ? (
                             <span className="badge text-bg-danger">Final Benefit</span>
                         ) : Number(item.rate)/10**8 + ' %'}</td>
-                        <td>{formatAmount(item.amount)} GLC</td>
+                        <td>{isEth ? gleth(item.amount) : glc(item.amount)}</td>
+                        {poolBalanceByEth && poolBalanceByEth > 0n && (
+                            <td>{gleth(benefitListByEth[i]?.amount)}</td>
+                        )}
                     </tr>
                 )}
                 </tbody>

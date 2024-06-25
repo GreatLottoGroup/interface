@@ -9,14 +9,11 @@ import { BlueCount, BlueMax, RedMax, C  } from './globalVars'
 const DRAW_FRONT_GROUP_Q = 2;
 const DRAW_BACK_GROUP_Q = 3;
 
-//              0+0 0+1  1+0 1+1 2+0 2+1 3+0 3+1   4+0 4+1    5+0    5+1     6+0    6+1
-const DrawMap = [[0, 2], [0, 2], [0, 5], [2, 50], [50, 500], [500, 50000], [500000, 'x']];
+//              0+0 0+1  1+0  1+1   2+0 2+1   3+0 3+1    4+0  4+1     5+0   5+1       6+0     6+1
+var drawMap = [[0n, 2n], [0n, 2n], [0n, 5n], [2n, 50n], [50n, 500n], [500n, 50000n], [500000n, 888n]];
+let rewardBase = 10n**18n;
+let rewardBaseEth = 10n**15n;
 
-// 开奖分润：1% -> 5% 每25个区块（300s, 5min）上升 0.5% 
-const OPENER_BENEFIT_MAX_RATE = 50n;
-const OPENER_BENEFIT_MIN_RATE = 10n;
-const OPENER_BENEFIT_BLOCK_STEP = 25n;
-const OPENER_BENEFIT_RATE_STEP = 5n;
 
 export function useDrawNumbers() {
 
@@ -75,32 +72,39 @@ export function useDrawNumbers() {
 }
 
 // Draw
-export function drawTicketList(numList, drawNums){
-    var bonus = 0;
-    var topBonus = 0;
+export function drawTicketList(numList, drawNums, isEth){
+    var bonus = 0n;
+    var topBonus = 0n;
     for(var i = 0; i < numList.length; i++){
-        var [b, tb] = drawTicket(numList[i], drawNums);
+        var [b, tb] = drawTicket(numList[i], drawNums, isEth);
         bonus += b;
         topBonus += tb;
     }
     return [bonus, topBonus];
 }
 
-export function drawTicket(nums, drawNums){
+function drawTicket(nums, drawNums, isEth){
     var drawCount = drawTicketCount(nums, drawNums);
-    var bonus = 0;
-    var topBonus = 0;
+    //console.log(drawCount);
+    var bonus = 0n;
+    var topBonus = 0n;
     for(var i = 0; i < drawCount.length; i++){
-        var v = DrawMap[drawCount[i][0]][drawCount[i][1]];
-        if(v == 'x'){
-            topBonus += drawCount[i][2];
-        }else if(v > 0){
-            bonus += drawCount[i][2] * v;
+        var v = drawMap[drawCount[i][0]][drawCount[i][1]];
+        if(v == 888n){
+            topBonus += BigInt(drawCount[i][2]);
+        }else if(v > 0n){
+            if(isEth){
+                v = v * rewardBaseEth;
+            }else{
+                v = v * rewardBase;
+            }
+            bonus += BigInt(drawCount[i][2]) * v;
         }
     }
 
     return [bonus, topBonus];
 }
+
 
 function drawTicketCount(nums, drawNums){
     var drawFrontNums = drawNums.slice(0, BlueCount);
@@ -162,23 +166,5 @@ function calculateDrag(dragNums, dragDrawNums, dragCount){
     }
     //console.log(dMap)
     return dMap;
-}
-
-// 获取开奖分润比例
-export function getBenefitRate(curBloclNumber, blockNumber){
-    let blockCount = blockNumber - (curBloclNumber - 256n);
-    let rate = 0n;
-    if(blockCount > 0n && blockCount / OPENER_BENEFIT_BLOCK_STEP * OPENER_BENEFIT_RATE_STEP < OPENER_BENEFIT_MAX_RATE){
-        rate = OPENER_BENEFIT_MAX_RATE - blockCount / OPENER_BENEFIT_BLOCK_STEP * OPENER_BENEFIT_RATE_STEP;
-        if(rate < OPENER_BENEFIT_MIN_RATE){
-            rate = OPENER_BENEFIT_MIN_RATE;
-        }
-    }
-    return rate;
-}
-
-// 获取开奖分润
-export function getBenefit(rate, balance){
-    return balance * rate / 1000n
 }
 

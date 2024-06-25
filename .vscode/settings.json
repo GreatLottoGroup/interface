@@ -4,5 +4,12 @@
     ],
     "i18n-ally.sourceLanguage": "en",
     "i18n-ally.keystyle": "nested",
-    "livePreview.defaultPreviewPath": "/out/index.html"
+    "livePreview.defaultPreviewPath": "/out/index.html",
+    "cSpell.words": [
+        "apikey",
+        "ethprice",
+        "ethusd",
+        "GLETH",
+        "Nums"
+    ]
 }

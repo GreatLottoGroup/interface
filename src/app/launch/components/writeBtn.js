@@ -10,7 +10,7 @@ export default function WriteBtn({children, action, isLoading, className}) {
         setDisabled(true);
         setTimeout(()=>{
             setDisabled(false);
-        }, 5000)
+        }, 3000)
     }
 
   return (

@@ -13,17 +13,17 @@ export default function Channel({channel, setChannel}) {
 
     const getChannel = async () => {
         let chn = (new URL(window.location.href)).searchParams.get('chn');
-        console.log(chn);
+        //console.log(chn);
         if(Number(chn) != NaN && Number(chn) > 0){
             chn = Number(chn);
             let [status, addr, name] = await getChannelById(chn);
-            console.log(status, addr, name)
+            //console.log(status, addr, name)
             if(status){
                 setChannel(chn);
                 setChannelData({chn, status, addr, name});
             }
         }else{
-            console.log('no channel')
+            //console.log('no channel')
         }
     }
 

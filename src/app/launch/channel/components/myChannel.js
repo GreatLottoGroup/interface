@@ -18,7 +18,7 @@ export default function MyChannel() {
 
     const getMyChannel = async () => {
         let [status, chnId, name] = await getChannelByAddr();
-        console.log(status, chnId, name)
+
         if(chnId > 0){
             setChannelData({chnId, status, name});
         }

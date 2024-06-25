@@ -2,26 +2,26 @@
 
 import { useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
-import { C, formatAmount } from '@/launch/hooks/globalVars'
 import useAddress from "@/launch/hooks/address"
 import Card from '@/launch/components/card'
 
-import useCoin from '@/launch/hooks/coin'
-import useInvestmentCoin from '@/launch/hooks/contracts/InvestmentCoin'
+import useInvestmentCoinBase from '@/launch/hooks/contracts/base/InvestmentCoinBase'
+import { glic, glieth, rate } from "@/launch/components/coinShow"
 
-export default function MyInvestmentCoin({currentBlock, children}) {
+export default function MyInvestmentCoin({isEth, currentBlock, children}) {
 
     const { address: accountAddress } = useAccount()
-    const { InvestmentCoinContractAddress } = useAddress()
+    const { InvestmentCoinContractAddress, InvestmentEthContractAddress } = useAddress()
+
+    const coinAddr = isEth ? InvestmentEthContractAddress: InvestmentCoinContractAddress;
 
     const [coinBalance, setCoinBalance] = useState(0)
     const [benefitRate, setBenefitRate] = useState(0)
 
-    const { getBalance } = useCoin()
-    const { getBenefitRate } = useInvestmentCoin()
+    const { getBenefitRate, getBalance } = useInvestmentCoinBase(coinAddr)
 
     const initData = async () => {
-        setCoinBalance(await getBalance(InvestmentCoinContractAddress))
+        setCoinBalance(await getBalance())
         setBenefitRate(await getBenefitRate())
     }
 
@@ -35,9 +35,9 @@ export default function MyInvestmentCoin({currentBlock, children}) {
 
   return (
     <>
-        <Card title="My Investment Coin" reload={initData}>
-            <p className="card-text mb-1">Balance: {formatAmount(coinBalance)} GLIC</p>
-            <p className="card-text mb-1">Benefit Rate: {benefitRate ? Number(benefitRate)/10**8 + ' %' : 'No Benefit'}</p>
+        <Card title={"My Investment " + (isEth ? 'Eth Coin' : 'Coin')} reload={initData}>
+            <p className="card-text mb-1">Balance: {isEth ? glieth(coinBalance) : glic(coinBalance)}</p>
+            <p className="card-text mb-1">Benefit Rate: {benefitRate ? rate(Number(benefitRate)/10**8) : 'No Benefit'}</p>
             {children}
         </Card>
     </>

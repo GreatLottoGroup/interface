@@ -37,13 +37,19 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/deploym
 
 
 
-
+## dev
 
 ```bash
+npx next dev --experimental-https
 
 npx next dev --experimental-https --hostname 172.23.146.12
 
-
 ```
 
+## deploy
+```bash
+
+npx next build
+
+```
 

@@ -1,0 +1,41 @@
+.success-bg-subtle{
+    background-color: var(--bs-success-bg-subtle); 
+    --bs-border-color: var(--bs-success-border-subtle); 
+    color: hsl(152, 69%, 25%);
+}
+.primary-bg-subtle{
+    background-color: var(--bs-primary-bg-subtle); 
+    --bs-border-color: var(--bs-primary-border-subtle); 
+    color: #0a58ca;
+}
+.warning-bg-subtle{
+    background-color: var(--bs-warning-bg-subtle); 
+    --bs-border-color: var(--bs-warning-border-subtle); 
+    color: #997404;
+}
+.info-bg-subtle{
+    background-color: var(--bs-info-bg-subtle);
+    --bs-border-color: var(--bs-info-border-subtle); 
+    color: #087990;
+}
+.dark-bg-subtle{
+    background-color: var(--bs-dark-bg-subtle); 
+    --bs-border-color: var(--bs-dark-border-subtle); 
+    color: #495057;
+}
+.danger-bg-subtle{
+    background-color: var(--bs-danger-bg-subtle); 
+    --bs-border-color: var(--bs-danger-border-subtle); 
+    color: #b02a37;
+}
+
+.badge-group>.badge:not(:last-child){
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.badge-group>.badge:nth-child(n+3), 
+.badge-group>:not(.badge-check)+.badge{
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}

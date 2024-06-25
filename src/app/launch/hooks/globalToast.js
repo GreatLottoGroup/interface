@@ -34,7 +34,7 @@ export function GlobalToast({globalToast, setGlobalToast}) {
         }else if(status == 'pending'){
             s.color = 'text-warning';
             s.icon = 'bi-cloud-upload';
-        }else{
+        }else if(status == 'info'){
             s.color = 'text-primary';
             s.icon = 'bi-exclamation-circle';
         }
@@ -45,7 +45,7 @@ export function GlobalToast({globalToast, setGlobalToast}) {
     <>        
         <div className="position-fixed bottom-0 end-0 p-3">
 
-            <Toast onClose={()=>setGlobalToast({})} show={!!globalToast?.message} delay={5000} autohide={globalToast?.status != 'pending'}>
+            <Toast onClose={()=>setGlobalToast({})} show={!!globalToast?.message} delay={globalToast?.status == 'error' ? 15000 : 5000} autohide={globalToast?.status != 'pending'}>
                 <Toast.Header className={getToastStatus(globalToast?.status)?.color}>
                     <i className={"bi me-2 " + getToastStatus(globalToast?.status)?.icon}></i>
                     <strong className="me-auto text-capitalize">{globalToast?.title ?? globalToast?.status ?? 'Info'}</strong>

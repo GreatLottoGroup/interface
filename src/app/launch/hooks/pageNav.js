@@ -11,7 +11,7 @@ const pageMaxShow = 3;
 export function usePageNav() {
 
     const [pageCount, setPageCount] = useState(0)
-    const [pageCurrent, setPageCurrnet] = useState(1)
+    const [pageCurrent, setPageCurrent] = useState(1)
 
     const getPageNavInfo = (count) => {
         let pageCount = Math.ceil(count/pageSize);
@@ -31,13 +31,13 @@ export function usePageNav() {
         pageCount,
         pageCurrent,
         setPageCount,
-        setPageCurrnet,
+        setPageCurrent,
         
     }
 }
 
 
-export function PageNav({pageCurrent, pageCount, setPageCurrnet}) {
+export function PageNav({pageCurrent, pageCount, setPageCurrent}) {
 
     const pageGoNumberEl = useRef(null)
 
@@ -49,7 +49,7 @@ export function PageNav({pageCurrent, pageCount, setPageCurrnet}) {
                 skip = false;
                 items.push(<li key={i} className={"page-item " + (i == pageCurrent ? 'active' : '')}><a className="page-link" onClick={()=>{
                     if(i != pageCurrent){
-                        setPageCurrnet(i);
+                        setPageCurrent(i);
                     }
                 }} href="#">{i}</a></li>)
             }else{
@@ -64,13 +64,13 @@ export function PageNav({pageCurrent, pageCount, setPageCurrnet}) {
 
     return (
         <>
-        {pageCount && (
+        {pageCount && pageCount > 1 && (
             <nav>
                 <ul className="pagination pagination-sm justify-content-end">
                     <li className={"page-item " + (pageCurrent == 1 ? 'disabled' : '')}>
                         <a className="page-link" onClick={()=>{
                             if(pageCurrent > 1){
-                                setPageCurrnet(pageCurrent - 1)
+                                setPageCurrent(pageCurrent - 1)
                             }
                         }} href="#">
                             <span aria-hidden="true">&laquo;</span>
@@ -80,7 +80,7 @@ export function PageNav({pageCurrent, pageCount, setPageCurrnet}) {
                     <li className={"page-item " + (pageCurrent == pageCount ? 'disabled' : '')}>
                         <a className="page-link" onClick={()=>{
                             if(pageCurrent < pageCount){
-                                setPageCurrnet(pageCurrent + 1)
+                                setPageCurrent(pageCurrent + 1)
                             }
                         }} href="#">
                         <span aria-hidden="true">&raquo;</span>
@@ -92,7 +92,7 @@ export function PageNav({pageCurrent, pageCount, setPageCurrnet}) {
                             <button className="btn btn-outline-secondary" onClick={()=>{
                                 let goPage = parseInt(pageGoNumberEl.current.value)
                                 if(goPage >= 1 && goPage <= pageCount && goPage != pageCurrent){
-                                    setPageCurrnet(goPage)
+                                    setPageCurrent(goPage)
                                     pageGoNumberEl.current.value = ''
                                 }
                             }}>Go</button>

@@ -2,10 +2,10 @@
 import { useAccount, useConfig } from 'wagmi'
 import { readContract } from '@wagmi/core'
 
-import  useWrite  from '../write';
+import  useWrite  from '@/launch/hooks/write';
 
-import { getDeadline } from '@/launch/hooks/globalVars'
 import useAddress from "@/launch/hooks/address"
+import useDeadline from '@/launch/hooks/deadline'
 
 import SalesChannelABI from '@/abi/SalesChannel.json'
 
@@ -14,8 +14,9 @@ export default function useSalesChannel() {
    const config = useConfig();
     const { address: accountAddress } = useAccount()
     const { SalesChannelContractAddress } = useAddress();
+    const { getDeadline } = useDeadline();
 
-    const { write, error, setError, isLoading, isSuccess, isPending, isConfirm } = useWrite()
+    const { write, error, isLoading, isSuccess, isPending, isConfirm } = useWrite()
 
     const getChannelByAddr = async (addr) => {
         let data = await readContract(config, {
@@ -53,7 +54,7 @@ export default function useSalesChannel() {
             address: SalesChannelContractAddress,
             abi: SalesChannelABI,
             functionName: 'registerChannel',
-            args: [name, getDeadline()],
+            args: [name, await getDeadline()],
         })
 
         return tx;
@@ -66,7 +67,7 @@ export default function useSalesChannel() {
             address: SalesChannelContractAddress,
             abi: SalesChannelABI,
             functionName: 'changeChannelName',
-            args: [name, getDeadline()],
+            args: [name, await getDeadline()],
         })
 
         return tx;
@@ -121,7 +122,6 @@ export default function useSalesChannel() {
         statusEl,
 
         error,
-        setError,
         isLoading,
         isSuccess,
 

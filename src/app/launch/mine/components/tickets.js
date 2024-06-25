@@ -10,7 +10,7 @@ import { getBlockNumber } from '@wagmi/core'
 import { useDrawNumbers, drawTicketList } from '@/launch/hooks/drawNumbers'
 import { dateFormatLocal } from '@/launch/hooks/dateFormat'
 
-import { BlockPeriods, PerBlockTime } from '@/launch/hooks/globalVars'
+import { BlockPeriods, PerBlockTime, IssueInterval } from '@/launch/hooks/globalVars'
 import useAddress from "@/launch/hooks/address"
 
 import { Ball } from '@/launch/hooks/balls'
@@ -18,11 +18,17 @@ import { usePageNav, PageNav } from '@/launch/hooks/pageNav'
 
 import useGreatLottoNft from '@/launch/hooks/contracts/GreatLottoNft'
 import usePrizePool from '@/launch/hooks/contracts/PrizePool'
+import useCurrentBlock  from '@/launch/hooks/currentBlock'
+import Card from '@/launch/components/card'
+import List from '@/launch/components/list'
+import {getStatusEl} from '@/launch/hooks/targetBlock'
+import { coinShow, glc, gleth, amount } from "@/launch/components/coinShow"
+import Tooltips from "@/launch/components/tooltips"
 
-
-export default function Tickets({currentBlock, setCurrentBlock}) {
+export default function Tickets() {
 
     const config = useConfig();
+    const {currentBlock, setCurrentBlock} = useCurrentBlock()
     const chainId = config.state.chainId;
     const { address: accountAddress } = useAccount()
 
@@ -31,8 +37,11 @@ export default function Tickets({currentBlock, setCurrentBlock}) {
     const [nftList, setNftList] = useState([])
     const [tickets, setTickets] = useState({})
     const [ticketsShow, setTicketsShow] = useState({})
+    const [statusShow, setStatusShow] = useState({})
+    const [isLoading, setIsLoading] = useState(false);
+    const [NFTSVGAddress, setNFTSVGAddress] = useState();
 
-    const { getNftBalance, getNftToken, getNftTicket, getNftSVG } = useGreatLottoNft()
+    const { getNftBalance, getNftToken, getNftTicket, getNftSVG, getNFTSVGAddress } = useGreatLottoNft()
     const { getBlockDrawStatus } = usePrizePool()
 
     const { getDrawNumber } = useDrawNumbers()
@@ -40,8 +49,6 @@ export default function Tickets({currentBlock, setCurrentBlock}) {
     const { getPageNavInfo, pageCurrent, pageCount, setPageCurrent } = usePageNav()
     
     const getNftList = async () => {
-
-        let page = pageCurrent || 1
 
         let balance = await getNftBalance();
         let curBlockNumber = await getBlockNumber(config);
@@ -53,21 +60,22 @@ export default function Tickets({currentBlock, setCurrentBlock}) {
             return false;
         }
 
-        let [pageCount, startIndex, endIndex] = getPageNavInfo(Number(balance));
+        let [_pageCount, startIndex, endIndex] = getPageNavInfo(Number(balance));
 
-        console.log('page: ' + page);
+        /*console.log('page: ' + pageCurrent);
         console.log('balance: ' + balance);
         console.log('startIndex: ' + startIndex);
         console.log('endIndex: ' + endIndex);
-        console.log('pageCount: ' + pageCount);
+        console.log('pageCount: ' + _pageCount);*/
         
         for(let i = startIndex; i < endIndex; i++){
-            let token = await getNftToken(i);
+            // 倒序
+            let token = await getNftToken(Number(balance) - 1 - i);
             let ticket = await getNftTicket(token);
             let targetBlocks = [];
             
             for(let j = 0; j < ticket.periods; j++){
-                let bn =  ticket.targetBlockNumber + BlockPeriods*BigInt(j);
+                let bn =  ticket.targetBlockNumber + IssueInterval*BigInt(j);
                 let blockData = { blockNumber: bn }
                 if(bn < curBlockNumber - BlockPeriods){
                     blockData.drawNumbers = await getDrawNumber(bn);
@@ -82,7 +90,7 @@ export default function Tickets({currentBlock, setCurrentBlock}) {
             list.push({ targetBlocks, ...ticket })
         }
 
-        console.log(list)
+        //console.log(list)
         setNftList(list);
 
         return list;
@@ -115,6 +123,14 @@ export default function Tickets({currentBlock, setCurrentBlock}) {
         newData[token] = isShow;
         setTicketsShow(newData)
     }
+
+    const toggleStatusShow = (token, isShow) => {
+        token = token.toString()
+        let newData = {...statusShow};
+        newData[token] = isShow;
+        setStatusShow(newData)
+    }
+
 
     const getIsDrawFormDrawList = (targetBlocks, num, isBlue) => {
         let isDraw = false
@@ -152,70 +168,92 @@ export default function Tickets({currentBlock, setCurrentBlock}) {
         return isDraw;
     }
 
-    const getWaitingDraw = (targetNumber) => {
-        let time = Number((targetNumber - currentBlock.number + BlockPeriods) * PerBlockTime + currentBlock.timestamp) * 1000
-        return (
+    const getWinNumbers = (numsList, block) => {
+        if(block.blockNumber >= currentBlock.number - BlockPeriods){
+            let time = Number((block.blockNumber - currentBlock.number + BlockPeriods) * PerBlockTime + currentBlock.timestamp) * 1000
+            return amount(dateFormatLocal(time), true);
+        }else{
+            let drawNumbers = block.drawNumbers;
+            //test
+            /*
+            drawNumbers[0] = 32
+            drawNumbers[1] = 33
+            drawNumbers[2] = 34
+            drawNumbers[3] = 35
+            drawNumbers[4] = 36
+            drawNumbers[5] = 37
+            drawNumbers[6] = 14
+            */
+            drawNumbers = [...drawNumbers.slice(0, 6).sort((a,b) => {return a-b;}), drawNumbers[6]]
+
+            return (
             <>
-            <div>Waiting... </div>
-            <div>Estimate: &nbsp;
-                {dateFormatLocal(time)} 
-            </div>
-            </>
-        )
-    }
-
-    const getDrawStatus = (numsList, block) => {
-
-        let drawNumbers = block.drawNumbers;
-        let drawStatus = block.drawStatus;
-        //test
-        /*
-        drawNumbers[0] = 32
-        drawNumbers[1] = 33
-        drawNumbers[2] = 34
-        drawNumbers[3] = 35
-        drawNumbers[4] = 36
-        drawNumbers[5] = 37
-        drawNumbers[6] = 14
-        */
-
-        let [bonus, topBonus] = drawTicketList(numsList, drawNumbers);
-
-        drawNumbers = [...drawNumbers.slice(0, 6).sort((a,b) => {return a-b;}), drawNumbers[6]]
-
-        return (
-            <>
-            <div>Winning Numbers: </div>
-            <div>
                 {drawNumbers.map((num, i) => (
                     <Ball number={num} key={i} type={i < 6 ? 'brave' : 'red'} isDraw={getIsDrawFormNumsList(numsList, num, i < 6)}/>
                 ))}
-            </div>
-            <div>Draw Status: &nbsp;
-                {drawStatus.isDraw ? (
-                    <span className="badge text-bg-success">Has Been Brawn</span>
-                ) : (
-                    <span className="badge text-bg-danger">No Drawn</span>
-                )}
-                {(bonus == 0 && topBonus == 0) ? (
-                    <div>Losing Lottery</div>
+            </>
+            )
+        }
+
+    }
+
+    const getDrawDetail = (numsList, block, isEth) => {
+        if(block.blockNumber >= currentBlock.number - BlockPeriods){
+            return '-'
+        }else{
+            let drawNumbers = block.drawNumbers;    
+            let [bonus, topBonus] = drawTicketList(numsList, drawNumbers, isEth);
+    
+            return (
+            <>
+                 {(bonus == 0 && topBonus == 0) ? (
+                    <span className='badge danger-bg-subtle'>Losing Lottery</span>
                 ) : (
                 <>
-                    <div>Ordinary Prize: {bonus}</div>
-                    <div>Top Prize: {topBonus}</div>
+                    <div className='mb-1'>
+                        <Tooltips title="Normal Award">{isEth ? gleth(bonus) : glc(bonus)}</Tooltips>
+                    </div>
+                    <div>
+                        <Tooltips title="Top Bonus Count">{amount(topBonus, true)}</Tooltips>
+                    </div>
                 </>
                 )}
-            </div>
             </>
-        )
+            )
+        }
+    }
+
+    const getDrawStatus = (block) => {
+        let drawStatusEl;
+
+        if(block.blockNumber >= currentBlock.number - BlockPeriods){
+            drawStatusEl = getStatusEl('waitingDraw')
+        }else if(block.drawStatus.isDraw){
+            drawStatusEl = getStatusEl('drawn')
+        }else if(block.drawStatus.isRollup){
+            drawStatusEl =getStatusEl('rolled')
+        }else if(block.blockNumber >= currentBlock.number - 256n){
+            drawStatusEl = getStatusEl('waitingDraw')
+        }else{
+            drawStatusEl = getStatusEl('waitingRollup')
+        }
+
+        return drawStatusEl
         
     }
+
+    const initNftList = async () => {
+        setIsLoading(true)
+        await getNftList()
+        setNFTSVGAddress(await getNFTSVGAddress())
+        setIsLoading(false)
+    }
+
 
     useEffect(()=>{
 
         console.log('useEffect~')
-
-        getNftList()
+        initNftList();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [accountAddress, currentBlock, pageCurrent])
@@ -224,48 +262,52 @@ export default function Tickets({currentBlock, setCurrentBlock}) {
   return (
     <>
 
-    <div className='border px-3 py-3 mb-3 row'>
-        <div className='col'>
-            <div className='h5'>My Tickets
-                <span className='badge text-bg-light ms-3 px-2'>{currentBlock.number?.toString()}</span>
-                <a className="btn btn-sm btn-outline-secondary ms-3" onClick={()=>{setCurrentBlock(); getNftList();}}>ReLoad</a>
-            </div>
-            {nftList.length > 0 ? (
-                <>
+        <Card title="My Tickets" subTitle={currentBlock.number?.toString()} reload={async ()=>{setCurrentBlock(); await getNftList();}}>
+            <List list={nftList} isLoading={isLoading}>
                 <table className='table table-hover'>
                     <thead>
                         <tr>
-                            <th>Ticket</th>
+                            <th className="col-1">Ticket</th>
                             <th>Numbers</th>
-                            <th>Counts</th>
-                            <th>Price</th>
-                            <th>TargetBlock</th>
-                            <th>Status
-                            </th>
+                            <th className="col-3">Status</th>
                         </tr>
                     </thead>
                     <tbody>
                     {nftList.map((item, index) => (
                         <tr key={index}>
                             <td>
-                                <a className="bi bi-ticket-detailed fs-2 d-inline-block nft-ticket link-secondary link-primary-hover" onClick={()=>{getTicket(item.tokenId);toggleTicketShow(item.tokenId, true)}}></a>
-                                <Modal show={ticketsShow[item.tokenId.toString()]} centered onHide={()=>{toggleTicketShow(item.tokenId, false)}}>
+                                <a className="bi bi-ticket-detailed fs-4 d-inline-block nft-ticket link-secondary link-primary-hover" onClick={()=>{getTicket(item.tokenId);toggleTicketShow(item.tokenId, true)}}></a>
+                                <Modal show={ticketsShow[item.tokenId.toString()]} size='lg' centered onHide={()=>{toggleTicketShow(item.tokenId, false)}}>
                                     <Modal.Header closeButton>
-                                        <Modal.Title>TokenId: {item.tokenId.toString()}</Modal.Title>
+                                        <Modal.Title>Ticket Detail</Modal.Title>
                                     </Modal.Header>
                                     <Modal.Body>
-                                    <p>GreatLottoNFT: {GreatNftContractAddress}</p>
-                                        {tickets[item.tokenId.toString()] ? (
-                                            <a target='_blank' href={getOpenSeaUrl(item.tokenId.toString())}>
-                                                <div className='nft-ticket-svg text-center' dangerouslySetInnerHTML={{__html:tickets[item.tokenId.toString()]}}></div>
-                                            </a>
-                                        ) : (
-                                            <div className="text-center">
-                                                <div className="spinner-border" role="status">
-                                                    <span className="visually-hidden">Loading...</span>
-                                                </div>
-                                            </div>                                    
-                                        )}
+                                        <div className='mb-1 text-body-tertiary'>GreatLottoNFT: {GreatNftContractAddress}</div>
+                                        <div className='mb-1 text-body-tertiary'>GreatLottoNFTSVG: {NFTSVGAddress}</div>
+                                        <div className='row mt-3'>
+                                            <div className='col'>
+                                                {tickets[item.tokenId.toString()] ? (
+                                                    <a target='_blank' href={getOpenSeaUrl(item.tokenId.toString())}>
+                                                        <div className='nft-ticket-svg text-center' dangerouslySetInnerHTML={{__html:tickets[item.tokenId.toString()]}}></div>
+                                                    </a>
+                                                ) : (
+                                                    <div className="text-center mt-5">
+                                                        <div className="spinner-border" role="status">
+                                                            <span className="visually-hidden">Loading...</span>
+                                                        </div>
+                                                    </div>                                    
+                                                )}
+                                            </div>
+                                            <div className='col'>
+                                                <div className='mb-1'>TokenId: {amount(item.tokenId, true)}</div>
+                                                <div className='mb-1'>Multiple: {amount(item.multiple, true)}</div>
+                                                <div className='mb-1'>Periods: {amount(item.periods, true)}</div>
+                                                <div className='mb-1'>Target Block: {amount(item.targetBlockNumber, true)}</div>
+                                                <div className='mb-1'>Counts: {amount(item.count, true)}</div>
+                                                <div className='mb-1'>Price: {coinShow(getTokenName(item.payToken), item.amount, !item.isEth)}</div>
+                                                <div className='mb-1'>Channel: {amount(item.channelId, true)}</div>
+                                            </div>
+                                        </div>
                                     </Modal.Body>
                                 </Modal>
                             </td>
@@ -285,38 +327,46 @@ export default function Tickets({currentBlock, setCurrentBlock}) {
                                 ))}
                             </td>
                             <td>
-                                <div>Periods: {item.periods}</div>
-                                <div>Multiple: {item.multiple}</div>
-                                <div>Counts: {item.count.toString()}</div>
-                            </td>
-                            <td>
-                                <div>{item.amount.toString()} {getTokenName(item.payToken)}</div>
-                            </td>
-                            <td>
-                                {item.targetBlocks.map((b, i) => (
-                                    <div key={i}>{b.blockNumber.toString()}</div>
-                                ))}
-                            </td>
-                            <td>
-                            {currentBlock.number && (item.targetBlocks.map((block, i)=>                                
-                                <div key={i} className='mb-2'>
-                                    <strong>TargetBlock: </strong>{block.blockNumber.toString()}
-                                    {(block.blockNumber >= currentBlock.number - BlockPeriods) ? getWaitingDraw(block.blockNumber) : getDrawStatus(item.numbers, block)}
-                                </div>
-                            ))}
+                                <span>{getDrawStatus(item.targetBlocks[0])}</span>
+                                <a className="bi bi-card-list link-secondary link-primary-hover cursor-pointer fs-4 ms-3 align-middle" onClick={()=>{
+                                    toggleStatusShow(item.tokenId, true)
+                                }}></a>
+                                <Modal show={statusShow[item.tokenId.toString()]} size='lg' centered onHide={()=>{toggleStatusShow(item.tokenId, false)}}>
+                                    <Modal.Header closeButton>
+                                        <Modal.Title>Draw Status TokenId: {item.tokenId.toString()}</Modal.Title>
+                                    </Modal.Header>
+                                    <Modal.Body>
+                                    <table className='table table-hover'>
+                                        <thead>
+                                            <tr>
+                                                <th className="col-2">Target Block</th>
+                                                <th>Winning Numbers</th>
+                                                <th className="col-2">Status</th>
+                                                <th className="col-3">Award</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {currentBlock.number && (item.targetBlocks.map((block, i)=>                                
+                                            <tr key={i}>
+                                                <td>{amount(block.blockNumber, true)}</td>
+                                                <td>{getWinNumbers(item.numbers, block)}</td>
+                                                <td>{getDrawStatus(block)}</td>
+                                                <td>{getDrawDetail(item.numbers, block, item.isEth)}</td>
+                                            </tr>
+                                        ))}
+                                        </tbody>
+                                    </table>
+                                    </Modal.Body>
+                                </Modal>
                             </td>
                         </tr>
                     ))}
                     </tbody>
                 </table>
                 <PageNav pageCount={pageCount} pageCurrent={pageCurrent} setPageCurrent={setPageCurrent} />
-                </>
-            ) : (
-                <div>No Tickets</div>
-            )}
+            </List>
+        </Card> 
 
-        </div>
-    </div>
 
     </>
 

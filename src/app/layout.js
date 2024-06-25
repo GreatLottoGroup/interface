@@ -3,7 +3,7 @@
 //import { Inter } from 'next/font/google'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.min.css'
-
+import './globals.css'
 //const inter = Inter({ subsets: ['latin'] })
 
 import { useDark } from "./hooks/dark";
@@ -20,7 +20,7 @@ export default function RootLayout({ children }) {
     const {locale, switchLocale, messages} = useI18nLocale()
     
   return (
-    <html lang={locale} data-bs-theme={isDark ? 'dark' : 'light'}>
+    <html lang={locale} data-bs-theme={isDark ? 'dark' : 'light'} >
         <head>
             <title>Great Lotto</title>
             <meta name="description" content="Great Lotto"/>

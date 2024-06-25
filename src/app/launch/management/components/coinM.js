@@ -1,11 +1,18 @@
 'use client';
 
-import useGreatLottoCoin from '@/launch/hooks/contracts/GreatLottoCoin'
+import useGreatLottoCoinBase from '@/launch/hooks/contracts/base/GreatLottoCoinBase'
+import useAddress from "@/launch/hooks/address"
 import WriteBtn from '@/launch/components/writeBtn'
 
-export default function CoinManagement({coinTotal, baseCoinTotalBalance}) {
+export default function CoinManagement({isEth, coinTotal, baseCoinTotalBalance}) {
 
-    const { recover, isLoading, isPending } = useGreatLottoCoin()
+    console.log('coinTotal: ', coinTotal);
+    console.log('baseCoinTotalBalance: ', baseCoinTotalBalance);
+
+    const { GreatCoinContractAddress, GreatEthContractAddress } = useAddress();
+    const coinAddr = isEth ? GreatEthContractAddress : GreatCoinContractAddress;
+
+    const { recover, isLoading, isPending } = useGreatLottoCoinBase(coinAddr)
 
     const recoverExecute = async () => {
         let tx = await recover();

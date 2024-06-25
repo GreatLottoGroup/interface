@@ -15,18 +15,13 @@ export default function usePermit() {
     const { address: accountAddress } = useAccount()    
     const { CoinList } = useAddress();
 
-    const { sign, error, setError, isLoading, isSuccess} = useWrite()
+    const { sign, error, isLoading, isSuccess} = useWrite()
 
 
     const getSignMessage = async (token, spender, amount, deadline) => {
 
         let chainId = getChainId(config);
         
-        // hardhat
-        if(chainId == 31337){
-            chainId = 1;
-        }
-
         let name =  await readContract(config, {
             address: token,
             abi: PermitABI,
@@ -50,6 +45,12 @@ export default function usePermit() {
         let signReq;
         if(isAddressEqual(token, CoinList['DAI'].address)){
             let allowed = amount ? true : false;
+            
+            // hardhat
+            if(chainId == 31337){
+                chainId = 1;
+            }
+
             signReq = {
                 types: {Permit: [
                     {name: "holder", type: "address"},
@@ -73,6 +74,7 @@ export default function usePermit() {
             }
         }
 
+        console.log({name, version, chainId, verifyingContract: token })
         console.log(signReq)
 
         let signMsg = await sign({
@@ -81,7 +83,6 @@ export default function usePermit() {
             primaryType: 'Permit',
             ...signReq
         });
-
         return signMsg;
 
     }
@@ -92,7 +93,6 @@ export default function usePermit() {
         getSignMessage,
 
         error,
-        setError,
         isLoading,
         isSuccess,
         

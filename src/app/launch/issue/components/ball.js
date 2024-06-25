@@ -9,12 +9,12 @@ const noteCount = (blueBrave, blue, red) => {
     if(blueBrave.length + blue.length >= 6 && red.length >=1){
         return C(blue.length, BlueCount - blueBrave.length) * C(red.length, RedCount);
     }else{
-        return 0;
+        return 0n;
     }
 }
 
 export function sumCount(numberList) {
-    let count = 0;
+    let count = 0n;
     for(let i = 0; i < numberList.length; i ++){
         count += noteCount(numberList[i][0], numberList[i][1], numberList[i][2])
     }
@@ -168,7 +168,7 @@ export function BallSelect({numberList, setNumberList}) {
             <div className='col-8'>
                 <div className='row my-2'>
                     <div className='col-7'>
-                        Please select at least 6 blue balls and 1 red ball ~
+                        <h5>Please select at least 6 blue balls and 1 red ball ~</h5>
                     </div>
                     <div className='col text-end'>
                         <a className='btn btn-outline-primary btn-sm me-3' onClick={()=>{setBlueBraveBallList([]);setBlueBallList(getNumberList(BlueMax));}}>Select All</a>
@@ -193,7 +193,7 @@ export function BallSelect({numberList, setNumberList}) {
         </div>
         <div className='px-3 py-3 row'>
             <div className='col-4'>
-                <div className="input-group input-group-sm mb-3">
+                <div className="input-group mb-3">
                     <span className="input-group-text">Blue</span>
                     <input type="number" className="form-control" defaultValue={BlueCount} step="1" min={BlueCount} max={BlueMax} ref={blueRandomCount}/>
                     <span className="input-group-text">Red</span>
@@ -220,10 +220,10 @@ export function BallSelect({numberList, setNumberList}) {
 
             <div className='col-2'>
                 <div className='my-3'>
-                    Count: {noteCount(blueBraveBallList, blueBallList, redBallList)}
+                    Count: {noteCount(blueBraveBallList, blueBallList, redBallList).toString()}
                 </div>
                 <div>
-                    <button type="button" className='btn btn-outline-success' disabled={noteCount(blueBraveBallList, blueBallList, redBallList)==0}  onClick={() => {addToNumberList([blueBraveBallList, blueBallList, redBallList])}}>Confirm</button>
+                    <button type="button" className='btn btn-outline-success' disabled={noteCount(blueBraveBallList, blueBallList, redBallList)==0n}  onClick={() => {addToNumberList([blueBraveBallList, blueBallList, redBallList])}}>Confirm</button>
                 </div>
             </div> 
         </div>
@@ -253,7 +253,7 @@ export function BallGroup({numberList, setNumberList}) {
                     </td>
                     <td className='col-2'>
                         <div className='mb-2'>
-                            Count: {noteCount(item[0], item[1], item[2])}
+                            Count: {noteCount(item[0], item[1], item[2]).toString()}
                         </div>
                         <div>
                             <a className='btn btn-sm btn-outline-danger' onClick={() => {removeFromNumberList(index)}}>Remove</a>

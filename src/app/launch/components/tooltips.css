@@ -1,0 +1,4 @@
+.gray-tooltip{
+    --bs-tooltip-bg: #6c757d;
+    font-size: 0.75rem;
+}

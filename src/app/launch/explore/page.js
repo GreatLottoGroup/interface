@@ -10,10 +10,14 @@ export default function Explore() {
     <>
         <div className='mb-3 row'>
             <div className='col'>
-                <PrizePool />
+                <PrizePool isEth={false}/>
+                <div className='mb-3'></div>
+                <PrizePool isEth={true}/>
             </div>
             <div className='col'>
-                <GreatCoin />
+                <GreatCoin isEth={false}/>
+                <div className='mb-3'></div>
+                <GreatCoin isEth={true}/>
             </div>
         </div>
     </>

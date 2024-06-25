@@ -4,58 +4,36 @@ import { useAccount, useConfig } from 'wagmi'
 import { readContract } from '@wagmi/core'
 import { erc20Abi } from 'viem' 
 
-import { getDeadline, isOwner } from '@/launch/hooks/globalVars'
-import useAddress from "@/launch/hooks/address"
+import BeneficiaryBaseABI from '@/abi/BeneficiaryBase'
+
+import { isOwner, ExecutorRewardSaveRate } from '@/launch/hooks/globalVars'
 
 import useCoin from '@/launch/hooks/coin'
-import  useWrite  from './write';
 
-export default function useBenefitCoin(coinAddress, poolAddress, coinAbi, poolAbi, coinMaxSupply, executorRewardRate) {
+export default function useBeneficiaryBase(coinAddress, coinMaxSupply) {
 
     const config = useConfig();
+
     const { address: accountAddress } = useAccount()
-    const { GreatCoinContractAddress } = useAddress();
 
-    const { write, error, setError, isLoading, isSuccess, isPending, isConfirm} = useWrite()
-
-    const { getBalance } = useCoin()
+    const { getBalance, totalSupply } = useCoin(coinAddress)
 
     const getBeneficiaryList = async () => {
         let data = await readContract(config, {
             address: coinAddress,
-            abi: coinAbi,
+            abi: BeneficiaryBaseABI,
             functionName: 'getBeneficiaryList'
         })
-        console.log(data);
+        //console.log(data);
         return data;
     }
 
     const getBenefitRate = async (addr) => {
         let data = await readContract(config, {
             address: coinAddress,
-            abi: coinAbi,
+            abi: BeneficiaryBaseABI,
             functionName: 'getBenefitRate',
             args: [addr || accountAddress]
-        })
-        return data;
-    }
-
-    const executeBenefit = async () => {
-        let tx = await write({
-            account: accountAddress,
-            address: poolAddress,
-            abi: poolAbi,
-            functionName: 'executeBenefit',
-            args: [getDeadline()],
-        })
-        return tx;
-    }
-
-    const totalSupply = async () => {
-        let data = await readContract(config, {
-            address: coinAddress,
-            abi: erc20Abi,
-            functionName: 'totalSupply'
         })
         return data;
     }
@@ -63,14 +41,6 @@ export default function useBenefitCoin(coinAddress, poolAddress, coinAbi, poolAb
     const getDistributableShares = async () => {
         let total = await totalSupply();
         return coinMaxSupply - total
-    }
-
-    const getExecutorReward = (balance) => {
-        if(balance){
-            return balance * executorRewardRate / 1000n
-        }else{
-            return 0n;
-        }
     }
 
     const getBenefitRateByBalance = (balance) => {
@@ -93,13 +63,12 @@ export default function useBenefitCoin(coinAddress, poolAddress, coinAbi, poolAb
         let addressList = await getBeneficiaryList();
         let list = [];
 
-        let executorReward = getExecutorReward(poolBalance)
-        let benefitAmount = poolBalance - executorReward
+        let benefitAmount = poolBalance - poolBalance * ExecutorRewardSaveRate / 1000n
         let sumBenefit = 0n
 
         if(addressList.length > 0){
             for(let i = 0; i < addressList.length; i++){
-                let balance = await getBalance(coinAddress, addressList[i]);
+                let balance = await getBalance(addressList[i]);
                 let rate = getBenefitRateByBalance(balance);
 
                 let amount = 0n;
@@ -125,33 +94,17 @@ export default function useBenefitCoin(coinAddress, poolAddress, coinAbi, poolAb
                 isFinal: true
             })
         }        
-        console.log(list)
+        //console.log(list)
         return list;
     }
 
-    const getPoolBalance = async () => {
-        let balance = await getBalance(GreatCoinContractAddress, poolAddress)
-        return balance;
-    }
-
     return {
-        executeBenefit, 
         getBeneficiaryList, 
         getBenefitRate,
-        totalSupply,
         getDistributableShares,
-        getExecutorReward,
         getBenefitRateByBalance,
         getBenefitAmountByBalance,
         getBeneficiaryListData,
-        getPoolBalance,
-
-        error,
-        setError,
-        isLoading,
-        isSuccess,
-        isPending,
-        isConfirm
     }
 
 

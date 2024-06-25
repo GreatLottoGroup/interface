@@ -2,6 +2,7 @@
 
 import { useContext } from 'react';
 import Link from 'next/link'
+import { useSelectedLayoutSegment } from 'next/navigation';
 
 import BrandLogo from './brandLogo'
 import Setting from './setting'
@@ -9,12 +10,18 @@ import Setting from './setting'
 
 import { DarkContext } from '@/hooks/darkContext';
 
-export default function Header({children, navList, pageNav, setPageNav}) {
+export default function Header({children, navList}) {
 
-    const isDark = useContext(DarkContext)
+    const isDark = useContext(DarkContext);
+
+    let segment = useSelectedLayoutSegment()
+    console.log('segment: ', segment);
+    if(!segment){
+        segment = navList[0].name;
+    }
 
     const navListItems = navList.map((item, index) => 
-        <li key={index}><Link href={item.href} className={"nav-link px-2 " + (item.name == pageNav ? "active" : "")} >{item.title}</Link></li>  
+        <li key={index}><Link href={item.href} className={"nav-link px-2 fs-5 " + (item.name == segment ? "active" : "")} >{item.title}</Link></li>  
     );
 
     return (

@@ -75,7 +75,6 @@ export default function TransactionBar({transactions, checkTransactions, hasPend
 
     watchChainId(config, {
         onChange(chainId) {
-          console.log('Chain ID changed!', chainId);
           window.location.reload();
         }
     })
@@ -86,7 +85,7 @@ export default function TransactionBar({transactions, checkTransactions, hasPend
     <Dropdown className="ms-3" align="end" autoClose="outside">
         <Dropdown.Toggle variant={isDark ? 'dark' : 'light'} bsPrefix=' '>
             <Image src={"/ethereum.svg"} alt='ethereum' width="20" height="20" className='me-1 align-text-top'/>
-            <span className='text-capitalize'>{chainName}</span>
+            <span className='text-capitalize align-text-top fs-5'>{chainName}</span>
             {tipElm()}
         </Dropdown.Toggle>
 

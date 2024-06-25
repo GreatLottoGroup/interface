@@ -6,13 +6,13 @@ import { readContract } from '@wagmi/core'
 import useAddress from "@/launch/hooks/address"
 
 import GreatNftABI from '@/abi/GreatLottoNFT.json'
-import  useWrite  from '../write';
+import  useWrite  from '@/launch/hooks/write';
 
 export default function useGreatLottoNft() {
 
     const config = useConfig();
     const { address: accountAddress } = useAccount()
-    const { write, error, setError, isLoading, isSuccess, isPending, isConfirm} = useWrite()
+    const { write, error, isLoading, isSuccess, isPending, isConfirm} = useWrite()
     const { GreatNftContractAddress } = useAddress();
 
     const getNftBalance = async (address) => {
@@ -102,7 +102,6 @@ export default function useGreatLottoNft() {
         getTicketsByTargetNumber,
 
         error,
-        setError,
         isLoading,
         isSuccess,
         isPending,

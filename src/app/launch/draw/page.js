@@ -1,12 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react'
-
 import  useCurrentBlock  from '@/launch/hooks/currentBlock'
 
-import DrawBlock from './components/drawBlock'
-import LastDraw from './components/lastDraw'
-import DrawList from './components/drawList'
+import DrawTicket from './components/drawTicket'
+import Rollup from './components/rollup'
+import BlockList from './components/blockList'
 
 export default function Draw() {
 
@@ -16,15 +14,17 @@ export default function Draw() {
     <>
         <div className='row mb-3'>
             <div className='col'>
-                <LastDraw currentBlock={currentBlock}/>
-            </div>
-            <div className='col'>
-                <DrawBlock setCurrentBlock={setCurrentBlock}/>
+                <DrawTicket setCurrentBlock={setCurrentBlock}/>
             </div>
         </div>
-        <div className='row'>
+        <div className='row mb-3'>
             <div className='col'>
-                <DrawList currentBlock={currentBlock}/>
+                <Rollup setCurrentBlock={setCurrentBlock}/>
+            </div>
+        </div>
+        <div className='row mb-3'>
+            <div className='col'>
+                <BlockList currentBlock={currentBlock}/>
             </div>
         </div>
     </>

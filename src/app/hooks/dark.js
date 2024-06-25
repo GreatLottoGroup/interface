@@ -6,7 +6,6 @@ export function useDark() {
     const [isDark, setIsDark] = useState(false);
 
     const toggleDarkMode = (val) => {
-        console.log(val)
         val = Boolean(val);
         setIsDark(val);
         localStorage.setItem('global-isDark', val);

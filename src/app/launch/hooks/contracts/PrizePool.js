@@ -1,12 +1,11 @@
-
-
 import { useAccount, useConfig } from 'wagmi'
 import { readContract } from '@wagmi/core'
 
-import  useWrite  from '../write';
-import  usePermit  from '../permit'
-import { getDeadline, parseAmount } from '@/launch/hooks/globalVars'
+import  useWrite  from '@/launch/hooks/write';
+import  usePermit  from '@/launch/hooks/permit'
+import { parseAmount } from '@/launch/hooks/globalVars'
 import useAddress from "@/launch/hooks/address"
+import useDeadline from '@/launch/hooks/deadline'
 
 import PrizePoolABI from '@/abi/PrizePool.json'
 
@@ -14,9 +13,10 @@ export default function usePrizePool() {
 
     const config = useConfig();
     const { address: accountAddress } = useAccount()
-    const { write, error, setError, isLoading, isSuccess, isPending, isConfirm} = useWrite()
+    const { write, error, isLoading, isSuccess, isPending, isConfirm} = useWrite()
     const permit = usePermit();
-    const { PrizePoolContractAddress, GreatCoinContractAddress, getTokenDecimals } = useAddress();
+    const { PrizePoolContractAddress, getTokenDecimals, getApproveSpender, getIsEthCoin } = useAddress();
+    const { getDeadline } = useDeadline();
 
     const getBlockDrawStatus = async (blockNumber) => {
         let data = await readContract(config, {
@@ -29,22 +29,43 @@ export default function usePrizePool() {
         return data;
     }
 
-    const getBlockBalance = async (blockNumber) => {
+    const getBlockBalance = async (blockNumber, isEth) => {
         let data = await readContract(config, {
             address: PrizePoolContractAddress,
             abi: PrizePoolABI,
             functionName: 'getBlockBalance',
-            args: [blockNumber]
+            args: [blockNumber, isEth]
         })
         //console.log(data)
         return data;
     }
 
-    const getRollupBalance = async () => {
+    const getBlockCount = async () => {
         let data = await readContract(config, {
             address: PrizePoolContractAddress,
             abi: PrizePoolABI,
-            functionName: 'getRollupBalance'
+            functionName: 'getBlockCount'
+        })
+        //console.log(data)
+        return data;
+    }
+
+    const getBlockByIndex = async (index) => {
+        let data = await readContract(config, {
+            address: PrizePoolContractAddress,
+            abi: PrizePoolABI,
+            functionName: 'getBlockByIndex',
+            args: [index]
+        })
+        //console.log(data)
+        return data;
+    }
+    const getRollupBalance = async (isEth) => {
+        let data = await readContract(config, {
+            address: PrizePoolContractAddress,
+            abi: PrizePoolABI,
+            functionName: 'getRollupBalance',
+            args: [isEth]
         })
         //console.log(data)
         return data;
@@ -63,13 +84,18 @@ export default function usePrizePool() {
     // Investment
 
     const investmentDeposit = async (token, amount) => {
-        
+        let isEth = getIsEthCoin(token);
+
+        if(isEth){
+            amount = parseAmount(amount, getTokenDecimals(token));
+        }
+        console.log('amount:', amount)
         let tx = await write({
             account: accountAddress,
             address: PrizePoolContractAddress,
             abi: PrizePoolABI,
             functionName: 'investmentDeposit',
-            args: [token, amount, getDeadline()],
+            args: [token, amount, await getDeadline()],
         })
 
         return tx;
@@ -77,9 +103,17 @@ export default function usePrizePool() {
     
     const investmentDepositWithSign = async (token, amount) => {
 
-        let deadline = getDeadline();
+        let deadline = await getDeadline();
 
-        let sign = permit.getSignMessage(token, GreatCoinContractAddress, parseAmount(amount, getTokenDecimals(token)), deadline)
+        let _amount = parseAmount(amount, getTokenDecimals(token))
+        
+        let isEth = getIsEthCoin(token);
+
+        if(isEth){
+            amount = _amount;
+        }
+
+        let sign = await permit.getSignMessage(token, getApproveSpender(token), _amount, deadline)
 
         if(!sign){
             return false;
@@ -89,7 +123,7 @@ export default function usePrizePool() {
             account: accountAddress,
             address: PrizePoolContractAddress,
             abi: PrizePoolABI,
-            functionName: 'investmentDeposit',
+            functionName: 'investmentDepositWithSign',
             args: [token, amount, deadline, sign.v, sign.r, sign.s],
         })
 
@@ -97,14 +131,13 @@ export default function usePrizePool() {
 
     }
 
-    const investmentRedeem = async (shares) => {
-
+    const investmentRedeem = async (token, shares) => {
         let tx = await write({
             account: accountAddress,
             address: PrizePoolContractAddress,
             abi: PrizePoolABI,
             functionName: 'investmentRedeem',
-            args: [shares, getDeadline()],
+            args: [shares, token, await getDeadline()],
         })
 
         return tx;
@@ -118,16 +151,14 @@ export default function usePrizePool() {
         getBlockBalance,
         getRollupBalance,
         getRecentDrawBlockNumber,
+        getBlockCount,
+        getBlockByIndex,
 
         investmentDeposit,
         investmentDepositWithSign,
         investmentRedeem,
 
         error: error || permit.error,
-        setError: function(){
-            setError();
-            permit.setError();
-        },
         isLoading: isLoading || permit.isLoading,
         isSuccess: isSuccess || permit.isSuccess,
         isPending,

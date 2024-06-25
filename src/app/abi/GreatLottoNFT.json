@@ -10,6 +10,11 @@
           "internalType": "address",
           "name": "_caller",
           "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
         }
       ],
       "stateMutability": "nonpayable",
@@ -249,6 +254,27 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "balance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "ErrorInsufficientBalanceEth",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
@@ -276,6 +302,17 @@
     {
       "inputs": [],
       "name": "ErrorPaymentUnsuccessful",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "ErrorUnsupportedToken",
       "type": "error"
     },
     {
@@ -553,7 +590,13 @@
         }
       ],
       "name": "changeNFTSVGAddress",
-      "outputs": [],
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -604,6 +647,11 @@
               "type": "uint8"
             },
             {
+              "internalType": "uint16",
+              "name": "interval",
+              "type": "uint16"
+            },
+            {
               "internalType": "uint256",
               "name": "count",
               "type": "uint256"
@@ -642,6 +690,11 @@
               "internalType": "uint256",
               "name": "nonce",
               "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isEth",
+              "type": "bool"
             }
           ],
           "internalType": "struct IGreatLottoNFT.Ticket",
@@ -700,19 +753,51 @@
         {
           "components": [
             {
-              "internalType": "uint8[][3][]",
-              "name": "numbers",
-              "type": "uint8[][3][]"
-            },
-            {
-              "internalType": "uint8",
-              "name": "multiple",
-              "type": "uint8"
-            },
-            {
-              "internalType": "uint8",
-              "name": "periods",
-              "type": "uint8"
+              "components": [
+                {
+                  "internalType": "uint8[][3][]",
+                  "name": "numbers",
+                  "type": "uint8[][3][]"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "multiple",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint8",
+                  "name": "periods",
+                  "type": "uint8"
+                },
+                {
+                  "internalType": "uint16",
+                  "name": "interval",
+                  "type": "uint16"
+                },
+                {
+                  "internalType": "address",
+                  "name": "token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "targetBlockNumber",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "channelId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deadline",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IGreatLotto.IssueParam",
+              "name": "issueParam",
+              "type": "tuple"
             },
             {
               "internalType": "uint256",
@@ -726,28 +811,13 @@
             },
             {
               "internalType": "address",
-              "name": "payToken",
-              "type": "address"
-            },
-            {
-              "internalType": "address",
               "name": "payer",
               "type": "address"
             },
             {
-              "internalType": "uint256",
-              "name": "targetBlockNumber",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "channelId",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "deadline",
-              "type": "uint256"
+              "internalType": "bool",
+              "name": "isEth",
+              "type": "bool"
             }
           ],
           "internalType": "struct IGreatLottoNFT.TicketParams",
@@ -773,6 +843,11 @@
               "internalType": "uint8",
               "name": "periods",
               "type": "uint8"
+            },
+            {
+              "internalType": "uint16",
+              "name": "interval",
+              "type": "uint16"
             },
             {
               "internalType": "uint256",
@@ -813,6 +888,11 @@
               "internalType": "uint256",
               "name": "nonce",
               "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isEth",
+              "type": "bool"
             }
           ],
           "internalType": "struct IGreatLottoNFT.Ticket",

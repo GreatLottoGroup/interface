@@ -9,19 +9,24 @@ const BlueCount = 6;
 const RedMax = 16;
 const RedCount = 1;
 
+const PricePerCount = 1n;
+const PricePerCountEth = 10n ** 15n;
+
+const IssueInterval = 300n;
 
 const GreatCoinDecimals = 18
+const GreatEthDecimals = 18
 const DaoCoinDecimals = 18
 const InvestmentCoinDecimals = 18
-
-const DaoExecutorRewardRate = 5n
-const InvestmentExecutorRewardRate = 5n
 
 const DaoCoinMaxSupply = 10n ** 8n * 10n ** 18n
 const InvestmentCoinMaxSupply = 10n ** 8n * 10n ** 18n
 
 const InvestmentMinDepositAssets = 10000
+const InvestmentMinDepositAssetsByEth = 10
 const InvestmentMinRedeemShares = 10000
+
+const ExecutorRewardSaveRate = 1n
 
 const chains = {
     "31337": "hardhat",
@@ -38,6 +43,11 @@ const CoinList = {
         decimals: GreatCoinDecimals,
         isPermit: true
     },
+    'GLETH': {
+        decimals: GreatEthDecimals,
+        isPermit: true,
+        isEth: true
+    },
     'DAI': {
         decimals: 18,
         isPermit: true
@@ -48,25 +58,37 @@ const CoinList = {
     },
     'USDT': {
         decimals: 6
+    },
+    'WETH': {
+        decimals: 18,
+        isEth: true
     }
 }
-const F = function(n){
-    if(n < 1){return 1;}
-    var result = 1;
-    for(var i = 1; i <= n; i++){
-        result = result * i;
+
+const getCoinListByIsEth = (isEthCoin, _CoinList) => {
+    let list = [];
+    for (const key in _CoinList) {
+        if(!!_CoinList[key].isEth == isEthCoin){
+            list.push(key);
+        }
     }
-    return result;
-};
-
-const C = function(n, m){
-    if(n < m){return 0;}
-    return F(n)/(F(n-m) * F(m));
-};
-
-const getDeadline = () => {
-    return parseInt(new Date().getTime()/1000 + Number(PerBlockTime) * 5);
+    return list;
 }
+
+var F = function(n){
+	if(n < 1n){return 1n;}
+	var result = 1n;
+	for(var i = 1n; i <= n; i++){
+		result = result * i;
+	}
+	return result;
+};
+var C = function(n, m){
+    n = BigInt(n);
+    m = BigInt(m);
+	if(n < m){return 0n;}
+	return F(n)/(F(n-m) * F(m));
+};
 
 const shortAddress = (address) => {
     return address ? (address.slice(0,4) + '...' + address.slice(-4)) : ''
@@ -76,7 +98,7 @@ const formatAmount = (amount, decimals) => {
     if(amount){
         return formatUnits(amount, decimals ?? GreatCoinDecimals);
     }else{
-        return 0;
+        return '0';
     }
 }
 
@@ -84,16 +106,12 @@ const parseAmount = (amount, decimals) => {
     if(amount){
         return parseUnits(amount.toString(), decimals ?? GreatCoinDecimals);
     }else{
-        return 0;
+        return 0n;
     }
 }
 
 const isOwner = (addr) => {
     return isAddressEqual(OwnerAddress, addr);
-}
-
-const toCamelCase = (str) => {
-    return str.slice(0,1).toUpperCase() + str.slice(1)
 }
 
 const errorHandle = (err) => {
@@ -136,17 +154,22 @@ const _errorHandle = (err, errType) => {
 
 export  {
     chains,
-    toCamelCase,
 
     BlockPeriods,
     PerBlockTime,
+
+    IssueInterval,
 
     BlueMax,
     BlueCount,
     RedMax,
     RedCount,
 
+    PricePerCount,
+    PricePerCountEth,
+
     CoinList,
+    getCoinListByIsEth,
 
     GreatCoinDecimals,
     DaoCoinDecimals,
@@ -159,20 +182,18 @@ export  {
     FinalBenefitAddress,
     isOwner,
 
-    getDeadline,
     shortAddress,
     formatAmount,
     parseAmount,
-
-    DaoExecutorRewardRate,
-    InvestmentExecutorRewardRate,
 
     DaoCoinMaxSupply,
     InvestmentCoinMaxSupply,
 
     InvestmentMinDepositAssets,
+    InvestmentMinDepositAssetsByEth,
     InvestmentMinRedeemShares,
 
     errorHandle,
 
+    ExecutorRewardSaveRate,
 }

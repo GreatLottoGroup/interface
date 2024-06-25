@@ -13,14 +13,12 @@ export default function Home() {
     <>
 
         <Header navList={[
-            {name: 'Home', href: './', isActive: true},
-            {name: 'Features', href: './'},
-            {name: 'Pricing', href: './'},
-            {name: 'FAQs', href: './'},
-            {name: 'About', href: './'},
+            {title: 'Home', name: 'home', href: './'},
+            {title: 'Features', name: 'features', href: './'},
+            {title: 'About', name: 'about', href: './'},
         ]}>
           <div className="col-md-5 text-end">
-            <Link href="./launch/issue" className="btn btn-primary">Launch App</Link>
+            <Link href="./launch/issue" className="btn btn-primary fs-5">Launch App</Link>
           </div>  
         </Header>
 

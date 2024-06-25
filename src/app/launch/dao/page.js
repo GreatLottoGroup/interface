@@ -8,30 +8,30 @@ import BenefitPool from './components/benefitPool'
 
 import { FinalBenefitAddress } from '@/launch/hooks/globalVars'
 
-import useCurrentBlock from '@/launch/hooks/currentBlock'
-
 import useDaoCoin from '@/launch/hooks/contracts/DaoCoin'
-
+import useDaoBenefitPool from '@/launch/hooks/contracts/DaoBenefitPool'
 
 export default function Dao() {
 
-    const { currentBlock } = useCurrentBlock()
-
     const [poolBalance, setPoolBalance] = useState(0n)
+    const [poolBalanceByEth, setPoolBalanceByEth] = useState(0n)
 
   return (
     <>
     <div className='mb-3 row'>
         <div className='col'>
-            <MyDaoCoin currentBlock={currentBlock}/>
+            <MyDaoCoin/>
         </div>
         <div className='col'>
-            <BenefitPool poolBalance={poolBalance} setPoolBalance={setPoolBalance} useBenefit={useDaoCoin}/>
+            <BenefitPool poolBalance={poolBalance}  setPoolBalance={setPoolBalance} isEth={false} useBenefitPool={useDaoBenefitPool}/>
+        </div>
+        <div className='col'>
+            <BenefitPool poolBalance={poolBalanceByEth}  setPoolBalance={setPoolBalanceByEth} isEth={true} useBenefitPool={useDaoBenefitPool}/>
         </div>
     </div>
     <div className='mb-3 row'>
         <div className='col'>  
-            <BeneficiaryList poolBalance={poolBalance} useBenefit={useDaoCoin} finalBenefitAddress={FinalBenefitAddress}/>
+            <BeneficiaryList poolBalance={poolBalance}  poolBalanceByEth={poolBalanceByEth} useGovCoin={useDaoCoin} finalBenefitAddress={FinalBenefitAddress} />
         </div>
     </div>
 

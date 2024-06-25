@@ -1,22 +1,25 @@
 
 
-import { useAccount } from 'wagmi'
+import { useAccount, useConfig } from 'wagmi'
+import { readContract } from '@wagmi/core'
 
-import { DaoCoinMaxSupply, DaoExecutorRewardRate } from '@/launch/hooks/globalVars'
+import { DaoCoinMaxSupply } from '@/launch/hooks/globalVars'
 import useAddress from "@/launch/hooks/address"
 
 import DaoCoinABI from '@/abi/DAOCoin.json'
-import DaoBenefitPoolABI from '@/abi/DAOBenefitPool.json'
-import useBenefitCoin from '../benefitCoin'
-import useWrite  from '../write';
+import useBeneficiaryBase from './base/BeneficiaryBase'
+import useWrite  from '@/launch/hooks/write';
+import useCoin  from '@/launch/hooks/coin';
 
 export default function useDaoCoin() {
 
     const { address: accountAddress } = useAccount()
-    const { DaoCoinContractAddress, DaoBenefitPoolContractAddress } = useAddress();
+    const { DaoCoinContractAddress } = useAddress();
 
-    const benefitCoin = useBenefitCoin(DaoCoinContractAddress, DaoBenefitPoolContractAddress, DaoCoinABI, DaoBenefitPoolABI, DaoCoinMaxSupply, DaoExecutorRewardRate)
-    const { write, error, setError, isLoading, isSuccess, isPending, isConfirm} = useWrite()
+    const config = useConfig();
+    const beneficiaryBase = useBeneficiaryBase(DaoCoinContractAddress, DaoCoinMaxSupply)
+    const { write, error, isLoading, isSuccess, isPending, isConfirm} = useWrite()
+    const coin = useCoin(DaoCoinContractAddress);
 
     const mint = async (account, amount) => {
         let tx = await write({
@@ -29,20 +32,51 @@ export default function useDaoCoin() {
         return tx;
     }
 
+    const getMintShares = async (assets, isEth) => {
+        let data = await readContract(config, {
+            address: DaoCoinContractAddress,
+            abi: DaoCoinABI,
+            functionName: 'getMintShares',
+            args: [assets, isEth]
+        })
+        return data;
+    }
+
+    const getInitialPrice = async (isEth) => {
+        let data = await readContract(config, {
+            address: DaoCoinContractAddress,
+            abi: DaoCoinABI,
+            functionName: isEth ? 'initialPriceEth' : 'initialPrice'
+        })
+        return data;
+    }
+
+    const changeInitialPrice = async (price, isEth) => {
+        let tx = await write({
+            account: accountAddress,
+            address: DaoCoinContractAddress,
+            abi: DaoCoinABI,
+            functionName: 'changeInitialPrice',
+            args: [price, isEth],
+        })
+        return tx;
+    }
+
     return {
         mint, 
+        getMintShares,
+        changeInitialPrice,
+        getInitialPrice,
 
-        ...benefitCoin,
+        ...beneficiaryBase,
+        
+        ...coin,
 
-        error: benefitCoin.error || error,
-        setError: function(){
-            benefitCoin.setError();
-            setError();
-        },
-        isLoading: benefitCoin.isLoading || isLoading,
-        isSuccess: benefitCoin.isSuccess || isSuccess,
-        isPending: benefitCoin.isPending || isPending,
-        isConfirm: benefitCoin.isConfirm || isConfirm,
+        error,
+        isLoading,
+        isSuccess,
+        isPending,
+        isConfirm,
 
     }
 

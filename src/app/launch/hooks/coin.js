@@ -5,18 +5,18 @@ import { erc20Abi } from 'viem'
 
 import useWrite from './write'
 
-export default function useCoin() {
+export default function useCoin(coinAddr) {
 
     const { address: accountAddress } = useAccount()
     const config = useConfig();
 
-    const { write, error, setError, isLoading, isSuccess, isPending, isConfirm } = useWrite()
+    const { write, error, isLoading, isSuccess, isPending, isConfirm } = useWrite()
 
-    const increaseAllowance = async (addr, to, amount) => {
+    const increaseAllowance = async (to, amount, addr, abi) => {
         let tx = write({
             account: accountAddress,
-            address: addr,
-            abi: erc20Abi,
+            address: addr || coinAddr,
+            abi: abi ||erc20Abi,
             functionName: 'approve',
             args: [to, amount]
         })
@@ -24,9 +24,9 @@ export default function useCoin() {
     }
 
 
-    const getAllowance = async (addr, to) => {
+    const getAllowance = async (to, addr) => {
         const data = await readContract(config, {
-            address: addr,
+            address: addr || coinAddr,
             abi: erc20Abi,
             functionName: 'allowance',
             args: [accountAddress, to]
@@ -35,9 +35,9 @@ export default function useCoin() {
         return data;
     }
 
-    const getBalance = async (addr, owner) => {
+    const getBalance = async (owner, addr) => {
         const data = await readContract(config, {
-            address: addr,
+            address: addr || coinAddr,
             abi: erc20Abi,
             functionName: 'balanceOf',
             args: [owner || accountAddress]
@@ -47,7 +47,7 @@ export default function useCoin() {
 
     const totalSupply = async (addr) => {
         let data = await readContract(config, {
-            address: addr,
+            address: addr || coinAddr,
             abi: erc20Abi,
             functionName: 'totalSupply'
         })
@@ -61,7 +61,6 @@ export default function useCoin() {
         totalSupply,
 
         error,
-        setError,
         isLoading,
         isSuccess,
         isPending, 

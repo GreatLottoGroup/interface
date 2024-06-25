@@ -27,7 +27,7 @@ export function useTransactions() {
             translList = translList || transactions
         }
         if(!hash) return;
-        console.log(translList)
+
         let _translList = [...translList];
 
         let transIndex = _findTransIndex(_translList, hash);
@@ -46,7 +46,6 @@ export function useTransactions() {
     }  
 
     const _setTransaction = (translList) => {
-        console.log(translList);
         setTransactions(translList);
         localStorage.setItem(localStorageKey, JSON.stringify(translList));
     }
@@ -95,7 +94,7 @@ export function useTransactions() {
                     //_errorHandle(err);
                     transactionReceipt = await getTransactionReceipt(config, {hash: tx})
                 }
-                console.log(transactionReceipt)
+                //console.log(transactionReceipt)
 
                 setTransaction({
                     ...list[i],

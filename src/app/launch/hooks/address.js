@@ -1,5 +1,5 @@
 
-import { isAddressEqual } from 'viem'
+import { isAddressEqual, isAddress } from 'viem'
 import { useChainId } from 'wagmi'
 import AddressPackages from '@/launch/address.json'
 import { CoinList, chains } from '@/launch/hooks/globalVars'
@@ -10,7 +10,35 @@ export default function useAddress() {
 
     const addressPackage = AddressPackages[chainId]
 
-    console.log(addressPackage)
+    //console.log(addressPackage)
+
+    const _coinList = {
+        'GLC': {
+            ...CoinList.GLC,
+            address: addressPackage.contracts.GreatCoinContractAddress
+        },
+        'GLETH': {
+        ...CoinList.GLETH,
+        address: addressPackage.contracts.GreatEthContractAddress
+        },
+    }
+
+    Object.keys(CoinList).map((name)=>{
+        if(addressPackage.payToken[name]){
+            _coinList[name] = {
+                ...CoinList[name],
+                address: addressPackage.payToken[name]
+            }
+        }
+    })
+
+    const isGreatCoin = (addr) => {
+        return isAddressEqual(addr, addressPackage.contracts.GreatCoinContractAddress);
+    }
+
+    const isGreatEth = (addr) => {
+        return isAddressEqual(addr, addressPackage.contracts.GreatEthContractAddress);
+    }
 
     return {
         chainName: chains[chainId],
@@ -20,44 +48,70 @@ export default function useAddress() {
         ...addressPackage.contracts,
         ...addressPackage.payToken,
         getApproveSpender: (name) => {
-            return name == 'GLC' ? addressPackage.contracts.PrizePoolContractAddress : addressPackage.contracts.GreatCoinContractAddress;
+            if(isAddress(name)){
+                if(isGreatCoin(name) || isGreatEth(name)){
+                    return addressPackage.contracts.PrizePoolContractAddress;
+                }else if(isAddressEqual(name, _coinList['WETH']?.address)){
+                    return addressPackage.contracts.GreatEthContractAddress;
+                }else{
+                    return addressPackage.contracts.GreatCoinContractAddress;
+                }
+            }else{
+                if(name == 'GLC' || name == 'GLETH'){
+                    return addressPackage.contracts.PrizePoolContractAddress;
+                }else if(name == 'WETH'){
+                    return addressPackage.contracts.GreatEthContractAddress;
+                }else{
+                    return addressPackage.contracts.GreatCoinContractAddress;
+                }
+            }
         },
         getTokenName: (addr) => {
             let tokenName;
-            Object.keys(addressPackage.payToken).forEach((name)=>{
-                if(isAddressEqual(addressPackage.payToken[name], addr)){
-                    tokenName = name;
-                }
-            })
+            if(isGreatCoin(addr)){
+                tokenName = 'GLC';
+            }else if(isGreatEth(addr)){
+                tokenName = 'GLETH';
+            }else{
+                Object.keys(addressPackage.payToken).forEach((name)=>{
+                    if(isAddressEqual(addressPackage.payToken[name], addr)){
+                        tokenName = name;
+                    }
+                })
+            }
             return tokenName;
         },
         getTokenDecimals: (addr) => {
             let decimals;
-            Object.keys(addressPackage.payToken).forEach((name)=>{
-                if(isAddressEqual(addressPackage.payToken[name], addr)){
-                    decimals = addressPackage.payToken[name].decimals;
-                }
-            })
+            if(isGreatCoin(addr)){
+                decimals = CoinList['GLC'].decimals;
+            }else if(isGreatEth(addr)){
+                decimals = CoinList['GLETH'].decimals;
+            }else{
+                Object.keys(addressPackage.payToken).forEach((name)=>{
+                    if(isAddressEqual(addressPackage.payToken[name], addr)){
+                        decimals = CoinList[name].decimals;
+                    }
+                })
+            }
             return decimals;
         },
-        CoinList: {
-            'GLC': {
-                ...CoinList.GLC,
-                address: addressPackage.contracts.GreatCoinContractAddress
-            },
-            'DAI': {
-                ...CoinList.DAI,
-                address: addressPackage.payToken.DAI
-            },
-            'USDC': {
-                ...CoinList.USDC,
-                address: addressPackage.payToken.USDC
-            },
-            'USDT': {
-                ...CoinList.USDT,
-                address: addressPackage.payToken.USDT
-            }            
-        }
+        getIsEthCoin: (name) => {
+            if(isAddress(name)){
+                if(isGreatEth(name) || isAddressEqual(name, _coinList['WETH']?.address)){
+                    return true;
+                }else{
+                    return false;
+                }
+            }else{
+                if(name == 'GLETH' || name == 'WETH'){
+                    return true;
+                }else{
+                    return false;
+                }
+            }
+        },
+        CoinList: _coinList
     }
 
 }

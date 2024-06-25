@@ -26,7 +26,6 @@ export function useI18nLocale() {
     const [messages, setMessages] = useState(messagesDefault);
     
     const switchLocale = (value) => {
-        console.log(value)
         setLocale(value);
         switchMessages(value)
         localStorage.setItem('global-locale', value);

@@ -1,18 +1,20 @@
 'use client';
 
 import { useState, useEffect } from 'react'
-import useCallable from '@/launch/hooks/callable'
+import useCallable from '@/launch/hooks/contracts/base/Callable'
 import useAddress from "@/launch/hooks/address"
 import Card from '@/launch/components/card'
 
 export default function SetCaller() {
 
-    const { GreatCoinContractAddress, GuaranteePoolContractAddress, InvestmentCoinContractAddress, DaoCoinContractAddress, PrizePoolContractAddress, GreatNftContractAddress, GreatLottoContractAddress } = useAddress();
+    const { GreatCoinContractAddress, GreatEthContractAddress, GuaranteePoolContractAddress, InvestmentCoinContractAddress, InvestmentEthContractAddress, DaoCoinContractAddress, PrizePoolContractAddress, GreatNftContractAddress, GreatLottoContractAddress } = useAddress();
     const { getCallers, transferCaller, isLoading } = useCallable();
 
     const [greatLottoCoinCaller, setGreatLottoCoinCaller] = useState([])
+    const [greatLottoEthCaller, setGreatLottoEthCaller] = useState([])
     const [guaranteePoolCaller, setGuaranteePoolCaller] = useState([])
     const [investmentCoinCaller, setInvestmentCoinCaller] = useState([])
+    const [investmentEthCaller, setInvestmentEthCaller] = useState([])
     const [daoCoinCaller, setDaoCoinCaller] = useState([])
     const [prizePoolCaller, setPrizePoolCaller] = useState([])
     const [greatLottoNFTCaller, setGreatLottoNFTCaller] = useState([])
@@ -20,8 +22,10 @@ export default function SetCaller() {
     const getAllCallers = async () => {
 
         setGreatLottoCoinCaller(await getCallers(GreatCoinContractAddress));
+        setGreatLottoEthCaller(await getCallers(GreatEthContractAddress));
         setGuaranteePoolCaller(await getCallers(GuaranteePoolContractAddress));
         setInvestmentCoinCaller(await getCallers(InvestmentCoinContractAddress));
+        setInvestmentEthCaller(await getCallers(InvestmentEthContractAddress));
         setDaoCoinCaller(await getCallers(DaoCoinContractAddress));
         setPrizePoolCaller(await getCallers(PrizePoolContractAddress));
         setGreatLottoNFTCaller(await getCallers(GreatNftContractAddress));
@@ -66,11 +70,17 @@ export default function SetCaller() {
                     <p className="card-text mb-2"><span className='fw-semibold'>GreatLottoCoin Callers: </span> 
                         {showCallers(greatLottoCoinCaller, GreatCoinContractAddress, PrizePoolContractAddress, setGreatLottoCoinCaller)}
                     </p>
+                    <p className="card-text mb-2"><span className='fw-semibold'>GreatLottoEth Callers: </span> 
+                        {showCallers(greatLottoEthCaller, GreatEthContractAddress, PrizePoolContractAddress, setGreatLottoEthCaller)}
+                    </p>
                     <p className="card-text mb-2"><span className='fw-semibold'>GuaranteePool Callers: </span>
                         {showCallers(guaranteePoolCaller, GuaranteePoolContractAddress, PrizePoolContractAddress, setGuaranteePoolCaller)}
                     </p>
                     <p className="card-text mb-2"><span className='fw-semibold'>InvestmentCoin Callers: </span>
                         {showCallers(investmentCoinCaller, InvestmentCoinContractAddress, PrizePoolContractAddress, setInvestmentCoinCaller)}
+                    </p>
+                    <p className="card-text mb-2"><span className='fw-semibold'>InvestmentEth Callers: </span>
+                        {showCallers(investmentEthCaller, InvestmentEthContractAddress, PrizePoolContractAddress, setInvestmentEthCaller)}
                     </p>
                     <p className="card-text mb-2"><span className='fw-semibold'>DaoCoin Callers: </span>
                         {showCallers(daoCoinCaller, DaoCoinContractAddress, PrizePoolContractAddress, setDaoCoinCaller)}

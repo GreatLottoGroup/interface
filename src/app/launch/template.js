@@ -17,8 +17,6 @@ import { SetGlobalToastContext } from './hooks/globalToastContext'
 
 import { ConnectKitButton } from "connectkit";
 
-import { useSelectedLayoutSegment } from 'next/navigation';
-
 import './template.css'
 
 const _navList = [
@@ -34,20 +32,15 @@ const ownerNav = {title: 'Management', name:'management', href: '/launch/managem
 
 export default function Template({ children }) {
 
-    let segment = useSelectedLayoutSegment()
-
     const [connectedStatus, setConnectedStatus] = useState(false);
     const [navList, setNavList] = useState(_navList);
 
-    const [pageNav, setPageNav] = useState(segment || 'overview')
 
     const { isConnected, address: accountAddress } = useAccount();
 
     const {transactions, setTransaction, checkTransactions, hasPendingTrans, delTransaction} = useTransactions();
 
     const {globalToast, setGlobalToast} = useGlobalToast()
-
-    console.log(connectedStatus)
 
     useEffect(() => {
         setConnectedStatus(isConnected);
@@ -61,10 +54,10 @@ export default function Template({ children }) {
     
   return (
     <>
-    {connectedStatus ? (
+    {connectedStatus && accountAddress ? (
         <SetTransactionContext.Provider value={setTransaction}>
             <SetGlobalToastContext.Provider value={setGlobalToast}>
-                <Header navList={navList} pageNav={pageNav} setPageNav={setPageNav}>
+                <Header navList={navList}>
                     <ConnectKitButton /> 
                     <TransactionBar transactions={transactions} checkTransactions={checkTransactions} hasPendingTrans={hasPendingTrans} delTransaction={delTransaction}/>
                 </Header>
@@ -75,7 +68,7 @@ export default function Template({ children }) {
         </SetTransactionContext.Provider>
     ) : (
         <>
-            <Header navList={navList} pageNav={pageNav} setPageNav={setPageNav}>
+            <Header navList={navList}>
                 <ConnectKitButton /> 
             </Header>
             <div className='container px-5'><ConnectKitButton /></div>

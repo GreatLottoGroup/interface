@@ -8,12 +8,22 @@
         },
         {
           "internalType": "address",
+          "name": "ethCoin",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
           "name": "guaranteePoolAddress",
           "type": "address"
         },
         {
           "internalType": "address",
           "name": "investmentCoinAddr",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "investmentEthAddr",
           "type": "address"
         },
         {
@@ -39,6 +49,11 @@
         {
           "internalType": "address",
           "name": "_caller",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_owner",
           "type": "address"
         }
       ],
@@ -150,6 +165,27 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "balance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "ErrorInsufficientBalanceEth",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint256",
           "name": "amount",
           "type": "uint256"
@@ -177,6 +213,17 @@
     {
       "inputs": [],
       "name": "ErrorPaymentUnsuccessful",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "ErrorUnsupportedToken",
       "type": "error"
     },
     {
@@ -241,6 +288,22 @@
         }
       ],
       "name": "OwnableUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "index",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "total",
+          "type": "uint256"
+        }
+      ],
+      "name": "PrizePoolBlockOutOfBoundsIndex",
       "type": "error"
     },
     {
@@ -354,6 +417,12 @@
         },
         {
           "indexed": false,
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "indexed": false,
           "internalType": "uint256",
           "name": "assets",
           "type": "uint256"
@@ -408,7 +477,7 @@
     },
     {
       "inputs": [],
-      "name": "DAOBenefitPoolAddress",
+      "name": "DaoBenefitPoolAddress",
       "outputs": [
         {
           "internalType": "address",
@@ -421,7 +490,7 @@
     },
     {
       "inputs": [],
-      "name": "DAOCoinAddress",
+      "name": "DaoCoinAddress",
       "outputs": [
         {
           "internalType": "address",
@@ -435,6 +504,19 @@
     {
       "inputs": [],
       "name": "GreatLottoCoinAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "GreatLottoEthAddress",
       "outputs": [
         {
           "internalType": "address",
@@ -499,7 +581,33 @@
     },
     {
       "inputs": [],
+      "name": "InvestmentEthAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
       "name": "MIN_INVEST_AMOUNT",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "MIN_INVEST_AMOUNT_ETH",
       "outputs": [
         {
           "internalType": "uint256",
@@ -525,51 +633,12 @@
     },
     {
       "inputs": [],
-      "name": "OPENER_BENEFIT_BLOCK_STEP",
-      "outputs": [
-        {
-          "internalType": "uint8",
-          "name": "",
-          "type": "uint8"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "OPENER_BENEFIT_MAX_RATE",
+      "name": "PRIZEPOOL_SAVE_RATE",
       "outputs": [
         {
           "internalType": "uint16",
           "name": "",
           "type": "uint16"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "OPENER_BENEFIT_MIN_RATE",
-      "outputs": [
-        {
-          "internalType": "uint16",
-          "name": "",
-          "type": "uint16"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "OPENER_BENEFIT_RATE_STEP",
-      "outputs": [
-        {
-          "internalType": "uint8",
-          "name": "",
-          "type": "uint8"
         }
       ],
       "stateMutability": "view",
@@ -604,6 +673,19 @@
     {
       "inputs": [],
       "name": "X_BONUS_MAX",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "X_BONUS_MAX_ETH",
       "outputs": [
         {
           "internalType": "uint256",
@@ -660,6 +742,11 @@
               "type": "uint8"
             },
             {
+              "internalType": "uint16",
+              "name": "interval",
+              "type": "uint16"
+            },
+            {
               "internalType": "uint256",
               "name": "count",
               "type": "uint256"
@@ -698,6 +785,11 @@
               "internalType": "uint256",
               "name": "nonce",
               "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isEth",
+              "type": "bool"
             }
           ],
           "internalType": "struct IGreatLottoNFT.Ticket",
@@ -708,6 +800,11 @@
           "internalType": "address",
           "name": "payer",
           "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "isEth",
+          "type": "bool"
         },
         {
           "internalType": "uint256",
@@ -755,6 +852,11 @@
               "type": "uint8"
             },
             {
+              "internalType": "uint16",
+              "name": "interval",
+              "type": "uint16"
+            },
+            {
               "internalType": "uint256",
               "name": "count",
               "type": "uint256"
@@ -793,6 +895,11 @@
               "internalType": "uint256",
               "name": "nonce",
               "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isEth",
+              "type": "bool"
             }
           ],
           "internalType": "struct IGreatLottoNFT.Ticket",
@@ -803,6 +910,11 @@
           "internalType": "address",
           "name": "payer",
           "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "isEth",
+          "type": "bool"
         }
       ],
       "name": "collect",
@@ -830,58 +942,126 @@
               "type": "uint8[7]"
             },
             {
-              "internalType": "uint256",
-              "name": "normalAwardSumAmount",
-              "type": "uint256"
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "normalAwardSumAmount",
+                  "type": "uint256"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "winner",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "tokenId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "amount",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct IPrizePool.NormalAwardDraw[]",
+                  "name": "normalAwardDrawList",
+                  "type": "tuple[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "topBonusMultiples",
+                  "type": "uint256"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "winner",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "tokenId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "multiples",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct IPrizePool.TopBonusDraw[]",
+                  "name": "topBonusDrawList",
+                  "type": "tuple[]"
+                }
+              ],
+              "internalType": "struct IPrizePool.DrawAwardParam",
+              "name": "award",
+              "type": "tuple"
             },
             {
               "components": [
                 {
-                  "internalType": "address",
-                  "name": "winner",
-                  "type": "address"
-                },
-                {
                   "internalType": "uint256",
-                  "name": "tokenId",
+                  "name": "normalAwardSumAmount",
                   "type": "uint256"
                 },
                 {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "winner",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "tokenId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "amount",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct IPrizePool.NormalAwardDraw[]",
+                  "name": "normalAwardDrawList",
+                  "type": "tuple[]"
+                },
+                {
                   "internalType": "uint256",
-                  "name": "amount",
+                  "name": "topBonusMultiples",
                   "type": "uint256"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "winner",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "tokenId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "multiples",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct IPrizePool.TopBonusDraw[]",
+                  "name": "topBonusDrawList",
+                  "type": "tuple[]"
                 }
               ],
-              "internalType": "struct IPrizePool.NormalAwardDraw[]",
-              "name": "normalAwardDrawList",
-              "type": "tuple[]"
-            },
-            {
-              "internalType": "uint256",
-              "name": "topBonusMultiples",
-              "type": "uint256"
-            },
-            {
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "winner",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "multiples",
-                  "type": "uint256"
-                }
-              ],
-              "internalType": "struct IPrizePool.TopBonusDraw[]",
-              "name": "topBonusDrawList",
-              "type": "tuple[]"
+              "internalType": "struct IPrizePool.DrawAwardParam",
+              "name": "awardByEth",
+              "type": "tuple"
             }
           ],
           "internalType": "struct IPrizePool.DrawParam",
@@ -905,6 +1085,11 @@
           "internalType": "uint256",
           "name": "blockNumber",
           "type": "uint256"
+        },
+        {
+          "internalType": "bool",
+          "name": "isEth",
+          "type": "bool"
         }
       ],
       "name": "getBlockBalance",
@@ -913,6 +1098,38 @@
           "internalType": "int256",
           "name": "",
           "type": "int256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "getBlockByIndex",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getBlockCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -941,8 +1158,18 @@
               "type": "bool"
             },
             {
+              "internalType": "bool",
+              "name": "isRollup",
+              "type": "bool"
+            },
+            {
               "internalType": "uint256",
               "name": "topBonusSumAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "topBonusSumAmountByEth",
               "type": "uint256"
             },
             {
@@ -952,17 +1179,17 @@
             },
             {
               "internalType": "uint256",
+              "name": "topBonusMultiplesByEth",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
               "name": "normalAwardSumAmount",
               "type": "uint256"
             },
             {
-              "internalType": "uint16",
-              "name": "benefitRate",
-              "type": "uint16"
-            },
-            {
               "internalType": "uint256",
-              "name": "benefitAmount",
+              "name": "normalAwardSumAmountByEth",
               "type": "uint256"
             },
             {
@@ -990,6 +1217,35 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "contract ICoinBase",
+          "name": "coin",
+          "type": "address"
+        }
+      ],
+      "name": "getDeepBalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "balance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "poolBalance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "guaranteePoolBalance",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "getRecentDrawBlockNumber",
       "outputs": [
@@ -1003,7 +1259,13 @@
       "type": "function"
     },
     {
-      "inputs": [],
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "isEth",
+          "type": "bool"
+        }
+      ],
       "name": "getRollupBalance",
       "outputs": [
         {
@@ -1096,6 +1358,11 @@
           "type": "uint256"
         },
         {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
           "internalType": "uint256",
           "name": "deadline",
           "type": "uint256"
@@ -1109,6 +1376,29 @@
           "type": "bool"
         }
       ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "reward",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "opener",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "isEth",
+          "type": "bool"
+        }
+      ],
+      "name": "openerRewardTransfer",
+      "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
     },
@@ -1159,58 +1449,126 @@
               "type": "uint8[7]"
             },
             {
-              "internalType": "uint256",
-              "name": "normalAwardSumAmount",
-              "type": "uint256"
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "normalAwardSumAmount",
+                  "type": "uint256"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "winner",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "tokenId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "amount",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct IPrizePool.NormalAwardDraw[]",
+                  "name": "normalAwardDrawList",
+                  "type": "tuple[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "topBonusMultiples",
+                  "type": "uint256"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "winner",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "tokenId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "multiples",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct IPrizePool.TopBonusDraw[]",
+                  "name": "topBonusDrawList",
+                  "type": "tuple[]"
+                }
+              ],
+              "internalType": "struct IPrizePool.DrawAwardParam",
+              "name": "award",
+              "type": "tuple"
             },
             {
               "components": [
                 {
-                  "internalType": "address",
-                  "name": "winner",
-                  "type": "address"
-                },
-                {
                   "internalType": "uint256",
-                  "name": "tokenId",
+                  "name": "normalAwardSumAmount",
                   "type": "uint256"
                 },
                 {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "winner",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "tokenId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "amount",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct IPrizePool.NormalAwardDraw[]",
+                  "name": "normalAwardDrawList",
+                  "type": "tuple[]"
+                },
+                {
                   "internalType": "uint256",
-                  "name": "amount",
+                  "name": "topBonusMultiples",
                   "type": "uint256"
+                },
+                {
+                  "components": [
+                    {
+                      "internalType": "address",
+                      "name": "winner",
+                      "type": "address"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "tokenId",
+                      "type": "uint256"
+                    },
+                    {
+                      "internalType": "uint256",
+                      "name": "multiples",
+                      "type": "uint256"
+                    }
+                  ],
+                  "internalType": "struct IPrizePool.TopBonusDraw[]",
+                  "name": "topBonusDrawList",
+                  "type": "tuple[]"
                 }
               ],
-              "internalType": "struct IPrizePool.NormalAwardDraw[]",
-              "name": "normalAwardDrawList",
-              "type": "tuple[]"
-            },
-            {
-              "internalType": "uint256",
-              "name": "topBonusMultiples",
-              "type": "uint256"
-            },
-            {
-              "components": [
-                {
-                  "internalType": "address",
-                  "name": "winner",
-                  "type": "address"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "tokenId",
-                  "type": "uint256"
-                },
-                {
-                  "internalType": "uint256",
-                  "name": "multiples",
-                  "type": "uint256"
-                }
-              ],
-              "internalType": "struct IPrizePool.TopBonusDraw[]",
-              "name": "topBonusDrawList",
-              "type": "tuple[]"
+              "internalType": "struct IPrizePool.DrawAwardParam",
+              "name": "awardByEth",
+              "type": "tuple"
             }
           ],
           "internalType": "struct IPrizePool.DrawParam",
@@ -1224,6 +1582,24 @@
         }
       ],
       "name": "rollupPool",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "blockNumber",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "opener",
+          "type": "address"
+        }
+      ],
+      "name": "rollupPoolByBlock",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
