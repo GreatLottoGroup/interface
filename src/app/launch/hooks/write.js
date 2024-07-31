@@ -109,7 +109,7 @@ export default function useWrite() {
                     message: req.functionName
                 })
             }
-            }
+        }
 
         return tx;
 
