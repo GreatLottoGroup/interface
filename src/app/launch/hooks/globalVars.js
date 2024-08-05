@@ -38,6 +38,8 @@ const chains = {
 const OwnerAddress = process.env.NEXT_PUBLIC_OWNER_ADDRESS
 const FinalBenefitAddress = process.env.NEXT_PUBLIC_BENEFIT_ADDRESS
 
+const ServerUrl = process.env.NEXT_PUBLIC_SERVER_URL
+
 const CoinList = {
     'GLC': {
         decimals: GreatCoinDecimals,
@@ -196,4 +198,6 @@ export  {
     errorHandle,
 
     ExecutorRewardSaveRate,
+
+    ServerUrl,
 }

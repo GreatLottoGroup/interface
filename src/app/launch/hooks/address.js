@@ -98,7 +98,7 @@ export default function useAddress() {
         },
         getIsEthCoin: (name) => {
             if(isAddress(name)){
-                if(isGreatEth(name) || isAddressEqual(name, _coinList['WETH']?.address)){
+                if(isGreatEth(name) || (_coinList['WETH']?.address && isAddressEqual(name, _coinList['WETH']?.address))){
                     return true;
                 }else{
                     return false;

@@ -26,7 +26,7 @@ export default function Rollup({setCurrentBlock}) {
     const { rollupCollection, getRollupReward, getRollupCost, isLoading, isPending } = useGreatLotto()
     const { getBlockBalance } = usePrizePool()
 
-    const {getBlockListWithStatus, waitingRollupList} = useTargetBlock()
+    const {getBlockListWithStatusFromServer} = useTargetBlock()
 
     const { getBalance } = useCoin();
     const { PrizePoolContractAddress, GuaranteePoolContractAddress, GreatEthContractAddress } = useAddress()
@@ -49,38 +49,41 @@ export default function Rollup({setCurrentBlock}) {
     }
 
     const getRollupList = async () => {
-        let {_waitingRollupList} = await getBlockListWithStatus();
-        console.log(_waitingRollupList);
+        let {result, count} = await getBlockListWithStatusFromServer('waitingRollup');
+        console.log(result);
 
-        if(_waitingRollupList.length > 0){
-            for (let i = 0; i < _waitingRollupList.length; i++) {
-                let blockBalance = await getBlockBalance(_waitingRollupList[i].blockNumber, false);
-                let blockBalanceEth = await getBlockBalance(_waitingRollupList[i].blockNumber, true);
+        if(result.length > 0){
+            for (let i = 0; i < result.length; i++) {
+                let blockBalance = await getBlockBalance(result[i].blockNumber, false);
+                let blockBalanceEth = await getBlockBalance(result[i].blockNumber, true);
 
-                _waitingRollupList[i] = {
-                    ..._waitingRollupList[i],
+                result[i] = {
+                    ...result[i],
                     blockBalance,
                     blockBalanceEth
                 }
             }
             
             // 获取开奖奖励
-            let blocks = getRollupBlockList(_waitingRollupList);
+            let blocks = await getRollupBlockList(result);
             await getRewardInfo(blocks)
             
         }
         
-        setRollupBlocks([..._waitingRollupList]);
+        setRollupBlocks([...result]);
  
     }
 
-    const getRollupBlockList = (_waitingRollupList) => {
-        _waitingRollupList = _waitingRollupList || waitingRollupList
+    const getRollupBlockList = async (result) => {
+        
+        if(!result){
+            ({result} = await getBlockListWithStatusFromServer('waitingRollup'));
+        }
         let blocks = [];
 
-        if(_waitingRollupList.length > 0){
-            for (let i = 0; i < _waitingRollupList.length; i++) {
-                blocks.push(_waitingRollupList[i].blockNumber);
+        if(result.length > 0){
+            for (let i = 0; i < result.length; i++) {
+                blocks.push(result[i].blockNumber);
             }
             console.log(blocks)
         }
@@ -90,7 +93,7 @@ export default function Rollup({setCurrentBlock}) {
 
     const rollupExecute = async () =>{
 
-        let blocks = getRollupBlockList();
+        let blocks = await getRollupBlockList();
 
         if(blocks.length == 0){
             return false;

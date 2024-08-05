@@ -43,7 +43,7 @@ export default function usePermit() {
         });
 
         let signReq;
-        if(isAddressEqual(token, CoinList['DAI'].address)){
+        if(CoinList['DAI']?.address && isAddressEqual(token, CoinList['DAI']?.address)){
             let allowed = amount ? true : false;
             
             // hardhat

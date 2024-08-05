@@ -1,8 +1,5 @@
-import { useState } from 'react'
-import usePrizePool from '@/launch/hooks/contracts/PrizePool'
 import { useConfig } from 'wagmi'
-import { getBlockNumber } from '@wagmi/core'
-import { BlockPeriods } from '@/launch/hooks/globalVars'
+import { ServerUrl } from '@/launch/hooks/globalVars'
 import '../components/colorTheme.css'
 
 const getStatusEl = (status) => {
@@ -36,125 +33,62 @@ export {
 export function useTargetBlock() {
 
     const config = useConfig();
-
-    const [allList, setAllList] = useState([])
-    const [waitingDrawList, setWaitingDrawList] = useState([])
-    const [drawSoonList, setDrawSoonList] = useState([])
-    const [drawnList, setDrawnList] = useState([])
-    const [waitingRollupList, setWaitingRollupList] = useState([])
-    const [rolledList, setRolledList] = useState([])
-
-    const { getBlockDrawStatus, getBlockCount, getBlockByIndex } = usePrizePool()
+    const chainId = config.state.chainId;
 
     let listStatus = {
-        'allList': {
+        'all': {
             'name': 'All Blocks',
-            'data': allList
         },
-        'waitingDrawList': {
+        'waitingDraw': {
             'name': 'Waiting for Draw',
-            'data': waitingDrawList,
             'status': getStatusEl('waitingDraw')
         },
-        'drawSoonList': {
+        'drawSoon': {
             'name': 'Draw Soon',
-            'data': drawSoonList,
             'status': getStatusEl('drawSoon')
         },
-        'drawnList': {
+        'drawn': {
             'name': 'Drawn Blocks',
-            'data': drawnList,
             'status':  getStatusEl('drawn')
         },
-        'waitingRollupList': {
+        'waitingRollup': {
             'name': 'Waiting for Roll',
-            'data': waitingRollupList,
             'status': getStatusEl('waitingRollup')
         },
-        'rolledList': {
+        'rolled': {
             'name': 'Rolled Blocks',
-            'data': rolledList,
             'status': getStatusEl('rolled')
         },
 
     }
 
-
-    const getBlockList = async () => {
-        let count = await getBlockCount();
-        let list = [];
-        for (let i = 0; i < count; i++) {
-            list.push(await getBlockByIndex(i));
-        }
-        // 升序排序
-        list.sort();
-        return list;
+    const getServerData = async (path) => {
+        const res = await fetch(ServerUrl + path);
+        const data = await res.json();
+        console.log(data);
+        return data;
     }
 
-    const getBlockListWithStatus = async () => {
-        let __allList = await getBlockList();
-        let _allList = [];
-        let _waitingDrawList = [];
-        let _drawnList = [];
-        let _waitingRollupList = [];
-        let _rolledList = [];
-        let _drawSoonList = [];
-        let curBlockNumber = await getBlockNumber(config);
-
-        for (let i = 0; i < __allList.length; i++) {
-            let _block = __allList[i];
-            let minBlock = curBlockNumber - 256n;
-            let maxBlock = curBlockNumber - BlockPeriods;
-
-            let info = {blockNumber: _block};
-            let status = await getBlockDrawStatus(_block);
-
-            if(status.isDraw){
-                info.status = 'drawnList';
-                _drawnList.push({...info, ...status})
-            }else if(status.isRollup){
-                info.status = 'rolledList';
-                _rolledList.push({...info, ...status})
-            }else{
-                if(_block > minBlock){
-                    if(_block >= maxBlock){
-                        info.status = 'waitingDrawList';
-                        _waitingDrawList.push({...info});
-                    }else{
-                        info.status = 'drawSoonList';
-                        _drawSoonList.push({...info});
-                    }
-                }else{
-                    info.status = 'waitingRollupList';
-                    _waitingRollupList.push({...info})
-                }
-            }
-  
-            _allList.push({...info, ...status});
-       
-        }
-
-        setAllList(_allList);
-        setWaitingDrawList(_waitingDrawList);
-        setWaitingRollupList(_waitingRollupList);
-        setDrawnList(_drawnList);        
-        setRolledList(_rolledList);
-        setDrawSoonList(_drawSoonList);
-
-        return {_allList, _waitingDrawList, _drawSoonList, _drawnList, _waitingRollupList, _rolledList};
+    const getBlockListFromServer = async (pageSize, page) => {
+        let data = await getServerData('/block-list/' + chainId + '/find/all?pageSize=' + pageSize + '&page=' + page);
+        return data;
     }
 
+    const getBlockListWithStatusFromServer = async (status, pageSize, page) => {
+        let data = await getServerData('/block-list/' + chainId + '/find/status/' + status +'?pageSize=' + pageSize + '&page=' + page);
+        return data;
+    }
 
+    const searchBlockFromServer = async (blockNumber) => {
+        let data = await getServerData('/block-list/' + chainId + '/search/' + blockNumber);
+        return data;
+    }
 
     return {
-        getBlockListWithStatus,
+        getBlockListFromServer,
+        getBlockListWithStatusFromServer,
+        searchBlockFromServer,
 
         listStatus,
-        allList,
-        waitingDrawList,
-        waitingRollupList,
-        drawnList,
-        rolledList,
-        drawSoonList,
     }
 }

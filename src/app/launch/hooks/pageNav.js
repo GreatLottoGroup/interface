@@ -7,7 +7,6 @@ import { useState, useRef } from 'react'
 const pageSize = 10;
 const pageMaxShow = 3;
 
-
 export function usePageNav() {
 
     const [pageCount, setPageCount] = useState(0)
@@ -32,6 +31,7 @@ export function usePageNav() {
         pageCurrent,
         setPageCount,
         setPageCurrent,
+        pageSize,
         
     }
 }

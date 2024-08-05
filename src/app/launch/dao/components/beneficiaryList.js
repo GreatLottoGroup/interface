@@ -34,7 +34,7 @@ export default function BeneficiaryList({poolBalance, poolBalanceByEth, isEth,  
         getBenefitList()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [accountAddress, poolBalance, currentBlock])
+    }, [accountAddress, poolBalance])
 
   return (
     <>

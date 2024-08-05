@@ -170,7 +170,7 @@ export default function Tickets() {
 
     const getWinNumbers = (numsList, block) => {
         if(block.blockNumber >= currentBlock.number - BlockPeriods){
-            let time = Number((block.blockNumber - currentBlock.number + BlockPeriods) * PerBlockTime + currentBlock.timestamp) * 1000
+            let time = Number((block.blockNumber - currentBlock.number) * PerBlockTime + currentBlock.timestamp) * 1000
             return amount(dateFormatLocal(time), true);
         }else{
             let drawNumbers = block.drawNumbers;
@@ -256,7 +256,7 @@ export default function Tickets() {
         initNftList();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [accountAddress, currentBlock, pageCurrent])
+    }, [accountAddress, pageCurrent])
 
 
   return (

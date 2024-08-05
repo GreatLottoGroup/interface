@@ -30,7 +30,7 @@ export default function DrawTicket({setCurrentBlock}) {
     const { checkDraw, draw, getDrawReward, getDrawCost, isLoading, isPending } = useGreatLotto()
     const { getBlockBalance, getRollupBalance } = usePrizePool()
 
-    const {getBlockListWithStatus, drawSoonList} = useTargetBlock()
+    const { getBlockListWithStatusFromServer} = useTargetBlock()
     const { getBalance } = useCoin();
     const { PrizePoolContractAddress, GuaranteePoolContractAddress, GreatEthContractAddress } = useAddress()
 
@@ -70,16 +70,16 @@ export default function DrawTicket({setCurrentBlock}) {
     const getDrawList = async () => {
 
         let drawList = [];
-        let {_drawSoonList} = await getBlockListWithStatus();
+        let {result} = await getBlockListWithStatusFromServer('drawSoon');
         
-        console.log(_drawSoonList);
+        console.log(result);
 
-        if(_drawSoonList.length > 0){
+        if(result.length > 0){
             let rollupBalance = await getRollupBalance(false);
             let rollupBalanceEth = await getRollupBalance(true);
             
-            for (let i = 0; i < _drawSoonList.length; i++) {
-                let block = _drawSoonList[i].blockNumber;
+            for (let i = 0; i < result.length; i++) {
+                let block = result[i].blockNumber;
                 let info = await checkDraw(block);
                 console.log(info);
 
@@ -127,7 +127,9 @@ export default function DrawTicket({setCurrentBlock}) {
 
     const drawExecute = async () =>{
 
-        let drawNumber = drawSoonList[0]?.blockNumber;
+        let {result} = await getBlockListWithStatusFromServer('drawSoon');
+
+        let drawNumber = result[0]?.blockNumber;
         let tx;
 
         if(drawNumber){

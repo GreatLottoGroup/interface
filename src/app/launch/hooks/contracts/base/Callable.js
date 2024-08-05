@@ -10,10 +10,11 @@ export default function useCallable() {
     const { address: accountAddress } = useAccount()
     const config = useConfig();
 
-    const { write, error, isLoading, isSuccess } = useWrite()
+    const { write, error, isLoading, isSuccess, isPending } = useWrite()
 
     const transferCaller = async (addr, newCaller) => {
-        let tx = write({
+        console.log(addr, newCaller);
+        let tx = await write({
             account: accountAddress,
             address: addr,
             abi: CallableABI,
@@ -29,7 +30,7 @@ export default function useCallable() {
             abi: CallableABI,
             functionName: 'callers'
         })
-        //console.log(data);
+        console.log(addr, data);
         return data;
     }
 
@@ -39,7 +40,8 @@ export default function useCallable() {
 
         error,
         isLoading,
-        isSuccess
+        isSuccess,
+        isPending
     }
 
 }

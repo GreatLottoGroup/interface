@@ -50,36 +50,36 @@
             "WETH": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"
         },
         "contracts": {
-            "GreatLottoContractAddress": "0x0C8542AB89c1C60D711B00F309f7EF63b5D9d6eb",
-            "PrizePoolContractAddress": "0xAAF0F531b7947e8492f21862471d61d5305f7538",
-            "GuaranteePoolContractAddress": "0x7aB5cEee0Ff304b053CE1F67d84C33F0ff407a55",
-            "GreatCoinContractAddress": "0x82Bd83ec6D4bCC8EaB6F6cF7565efE1e41D92Ce5",
-            "GreatEthContractAddress": "0xD61210E756f7D71Cc4F74abF0747D65Ea9d7525b",
-            "GreatNftContractAddress": "0x72F853E9E202600c5017B5A060168603c3ed7368",
-            "InvestmentCoinContractAddress": "0xa138575a030a2F4977D19Cc900781E7BE3fD2bc0",
-            "InvestmentEthContractAddress": "0xB8d6D6b01bFe81784BE46e5771eF017Fa3c906d8",
-            "InvestmentBenefitPoolContractAddress": "0xf524930660f75CF602e909C15528d58459AB2A56",
-            "DaoCoinContractAddress": "0x26Df0Ea798971A97Ae121514B32999DfDb220e1f",
-            "DaoBenefitPoolContractAddress": "0xA3b48c7b901fede641B596A4C10a4630052449A6",
-            "SalesChannelContractAddress": "0x6c383Ef7C9Bf496b5c847530eb9c49a3ED6E4C56"            
+            "GreatLottoContractAddress": "0x2fe19128A8257182fdD77f90eA96D27cA342897A",
+            "PrizePoolContractAddress": "0xfDb6669cF60C1dBfB0f72Ea50A6eC5e0FD6089E1",
+            "GuaranteePoolContractAddress": "0xf975A646FCa589Be9fc4E0C28ea426A75645fB1f",
+            "GreatCoinContractAddress": "0xfD3e0cEe740271f070607aEddd0Bf4Cf99C92204",
+            "GreatEthContractAddress": "0x01D4648B896F53183d652C02619c226727477C82",
+            "GreatNftContractAddress": "0x88B9Ad010A699Cc0c8C5C5EA8bAF90A0C375df1a",
+            "InvestmentCoinContractAddress": "0xAaC7D4A36DAb95955ef3c641c23F1fA46416CF71",
+            "InvestmentEthContractAddress": "0x6B5CF024365D5d5d0786673780CA7E3F07f85B63",
+            "InvestmentBenefitPoolContractAddress": "0x594f79e85F6f041eb56cF6822FF4125ee316409E",
+            "DaoCoinContractAddress": "0x23228469b3439d81DC64e3523068976201bA08C3",
+            "DaoBenefitPoolContractAddress": "0xA343B1FC2897b8C49A72A9A0B2675cB9c7664e8c",
+            "SalesChannelContractAddress": "0xf4fa0d1C10c47cDe9F65D56c3eC977CbEb13449A"
         }
     },
     "17000":{
         "payToken": {
         },
         "contracts": {
-            "GreatLottoContractAddress": "0x4d4e00Ec0f2f8045c144eD04Ee9259FB5c00BF5d",
-            "PrizePoolContractAddress": "0x47eD9d9c58A05A0CdDDBaCeECeC0DFa589b3cE40",
-            "GuaranteePoolContractAddress": "0xA1F4B0fC497409301baEd83B84b846A7F22ab5f7",
-            "GreatCoinContractAddress": "0xb560D01a05e987B395Aa79f995cb71D4D43ba075",
-            "GreatEthContractAddress": "0x0bEC5B26F1661c737CCb6F95E24Ae83477E09B4d",
-            "GreatNftContractAddress": "0x5d2CC1CAa5E27A8Dbb1F4b2dc093321403439fDa",
-            "InvestmentCoinContractAddress": "0xB35fD70209F57eC6B099f4C16234F568BC6cAeF7",
-            "InvestmentEthContractAddress": "0x10672236862DB3D90A145185a0832a22F142183B",
-            "InvestmentBenefitPoolContractAddress": "0xdbBe035Bd626430406663757DE46B744ddE55F1e",
-            "DaoCoinContractAddress": "0xebDCd07Bf0ee267f13C0A1e553972C0EE11d3361",
-            "DaoBenefitPoolContractAddress": "0xE62198a82301cFe01614655E9A4A059C3997c910",
-            "SalesChannelContractAddress": "0x464247623b6A12D61E69Bee136a0c5E75A45Fea9"                        
+            "GreatLottoContractAddress": "0x26bA7D98a2671021930600f725942C5eE051B896",
+            "PrizePoolContractAddress": "0xdB4cF0A8D36459161683FdFd80bd917E0796E8e5",
+            "GuaranteePoolContractAddress": "0xc780D5CCf6feBF8B62c7e5c85a2a483980dA5013",
+            "GreatCoinContractAddress": "0x708015fc156453C4e17cfAF013054d3F90931dac",
+            "GreatEthContractAddress": "0xD72D7FBf0f26F03067AF515BCeda0D34F1C943B5",
+            "GreatNftContractAddress": "0xF2E05425C8b4fC2B184008269868da0cf4D39e5f",
+            "InvestmentCoinContractAddress": "0x1b228bb830f6aB8915E27Dd7FCd6A554D5278148",
+            "InvestmentEthContractAddress": "0x787DFda8fC62138183Ee4365D90C2ccE5B83A276",
+            "InvestmentBenefitPoolContractAddress": "0x37fEb91002bE934866f4a3333f22b9D7783c60fC",
+            "DaoCoinContractAddress": "0xB09A3Fd33E29CA1AD62af83954fB1f5C0EAAD75C",
+            "DaoBenefitPoolContractAddress": "0xC3e3b112DD92a3E3FaBEDE0452c8551E84272584",
+            "SalesChannelContractAddress": "0x5D683559de531AC8939f552619E242D0eE795348"              
         }
     }
 

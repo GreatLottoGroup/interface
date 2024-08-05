@@ -15,7 +15,7 @@ import { LocaleContext } from '@/hooks/localeContext'
  
 hardhat.name = "Localhost 8545";
 
-holesky.rpcUrls.default.http = ['https://rpc.holesky.ethpandaops.io'];
+holesky.rpcUrls.default.http = ['https://eth-holesky.g.alchemy.com/v2/' + process.env.NEXT_PUBLIC_ALCHEMY_API_KEY];
 sepolia.rpcUrls.default.http = ['https://eth-sepolia.g.alchemy.com/v2/' + process.env.NEXT_PUBLIC_ALCHEMY_API_KEY];
 
 const cnf = getDefaultConfig({

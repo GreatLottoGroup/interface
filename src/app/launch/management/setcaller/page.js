@@ -8,7 +8,7 @@ import Card from '@/launch/components/card'
 export default function SetCaller() {
 
     const { GreatCoinContractAddress, GreatEthContractAddress, GuaranteePoolContractAddress, InvestmentCoinContractAddress, InvestmentEthContractAddress, DaoCoinContractAddress, PrizePoolContractAddress, GreatNftContractAddress, GreatLottoContractAddress } = useAddress();
-    const { getCallers, transferCaller, isLoading } = useCallable();
+    const { getCallers, transferCaller, isLoading, isPending } = useCallable();
 
     const [greatLottoCoinCaller, setGreatLottoCoinCaller] = useState([])
     const [greatLottoEthCaller, setGreatLottoEthCaller] = useState([])
@@ -40,9 +40,15 @@ export default function SetCaller() {
         }else{
             return (
             <>
-                <button type="button" disabled={!!isLoading} className='btn btn-primary btn-sm ms-2' onClick={()=>{
+                <button type="button" disabled={!!(isLoading || isPending)} className='btn btn-primary btn-sm ms-2' onClick={()=>{
                     setCaller(addr, newCaller, setFunc)
-                }}>Set Caller {isLoading ? '...' : ''}</button>
+                }}>Set Caller {(isLoading || isPending) ? '...' : ''}</button>
+
+                <button type="button" className='btn btn-light btn-sm ms-2' onClick={async () => {
+                    setFunc(await getCallers(addr))
+                }}>
+                    <i className='bi bi-arrow-clockwise'></i>
+                </button>
             </>
             )
         }

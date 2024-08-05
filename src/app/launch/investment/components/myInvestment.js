@@ -31,7 +31,7 @@ export default function MyInvestmentCoin({isEth, currentBlock, children}) {
         initData()
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [accountAddress, currentBlock])
+    }, [accountAddress])
 
   return (
     <>

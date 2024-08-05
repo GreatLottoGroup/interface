@@ -8,7 +8,7 @@ import Card from '@/launch/components/card'
 import List from '@/launch/components/list'
 
 import { DrawGroupBalls } from '@/launch/hooks/balls'
-import { BlockPeriods, shortAddress, IssueInterval } from '@/launch/hooks/globalVars'
+import { BlockPeriods, shortAddress } from '@/launch/hooks/globalVars'
 import usePrizePool from '@/launch/hooks/contracts/PrizePool'
 import useGreatLottoNft from '@/launch/hooks/contracts/GreatLottoNft'
 import { usePageNav, PageNav } from '@/launch/hooks/pageNav'
@@ -21,8 +21,8 @@ export default function BlockList({currentBlock}) {
     const config = useConfig();
 
     const [showList, setShowList] = useState([])
-    const [showListBase, setShowListBase] = useState([])
-    const {getBlockListWithStatus, listStatus, allList} = useTargetBlock()
+    const [curStatus, setCurStatus] = useState('all')
+    const {listStatus, getBlockListFromServer, getBlockListWithStatusFromServer, searchBlockFromServer} = useTargetBlock()
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -35,41 +35,20 @@ export default function BlockList({currentBlock}) {
     const { getBlockBalance } = usePrizePool()
     const { getTicketsByTargetNumber, getNftTicket } = useGreatLottoNft()
 
-    const { getPageNavInfo, pageCurrent, pageCount, setPageCurrent } = usePageNav()
-
-    const showListByPage = async (base) => {
-
-        let _list = [];
-        let _showListBase = base || showListBase
-        let curBlockNumber = await getBlockNumber(config);
-
-        let [_pageCount, startIndex, endIndex] = getPageNavInfo(_showListBase.length);
-
-        console.log('showListBase: ', _showListBase);
-        console.log('page: ', pageCurrent);
-        console.log('startIndex: ', startIndex);
-        console.log('endIndex: ', endIndex);
-        console.log('pageCount: ', _pageCount);
-
-        for(let i = startIndex; i < endIndex; i++){
-            let info = await _showBlock(_showListBase[i], curBlockNumber);
-            _list.push(info);
-        }
-
-        setShowList(_list);
-
-    }
+    const { getPageNavInfo, pageCurrent, pageCount, setPageCurrent, pageSize } = usePageNav()
 
     const _showBlock = async  (info, curBlockNumber) => {
         let maxNumber = curBlockNumber - BlockPeriods;
+        console.log(info.blockNumber);
         // blockBalance
         info.blockPrize = await getBlockBalance(info.blockNumber, false)
         info.blockEthPrize = await getBlockBalance(info.blockNumber, true)
         // tickets          
         info.tickets = await getTicketsByTargetNumber(info.blockNumber)
         // drawNumber
-        if(info.status != 'drawnList' && info.blockNumber <= maxNumber){
+        if(info.status != 'drawn' && info.blockNumber <= maxNumber){
             info.drawNumber = await getDrawNumber(info.blockNumber);
+            //console.log(info.drawNumber);
             let numberList = [];
             for (let ti = 0; ti < info.tickets.length; ti++) {
                 let ticket = await getNftTicket(info.tickets[ti]);
@@ -78,48 +57,40 @@ export default function BlockList({currentBlock}) {
             [info.normalAwardSumAmount, info.topBonusMultiples] = drawTicketList(numberList, info.drawNumber, false);
             [info.normalAwardSumAmountByEth, info.topBonusMultiplesByEth] = drawTicketList(numberList, info.drawNumber, true);
         }
-
         return info;
 
     }
 
-    const searchBlock = async (blockNumber) => {
-        blockNumber = BigInt(blockNumber)
-        let block1 = blockNumber / IssueInterval * IssueInterval
-        let block2 = 0n;
-        if(block1 != blockNumber){
-            block2 = (blockNumber / IssueInterval + 1n) * IssueInterval
-        }
-        let result = []
+    const _showBlockList = async (list) => {
         let curBlockNumber = await getBlockNumber(config);
-        for (let i = 0; i < allList.length; i++) {
-            if(block2 == 0n){
-                if(allList[i].blockNumber == blockNumber){
-                    result.push(allList[i]);
-                    break;
-                }
-            }else{
-                if(allList[i].blockNumber == block1 || allList[i].blockNumber == block2){
-                    result.push(allList[i]);
-                }
-            }
+        let _list = [];
+        for (let i = 0; i < list.length; i++) {
+            let info = await _showBlock(list[i], curBlockNumber);
+            _list.push(info);
         }
+        return _list;
+    }
 
-        for (let i = 0; i < result.length; i++) {
-            result[i] = await _showBlock(result[i], curBlockNumber);;
-        }
-
-        setShowList(result);
+    const searchBlock = async (blockNumber) => {
+        let result = await searchBlockFromServer(blockNumber);
+        setShowList(await _showBlockList(result));
         getPageNavInfo(1);
     }
     
-    const showListByStatus = async (list) => {
-        setShowListBase([...list]);
-        if(pageCurrent > 1){
-            setPageCurrent(1);
+    const showListByStatus = async (status, page) => {
+        let result, count;
+        status = status || curStatus;
+        page = page || pageCurrent;
+        
+        if(status == 'all'){
+            ({result, count} = await getBlockListFromServer(pageSize, page));
         }else{
-            await showListByPage([...list]);
+            ({result, count} = await getBlockListWithStatusFromServer(status, pageSize, page));
         }
+
+        getPageNavInfo(count);
+
+        setShowList(await _showBlockList(result));
     }
 
     const toggleDetailShow = (blockNumber, isShow) => {
@@ -129,31 +100,28 @@ export default function BlockList({currentBlock}) {
         setDrawDetailShow(newData);
     }
 
-    const initList = async (isReset) => {
+    const initBlockList = async () => {
         setIsLoading(true)
-        if(isReset || allList.length == 0){
-            let {_allList} = await getBlockListWithStatus()
-            await showListByStatus(_allList)
-        }else{
-            await showListByPage();
+        if(curStatus){
+            await showListByStatus()
         }
         setIsLoading(false)
     }
-
 
     useEffect(()=>{
 
         console.log('useEffect~')
 
-        initList();
+        initBlockList();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [currentBlock, pageCurrent])
+    }, [pageCurrent, curStatus])
 
     return (
     <>
-        <Card title="Block List" subTitle={currentBlock.number?.toString()} reload={async ()=>{
-            await initList(true);
+        <Card title="Block List" subTitle={currentBlock.number?.toString()} reload={()=>{
+            setCurStatus('all');
+            setPageCurrent(1);
         }}>
             <div className='row my-3'>
                 <div className='col-4'>
@@ -166,7 +134,8 @@ export default function BlockList({currentBlock}) {
                         <button className="btn btn-outline-secondary" type="button" onClick={()=>{
                             let status = statusSearchEl.current.value;
                             console.log(status)
-                            showListByStatus(listStatus[status].data);
+                            setCurStatus(status);
+                            setPageCurrent(1);
                         }}> Search Status </button>
                     </div>
                 </div>
@@ -177,7 +146,9 @@ export default function BlockList({currentBlock}) {
                         <button className="btn btn-outline-secondary" type="button" onClick={()=>{
                             let blockNumber = blockSearchEl.current.value
                             if(blockNumber){
-                                searchBlock(blockNumber)
+                                setCurStatus(null);
+                                setPageCurrent(1);
+                                searchBlock(blockNumber);
                                 blockSearchEl.current.value = ''
                             }
                         }}> Search Block </button>
