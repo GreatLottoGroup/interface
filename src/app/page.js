@@ -18,7 +18,7 @@ export default function Home() {
             {title: 'About', name: 'about', href: './'},
         ]}>
           <div className="col-md-5 text-end">
-            <Link href="./launch/issue" className="btn btn-primary fs-5">Launch App</Link>
+            <Link href="/launch/issue" className="btn btn-primary fs-5">Launch App</Link>
           </div>  
         </Header>
 

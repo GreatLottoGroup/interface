@@ -22,7 +22,8 @@ const cnf = getDefaultConfig({
     appName: 'GreatLotto',
     infuraId: process.env.NEXT_PUBLIC_INFURA_ID,
     alchemyId:  process.env.NEXT_PUBLIC_ALCHEMY_ID,
-    chains: [sepolia, holesky, hardhat, 
+    chains: [holesky, hardhat, 
+        //sepolia,
         //mainnet
     ],
     walletConnectProjectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
