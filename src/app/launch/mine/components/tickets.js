@@ -173,7 +173,7 @@ export default function Tickets() {
 
     const getWinNumbers = (numsList, block) => {
         if(block.blockNumber >= currentBlock.number - BlockPeriods){
-            let time = Number((block.blockNumber - currentBlock.number) * PerBlockTime + currentBlock.timestamp) * 1000
+            let time = Number((BigInt(block.blockNumber) - currentBlock.number) * PerBlockTime + currentBlock.timestamp) * 1000
             return amount(dateFormatLocal(time), true);
         }else{
             let drawNumber = block.drawNumber;
