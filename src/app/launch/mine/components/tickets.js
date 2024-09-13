@@ -5,9 +5,8 @@ import Modal from 'react-bootstrap/Modal';
 
 import { useState, useEffect } from 'react'
 import { useConfig, useAccount } from 'wagmi'
-import { getBlockNumber } from '@wagmi/core'
 
-import { useDrawNumbers, drawTicketList } from '@/launch/hooks/drawNumbers'
+import { drawTicketList } from '@/launch/hooks/drawNumbers'
 import { dateFormatLocal } from '@/launch/hooks/dateFormat'
 
 import { BlockPeriods, PerBlockTime, IssueInterval } from '@/launch/hooks/globalVars'
@@ -17,13 +16,13 @@ import { Ball } from '@/launch/hooks/balls'
 import { usePageNav, PageNav } from '@/launch/hooks/pageNav'
 
 import useGreatLottoNft from '@/launch/hooks/contracts/GreatLottoNft'
-import usePrizePool from '@/launch/hooks/contracts/PrizePool'
 import useCurrentBlock  from '@/launch/hooks/currentBlock'
 import Card from '@/launch/components/card'
 import List from '@/launch/components/list'
 import {getStatusEl} from '@/launch/hooks/targetBlock'
 import { coinShow, glc, gleth, amount } from "@/launch/components/coinShow"
 import Tooltips from "@/launch/components/tooltips"
+import {useTargetBlock} from '@/launch/hooks/targetBlock'
 
 export default function Tickets() {
 
@@ -41,17 +40,15 @@ export default function Tickets() {
     const [isLoading, setIsLoading] = useState(false);
     const [NFTSVGAddress, setNFTSVGAddress] = useState();
 
-    const { getNftBalance, getNftToken, getNftTicket, getNftSVG, getNFTSVGAddress } = useGreatLottoNft()
-    const { getBlockDrawStatus } = usePrizePool()
-
-    const { getDrawNumber } = useDrawNumbers()
+    const { getNftBalance, getNftToken, getNftSVG, getNFTSVGAddress } = useGreatLottoNft()
 
     const { getPageNavInfo, pageCurrent, pageCount, setPageCurrent } = usePageNav()
+
+    const {getTicketsFromServer, getBlockListWithNumbersFromServer} = useTargetBlock()
     
     const getNftList = async () => {
 
         let balance = await getNftBalance();
-        let curBlockNumber = await getBlockNumber(config);
 
         let list = [];
 
@@ -67,26 +64,32 @@ export default function Tickets() {
         console.log('startIndex: ' + startIndex);
         console.log('endIndex: ' + endIndex);
         console.log('pageCount: ' + _pageCount);*/
-        
+
+        let tokens = [];
+
         for(let i = startIndex; i < endIndex; i++){
             // 倒序
             let token = await getNftToken(Number(balance) - 1 - i);
-            let ticket = await getNftTicket(token);
-            let targetBlocks = [];
-            
+            tokens.push(token)
+        }
+        console.log("tokens: ", tokens)
+
+        let tickets = await getTicketsFromServer(tokens);
+        console.log("tickets: ", tickets)
+        
+        for(let i = 0; i < tickets.length; i++){
+            let ticket = tickets[i];
+
+            let targetBlockNumbers = [];
+
             for(let j = 0; j < ticket.periods; j++){
-                let bn =  ticket.targetBlockNumber + IssueInterval*BigInt(j);
-                let blockData = { blockNumber: bn }
-                if(bn < curBlockNumber - BlockPeriods){
-                    blockData.drawNumbers = await getDrawNumber(bn);
-                    blockData.drawStatus = await getBlockDrawStatus(bn);
-                }else{
-                    blockData.drawNumbers = [];
-                    blockData.drawStatus = {};
-                }
-                targetBlocks.push(blockData)
+                let bn =  BigInt(ticket.targetBlockNumber) + IssueInterval*BigInt(j);
+                targetBlockNumbers.push(bn)
             }
 
+            let targetBlocks = await getBlockListWithNumbersFromServer(targetBlockNumbers);
+            //console.log("targetBlocks: ", targetBlocks)
+            
             list.push({ targetBlocks, ...ticket })
         }
 
@@ -136,12 +139,12 @@ export default function Tickets() {
         let isDraw = false
         for(let i = 0; i < targetBlocks.length; i++){
             if(isBlue){
-                if(targetBlocks[i].drawNumbers.slice(0,6).indexOf(num) > -1){
+                if(targetBlocks[i].drawNumber.slice(0,6).indexOf(num) > -1){
                     isDraw = true;
                     break;
                 }
             }else{
-                if(targetBlocks[i].drawNumbers[6] == num){
+                if(targetBlocks[i].drawNumber[6] == num){
                     isDraw = true;
                     break;
                 }
@@ -173,22 +176,22 @@ export default function Tickets() {
             let time = Number((block.blockNumber - currentBlock.number) * PerBlockTime + currentBlock.timestamp) * 1000
             return amount(dateFormatLocal(time), true);
         }else{
-            let drawNumbers = block.drawNumbers;
+            let drawNumber = block.drawNumber;
             //test
             /*
-            drawNumbers[0] = 32
-            drawNumbers[1] = 33
-            drawNumbers[2] = 34
-            drawNumbers[3] = 35
-            drawNumbers[4] = 36
-            drawNumbers[5] = 37
-            drawNumbers[6] = 14
+            drawNumber[0] = 32
+            drawNumber[1] = 33
+            drawNumber[2] = 34
+            drawNumber[3] = 35
+            drawNumber[4] = 36
+            drawNumber[5] = 37
+            drawNumber[6] = 14
             */
-            drawNumbers = [...drawNumbers.slice(0, 6).sort((a,b) => {return a-b;}), drawNumbers[6]]
+            drawNumber = [...drawNumber.slice(0, 6).sort((a,b) => {return a-b;}), drawNumber[6]]
 
             return (
             <>
-                {drawNumbers.map((num, i) => (
+                {drawNumber.map((num, i) => (
                     <Ball number={num} key={i} type={i < 6 ? 'brave' : 'red'} isDraw={getIsDrawFormNumsList(numsList, num, i < 6)}/>
                 ))}
             </>
@@ -201,8 +204,8 @@ export default function Tickets() {
         if(block.blockNumber >= currentBlock.number - BlockPeriods){
             return '-'
         }else{
-            let drawNumbers = block.drawNumbers;    
-            let [bonus, topBonus] = drawTicketList(numsList, drawNumbers, isEth);
+            let drawNumber = block.drawNumber;    
+            let [bonus, topBonus] = drawTicketList(numsList, drawNumber, isEth);
     
             return (
             <>
@@ -228,9 +231,9 @@ export default function Tickets() {
 
         if(block.blockNumber >= currentBlock.number - BlockPeriods){
             drawStatusEl = getStatusEl('waitingDraw')
-        }else if(block.drawStatus.isDraw){
+        }else if(block.isDraw){
             drawStatusEl = getStatusEl('drawn')
-        }else if(block.drawStatus.isRollup){
+        }else if(block.isRollup){
             drawStatusEl =getStatusEl('rolled')
         }else if(block.blockNumber >= currentBlock.number - 256n){
             drawStatusEl = getStatusEl('waitingDraw')

@@ -84,11 +84,31 @@ export function useTargetBlock() {
         return data;
     }
 
+    const getBlockListWithNumbersFromServer = async (numbers) => {
+        if(numbers.length == 0){
+            return [];
+        }
+        let numbersStr = numbers.join(',');
+        let data = await getServerData('/block-list/' + chainId + '/find/blocks/' + numbersStr);
+        return data;
+    }
+
+    const getTicketsFromServer = async (tokens) => {
+        if(tokens.length == 0){
+            return [];
+        }
+        let tokensStr = tokens.join(',');
+        let data = await getServerData('/ticket-list/' + chainId + '/find/' + tokensStr);
+        return data;
+    }
+
+
     return {
         getBlockListFromServer,
         getBlockListWithStatusFromServer,
         searchBlockFromServer,
-
+        getTicketsFromServer,
+        getBlockListWithNumbersFromServer,
         listStatus,
     }
 }

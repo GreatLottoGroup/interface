@@ -9,7 +9,6 @@ import WriteBtn from '@/launch/components/writeBtn'
 import List from '@/launch/components/list'
 
 import useGreatLotto from '@/launch/hooks/contracts/GreatLotto'
-import usePrizePool from '@/launch/hooks/contracts/PrizePool'
 import {useTargetBlock} from '@/launch/hooks/targetBlock'
 import { glc, usd, gleth, eth, amount, rate } from "@/launch/components/coinShow"
 import useEstimateCost from '@/launch/hooks/estimateCost'
@@ -24,7 +23,6 @@ export default function Rollup({setCurrentBlock}) {
     const [isRollupBlockLoading, setIsRollupBlockLoading] = useState(false)
 
     const { rollupCollection, getRollupReward, getRollupCost, isLoading, isPending } = useGreatLotto()
-    const { getBlockBalance } = usePrizePool()
 
     const {getBlockListWithStatusFromServer} = useTargetBlock()
 
@@ -49,18 +47,13 @@ export default function Rollup({setCurrentBlock}) {
     }
 
     const getRollupList = async () => {
-        let {result, count} = await getBlockListWithStatusFromServer('waitingRollup');
+        let {result, } = await getBlockListWithStatusFromServer('waitingRollup');
         console.log(result);
 
         if(result.length > 0){
             for (let i = 0; i < result.length; i++) {
-                let blockBalance = await getBlockBalance(result[i].blockNumber, false);
-                let blockBalanceEth = await getBlockBalance(result[i].blockNumber, true);
-
                 result[i] = {
                     ...result[i],
-                    blockBalance,
-                    blockBalanceEth
                 }
             }
             

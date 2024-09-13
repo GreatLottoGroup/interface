@@ -9,11 +9,9 @@ import List from '@/launch/components/list'
 
 import { DrawGroupBalls } from '@/launch/hooks/balls'
 import { BlockPeriods, shortAddress } from '@/launch/hooks/globalVars'
-import usePrizePool from '@/launch/hooks/contracts/PrizePool'
-import useGreatLottoNft from '@/launch/hooks/contracts/GreatLottoNft'
 import { usePageNav, PageNav } from '@/launch/hooks/pageNav'
 import {useTargetBlock} from '@/launch/hooks/targetBlock'
-import { useDrawNumbers, drawTicketList } from '@/launch/hooks/drawNumbers'
+import { drawTicketList } from '@/launch/hooks/drawNumbers'
 import { glc, gleth, amount } from "@/launch/components/coinShow"
 
 export default function BlockList({currentBlock}) {
@@ -22,7 +20,7 @@ export default function BlockList({currentBlock}) {
 
     const [showList, setShowList] = useState([])
     const [curStatus, setCurStatus] = useState('all')
-    const {listStatus, getBlockListFromServer, getBlockListWithStatusFromServer, searchBlockFromServer} = useTargetBlock()
+    const {listStatus, getBlockListFromServer, getBlockListWithStatusFromServer, searchBlockFromServer, getTicketsFromServer} = useTargetBlock()
 
     const [isLoading, setIsLoading] = useState(false);
 
@@ -31,28 +29,18 @@ export default function BlockList({currentBlock}) {
     const blockSearchEl = useRef(null)
     const statusSearchEl = useRef(null)
 
-    const { getDrawNumber } = useDrawNumbers()
-    const { getBlockBalance } = usePrizePool()
-    const { getTicketsByTargetNumber, getNftTicket } = useGreatLottoNft()
-
     const { getPageNavInfo, pageCurrent, pageCount, setPageCurrent, pageSize } = usePageNav()
 
     const _showBlock = async  (info, curBlockNumber) => {
         let maxNumber = curBlockNumber - BlockPeriods;
-        console.log(info.blockNumber);
-        // blockBalance
-        info.blockPrize = await getBlockBalance(info.blockNumber, false)
-        info.blockEthPrize = await getBlockBalance(info.blockNumber, true)
-        // tickets          
-        info.tickets = await getTicketsByTargetNumber(info.blockNumber)
+        console.log(info);
         // drawNumber
         if(info.status != 'drawn' && info.blockNumber <= maxNumber){
-            info.drawNumber = await getDrawNumber(info.blockNumber);
-            //console.log(info.drawNumber);
             let numberList = [];
-            for (let ti = 0; ti < info.tickets.length; ti++) {
-                let ticket = await getNftTicket(info.tickets[ti]);
-                numberList = [...numberList, ...ticket.numbers]
+            let ticketList = await getTicketsFromServer(info.tickets);
+            for (let ti = 0; ti < ticketList.length; ti++) {
+                let t = ticketList[ti];
+                numberList = [...numberList, ...t.numbers]
             }
             [info.normalAwardSumAmount, info.topBonusMultiples] = drawTicketList(numberList, info.drawNumber, false);
             [info.normalAwardSumAmountByEth, info.topBonusMultiplesByEth] = drawTicketList(numberList, info.drawNumber, true);

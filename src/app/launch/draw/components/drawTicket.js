@@ -28,7 +28,7 @@ export default function DrawTicket({setCurrentBlock}) {
     const [isDrawListLoading, setIsDrawListLoading] = useState(false)
 
     const { checkDraw, draw, getDrawReward, getDrawCost, isLoading, isPending } = useGreatLotto()
-    const { getBlockBalance, getRollupBalance } = usePrizePool()
+    const { getRollupBalance } = usePrizePool()
 
     const { getBlockListWithStatusFromServer} = useTargetBlock()
     const { getBalance } = useCoin();
@@ -83,11 +83,8 @@ export default function DrawTicket({setCurrentBlock}) {
                 let info = await checkDraw(block);
                 console.log(info);
 
-                let blockBalance = await getBlockBalance(block, false);
-                let blockBalanceEth = await getBlockBalance(block, true);
-
-                rollupBalance += blockBalance - info.award.normalAwardSumAmount;
-                rollupBalanceEth += blockBalanceEth - info.awardByEth.normalAwardSumAmount;
+                rollupBalance += result[i].blockBalance - info.award.normalAwardSumAmount;
+                rollupBalanceEth += result[i].blockBalanceEth - info.awardByEth.normalAwardSumAmount;
                 
                 let drawBlock = {
                     blockNumber: block,
