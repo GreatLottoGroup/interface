@@ -21,6 +21,7 @@ export default function BenefitPool({poolBalance, setPoolBalance, isEth, useBene
 
     const [executorReward, setExecutorReward] = useState(0);
     const [executorCost, setExecutorCost] = useState(0);
+    const [gasCost, setGasCost] = useState(0)
 
     const getExecutorRewardInfo = async () => {
         console.log('isEth: ', isEth);
@@ -28,9 +29,9 @@ export default function BenefitPool({poolBalance, setPoolBalance, isEth, useBene
 
         setExecutorReward(reward);
 
-        let [cost, ] = await getExecutorCost(isEth)
+        let [cost, , _gasCost] = await getExecutorCost(isEth)
         setExecutorCost(cost);
-
+        setGasCost(_gasCost);
     }
     
     const getBenefitPoolBalance = async () => {
@@ -44,7 +45,7 @@ export default function BenefitPool({poolBalance, setPoolBalance, isEth, useBene
     }
 
     const executeShareBenefit = async () => {
-        let tx = await executeBenefit(isEth)
+        let tx = await executeBenefit(isEth, gasCost)
         if(tx){
             getBenefitPoolBalance()
         }

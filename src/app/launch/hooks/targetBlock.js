@@ -69,13 +69,17 @@ export function useTargetBlock() {
         return data;
     }
 
-    const getBlockListFromServer = async (pageSize, page) => {
+    const getBlockListFromServer = async (page = 1, pageSize = 10) => {
         let data = await getServerData('/block-list/' + chainId + '/find/all?pageSize=' + pageSize + '&page=' + page);
         return data;
     }
 
-    const getBlockListWithStatusFromServer = async (status, pageSize, page) => {
+    const getBlockListByStatusFromServer = async (status, executeBlocks, page = 1, pageSize = 10) => {
         let data = await getServerData('/block-list/' + chainId + '/find/status/' + status +'?pageSize=' + pageSize + '&page=' + page);
+        console.log("executeBlocks", executeBlocks)
+        if(executeBlocks && executeBlocks.length > 0){
+            data.result = data.result.filter(item => executeBlocks.indexOf(item.blockNumber) == -1);
+        }
         return data;
     }
 
@@ -84,7 +88,7 @@ export function useTargetBlock() {
         return data;
     }
 
-    const getBlockListWithNumbersFromServer = async (numbers) => {
+    const getBlockListByNumbersFromServer = async (numbers) => {
         if(numbers.length == 0){
             return [];
         }
@@ -93,22 +97,28 @@ export function useTargetBlock() {
         return data;
     }
 
-    const getTicketsFromServer = async (tokens) => {
+    const getTicketsByTokensFromServer = async (tokens) => {
         if(tokens.length == 0){
             return [];
         }
         let tokensStr = tokens.join(',');
-        let data = await getServerData('/ticket-list/' + chainId + '/find/' + tokensStr);
+        let data = await getServerData('/ticket-list/' + chainId + '/find/token/' + tokensStr);
+        return data;
+    }
+
+    const getTicketsByOwnerFromServer = async (owner, page = 1, pageSize = 10) => {
+        let data = await getServerData('/ticket-list/' + chainId + '/find/owner/' + owner +'?pageSize=' + pageSize + '&page=' + page);
         return data;
     }
 
 
     return {
         getBlockListFromServer,
-        getBlockListWithStatusFromServer,
+        getBlockListByStatusFromServer,
         searchBlockFromServer,
-        getTicketsFromServer,
-        getBlockListWithNumbersFromServer,
+        getTicketsByTokensFromServer,
+        getBlockListByNumbersFromServer,
+        getTicketsByOwnerFromServer,
         listStatus,
     }
 }

@@ -14,17 +14,17 @@ export default function Draw() {
     <>
         <div className='row mb-3'>
             <div className='col'>
+                <BlockList currentBlock={currentBlock}/>
+            </div>
+        </div>
+        <div className='row mb-3'>
+            <div className='col'>
                 <DrawTicket setCurrentBlock={setCurrentBlock}/>
             </div>
         </div>
         <div className='row mb-3'>
             <div className='col'>
                 <Rollup setCurrentBlock={setCurrentBlock}/>
-            </div>
-        </div>
-        <div className='row mb-3'>
-            <div className='col'>
-                <BlockList currentBlock={currentBlock}/>
             </div>
         </div>
     </>

@@ -13,7 +13,7 @@ export default function useCoin(coinAddr) {
     const { write, error, isLoading, isSuccess, isPending, isConfirm } = useWrite()
 
     const increaseAllowance = async (to, amount, addr, abi) => {
-        let tx = write({
+        let [tx, ] = write({
             account: accountAddress,
             address: addr || coinAddr,
             abi: abi ||erc20Abi,

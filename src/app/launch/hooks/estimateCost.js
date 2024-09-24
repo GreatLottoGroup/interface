@@ -71,6 +71,9 @@ export default function useEstimateCost() {
         });
 
         console.log('simulate result: ', result);
+        if(!result){
+            return [0n, 0n, 0n];
+        }
         let [_result, gasUsed] = result;
 
         let reward = 0n
@@ -93,7 +96,6 @@ export default function useEstimateCost() {
     }
 
     const getExecutorCost = async(address, abi, functionName, args, isEth) => {
-
         let gasPrice = await getGasPrice();
         let gasCost = 0n;
 
@@ -133,7 +135,7 @@ export default function useEstimateCost() {
     }
     
     const changeExecutorRewardPrice = async (address, price) => {
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: address,
             abi: ExecutorRewardABI,
@@ -144,7 +146,7 @@ export default function useEstimateCost() {
     }
 
     const changeExecutorGasGap = async (address, gap) => {
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: address,
             abi: ExecutorRewardABI,

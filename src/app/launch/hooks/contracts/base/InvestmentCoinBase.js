@@ -109,7 +109,7 @@ export default function useInvestmentCoinBase(coinAddr) {
     }
 
     const changeInitialPrice = async (price) => {
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: coinAddr,
             abi: InvestmentCoinBaseABI,

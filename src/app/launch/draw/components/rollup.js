@@ -17,14 +17,17 @@ export default function Rollup({setCurrentBlock}) {
 
     const [rollupReward, setRollupReward] = useState(0)
     const [rollupCost, setRollupCost] = useState(0)
+    const [gasCost, setGasCost] = useState(0)
     const [isEthReward, setIsEthReward] = useState(false)
 
     const [rollupBlocks, setRollupBlocks] = useState([])
     const [isRollupBlockLoading, setIsRollupBlockLoading] = useState(false)
 
+    const [executeBlocks, setExecuteBlocks] = useState([])
+
     const { rollupCollection, getRollupReward, getRollupCost, isLoading, isPending } = useGreatLotto()
 
-    const {getBlockListWithStatusFromServer} = useTargetBlock()
+    const {getBlockListByStatusFromServer} = useTargetBlock()
 
     const { getBalance } = useCoin();
     const { PrizePoolContractAddress, GuaranteePoolContractAddress, GreatEthContractAddress } = useAddress()
@@ -39,38 +42,31 @@ export default function Rollup({setCurrentBlock}) {
         }
 
         let [reward, ] = await getRollupReward(blocks, _isEthReward);
-        let [cost, ] = await getRollupCost(blocks, _isEthReward)
+        let [cost, , _gasCost] = await getRollupCost(blocks, _isEthReward)
         setRollupReward(reward);
         setRollupCost(cost);
-
+        setGasCost(_gasCost);
         setIsEthReward(_isEthReward);
     }
 
-    const getRollupList = async () => {
-        let {result, } = await getBlockListWithStatusFromServer('waitingRollup');
+    const getRollupList = async (_executeBlocks) => {
+        let {result, } = await getBlockListByStatusFromServer('waitingRollup', _executeBlocks || executeBlocks);
         console.log(result);
 
         if(result.length > 0){
-            for (let i = 0; i < result.length; i++) {
-                result[i] = {
-                    ...result[i],
-                }
-            }
-            
             // 获取开奖奖励
-            let blocks = await getRollupBlockList(result);
+            let blocks = await getRollupBlockList(result, _executeBlocks);
             await getRewardInfo(blocks)
-            
         }
         
         setRollupBlocks([...result]);
  
     }
 
-    const getRollupBlockList = async (result) => {
+    const getRollupBlockList = async (result, _executeBlocks) => {
         
         if(!result){
-            ({result} = await getBlockListWithStatusFromServer('waitingRollup'));
+            ({result} = await getBlockListByStatusFromServer('waitingRollup', _executeBlocks || executeBlocks));
         }
         let blocks = [];
 
@@ -88,14 +84,18 @@ export default function Rollup({setCurrentBlock}) {
 
         let blocks = await getRollupBlockList();
 
+        console.log("blocks:", blocks)
         if(blocks.length == 0){
             return false;
         }
 
-        let tx = await rollupCollection(blocks);
+        let [tx, status] = await rollupCollection(blocks, gasCost);
 
         if(tx){
-            await initRollupList()
+            let _executeBlocks = status == 'success' ? blocks : [];
+            setExecuteBlocks(_executeBlocks)
+            await initRollupList(_executeBlocks)
+
             setCurrentBlock()
         }else{
             console.log('error---');
@@ -103,9 +103,9 @@ export default function Rollup({setCurrentBlock}) {
 
     }
 
-    const initRollupList = async () => {
+    const initRollupList = async (_executeBlocks) => {
         setIsRollupBlockLoading(true)
-        await getRollupList()
+        await getRollupList(_executeBlocks)
         setIsRollupBlockLoading(false)
     }
 

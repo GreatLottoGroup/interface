@@ -22,7 +22,7 @@ export default function useDaoCoin() {
     const coin = useCoin(DaoCoinContractAddress);
 
     const mint = async (account, amount) => {
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: DaoCoinContractAddress,
             abi: DaoCoinABI,
@@ -52,7 +52,7 @@ export default function useDaoCoin() {
     }
 
     const changeInitialPrice = async (price, isEth) => {
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: DaoCoinContractAddress,
             abi: DaoCoinABI,

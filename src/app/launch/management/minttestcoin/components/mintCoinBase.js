@@ -23,7 +23,7 @@ export default function MintCoinBase({coinAddress, coinName}) {
     const { write, isLoading, isPending} = useWrite()
 
     const mintFor = async (addr, amount) => {
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: coinAddress,
             abi: GreatCoinABI,
@@ -34,7 +34,7 @@ export default function MintCoinBase({coinAddress, coinName}) {
     }
 
     const burnFrom = async (addr, amount) => {
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: coinAddress,
             abi: GreatCoinABI,

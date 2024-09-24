@@ -22,15 +22,19 @@ export default function DrawTicket({setCurrentBlock}) {
 
     const [drawReward, setDrawReward] = useState(0)
     const [drawCost, setDrawCost] = useState(0)
+    const [gasCost, setGasCost] = useState(0)
+
     const [isEthReward, setIsEthReward] = useState(false)
 
     const [drawList, setDrawList] = useState([])
     const [isDrawListLoading, setIsDrawListLoading] = useState(false)
 
+    const [executeBlocks, setExecuteBlocks] = useState([])
+
     const { checkDraw, draw, getDrawReward, getDrawCost, isLoading, isPending } = useGreatLotto()
     const { getRollupBalance } = usePrizePool()
 
-    const { getBlockListWithStatusFromServer} = useTargetBlock()
+    const { getBlockListByStatusFromServer} = useTargetBlock()
     const { getBalance } = useCoin();
     const { PrizePoolContractAddress, GuaranteePoolContractAddress, GreatEthContractAddress } = useAddress()
 
@@ -59,18 +63,19 @@ export default function DrawTicket({setCurrentBlock}) {
         }
 
         let [reward, ] = await getDrawReward(drawBlock.blockNumber, _isEthReward)
-        let [cost, ] = await getDrawCost(drawBlock.blockNumber, _isEthReward)
+        let [cost, , _gasCost] = await getDrawCost(drawBlock.blockNumber, _isEthReward)
         console.log('reward:', reward);
         setDrawReward(reward);
         setDrawCost(cost);
+        setGasCost(_gasCost);
 
         setIsEthReward(_isEthReward);
     }
 
-    const getDrawList = async () => {
+    const getDrawList = async (_executeBlocks) => {
 
         let drawList = [];
-        let {result} = await getBlockListWithStatusFromServer('drawSoon');
+        let {result} = await getBlockListByStatusFromServer('drawSoon', _executeBlocks || executeBlocks);
         
         console.log(result);
 
@@ -83,20 +88,20 @@ export default function DrawTicket({setCurrentBlock}) {
                 let info = await checkDraw(block);
                 console.log(info);
 
-                rollupBalance += result[i].blockBalance - info.award.normalAwardSumAmount;
-                rollupBalanceEth += result[i].blockBalanceEth - info.awardByEth.normalAwardSumAmount;
+                rollupBalance += BigInt(result[i].blockBalance) - info.award.normalAwardSumAmount;
+                rollupBalanceEth += BigInt(result[i].blockBalanceEth) - info.awardByEth.normalAwardSumAmount;
                 
                 let drawBlock = {
                     blockNumber: block,
                     drawNumber: info.drawNumber,
                     award: {
-                        blockBalance: blockBalance,
+                        blockBalance: BigInt(result[i].blockBalance),
                         rollupBalance: rollupBalance,
                         normalAwardSumAmount: info.award.normalAwardSumAmount,
                         topBonusMultiples: info.award.topBonusMultiples
                     },
                     awardByEth: {
-                        blockBalance: blockBalanceEth,
+                        blockBalance: BigInt(result[i].blockBalanceEth),
                         rollupBalance: rollupBalanceEth,
                         normalAwardSumAmount: info.awardByEth.normalAwardSumAmount,
                         topBonusMultiples: info.awardByEth.topBonusMultiples
@@ -124,17 +129,20 @@ export default function DrawTicket({setCurrentBlock}) {
 
     const drawExecute = async () =>{
 
-        let {result} = await getBlockListWithStatusFromServer('drawSoon');
+        let {result} = await getBlockListByStatusFromServer('drawSoon', executeBlocks);
 
         let drawNumber = result[0]?.blockNumber;
-        let tx;
+        let tx, status;
 
         if(drawNumber){
-            tx = await draw(drawNumber);
+            [tx, status] = await draw(drawNumber, gasCost);
         }
 
         if(tx){
-            await initDrawList()
+            let _executeBlocks = status == 'success' ? [drawNumber] : [];
+            setExecuteBlocks(_executeBlocks)
+            await initDrawList(_executeBlocks)
+
             setCurrentBlock()
         }else{
             console.log('error---');
@@ -142,9 +150,9 @@ export default function DrawTicket({setCurrentBlock}) {
 
     }
 
-    const initDrawList = async () => {
+    const initDrawList = async (_executeBlocks) => {
         setIsDrawListLoading(true)
-        await getDrawList()
+        await getDrawList(_executeBlocks)
         setIsDrawListLoading(false)
     }
 

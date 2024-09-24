@@ -49,7 +49,7 @@ export default function useSalesChannel() {
 
     const registerChannel = async (name) => {
         
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: SalesChannelContractAddress,
             abi: SalesChannelABI,
@@ -62,7 +62,7 @@ export default function useSalesChannel() {
 
     const changeChannelName = async (name) => {
         
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: SalesChannelContractAddress,
             abi: SalesChannelABI,
@@ -74,7 +74,7 @@ export default function useSalesChannel() {
     }   
     const disableChannel = async (id) => {
         
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: SalesChannelContractAddress,
             abi: SalesChannelABI,
@@ -87,7 +87,7 @@ export default function useSalesChannel() {
 
     const enableChannel = async (id) => {
         
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: SalesChannelContractAddress,
             abi: SalesChannelABI,

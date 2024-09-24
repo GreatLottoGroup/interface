@@ -72,7 +72,7 @@ export default function useGreatLottoNft() {
     }
 
     const changeNFTSVGAddress = async (addr) => {
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: GreatNftContractAddress,
             abi: GreatNftABI,

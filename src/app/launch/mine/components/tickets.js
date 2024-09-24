@@ -9,7 +9,7 @@ import { useConfig, useAccount } from 'wagmi'
 import { drawTicketList } from '@/launch/hooks/drawNumbers'
 import { dateFormatLocal } from '@/launch/hooks/dateFormat'
 
-import { BlockPeriods, PerBlockTime, IssueInterval } from '@/launch/hooks/globalVars'
+import { BlockPeriods, IssueInterval, getBlockTime } from '@/launch/hooks/globalVars'
 import useAddress from "@/launch/hooks/address"
 
 import { Ball } from '@/launch/hooks/balls'
@@ -40,57 +40,50 @@ export default function Tickets() {
     const [isLoading, setIsLoading] = useState(false);
     const [NFTSVGAddress, setNFTSVGAddress] = useState();
 
-    const { getNftBalance, getNftToken, getNftSVG, getNFTSVGAddress } = useGreatLottoNft()
+    const { getNftSVG, getNFTSVGAddress } = useGreatLottoNft()
 
-    const { getPageNavInfo, pageCurrent, pageCount, setPageCurrent } = usePageNav()
+    const { getPageNavInfo, pageCurrent, pageCount, setPageCurrent, pageSize } = usePageNav()
 
-    const {getTicketsFromServer, getBlockListWithNumbersFromServer} = useTargetBlock()
+    const {getBlockListByNumbersFromServer, getTicketsByOwnerFromServer} = useTargetBlock()
     
-    const getNftList = async () => {
+    const getNftList = async (page) => {
 
-        let balance = await getNftBalance();
+        page = page || pageCurrent;
+        
+        const {result, count} = await getTicketsByOwnerFromServer(accountAddress, page, pageSize);
+        
+        getPageNavInfo(count);
+        
+        let blockNumbers = [];
+        for(let i = 0; i < result.length; i++){
+            let _ticket = result[i];
+            for(let j = 0; j < _ticket.periods; j++){
+                let bn = BigInt(_ticket.targetBlockNumber) + IssueInterval*BigInt(j);
+                if(blockNumbers.indexOf(bn) == -1){
+                    blockNumbers.push(bn)
+                }
+            }
+        }
+        
+        const targetBlocks = await getBlockListByNumbersFromServer(blockNumbers);
 
+        const targetBlocksMap = {};
+
+        for(let i = 0; i < targetBlocks.length; i++){
+            let bn = targetBlocks[i].blockNumber;
+            targetBlocksMap[bn] = targetBlocks[i]
+        }
+        
         let list = [];
 
-        if(balance == 0n){
-            setNftList(list);
-            return false;
-        }
-
-        let [_pageCount, startIndex, endIndex] = getPageNavInfo(Number(balance));
-
-        /*console.log('page: ' + pageCurrent);
-        console.log('balance: ' + balance);
-        console.log('startIndex: ' + startIndex);
-        console.log('endIndex: ' + endIndex);
-        console.log('pageCount: ' + _pageCount);*/
-
-        let tokens = [];
-
-        for(let i = startIndex; i < endIndex; i++){
-            // 倒序
-            let token = await getNftToken(Number(balance) - 1 - i);
-            tokens.push(token)
-        }
-        console.log("tokens: ", tokens)
-
-        let tickets = await getTicketsFromServer(tokens);
-        console.log("tickets: ", tickets)
-        
-        for(let i = 0; i < tickets.length; i++){
-            let ticket = tickets[i];
-
-            let targetBlockNumbers = [];
-
-            for(let j = 0; j < ticket.periods; j++){
-                let bn =  BigInt(ticket.targetBlockNumber) + IssueInterval*BigInt(j);
-                targetBlockNumbers.push(bn)
+        for(let i = 0; i < result.length; i++){
+            let _ticket = result[i];
+            let _targetBlocks = [];
+            for(let j = 0; j < _ticket.periods; j++){
+                let bn = BigInt(_ticket.targetBlockNumber) + IssueInterval*BigInt(j);
+                _targetBlocks.push(targetBlocksMap[bn]);
             }
-
-            let targetBlocks = await getBlockListWithNumbersFromServer(targetBlockNumbers);
-            //console.log("targetBlocks: ", targetBlocks)
-            
-            list.push({ targetBlocks, ...ticket })
+            list.push({ targetBlocks: _targetBlocks, ..._ticket })
         }
 
         //console.log(list)
@@ -172,9 +165,15 @@ export default function Tickets() {
     }
 
     const getWinNumbers = (numsList, block) => {
+        console.log('getWinNumbers: ', numsList, block)
+
         if(block.blockNumber >= currentBlock.number - BlockPeriods){
-            let time = Number((BigInt(block.blockNumber) - currentBlock.number) * PerBlockTime + currentBlock.timestamp) * 1000
-            return amount(dateFormatLocal(time), true);
+            let time = getBlockTime(block.blockNumber, currentBlock)
+            if(time){
+                return amount(dateFormatLocal(time), true);
+            }else{
+                return '-'
+            }
         }else{
             let drawNumber = block.drawNumber;
             //test
@@ -228,14 +227,16 @@ export default function Tickets() {
 
     const getDrawStatus = (block) => {
         let drawStatusEl;
-
-        if(block.blockNumber >= currentBlock.number - BlockPeriods){
+        if(!currentBlock.number){
+            return;
+        }
+        if(block.blockNumber >= Number(currentBlock.number - BlockPeriods)){
             drawStatusEl = getStatusEl('waitingDraw')
         }else if(block.isDraw){
             drawStatusEl = getStatusEl('drawn')
         }else if(block.isRollup){
-            drawStatusEl =getStatusEl('rolled')
-        }else if(block.blockNumber >= currentBlock.number - 256n){
+            drawStatusEl = getStatusEl('rolled')
+        }else if(block.blockNumber >= Number(currentBlock.number - 256n)){
             drawStatusEl = getStatusEl('waitingDraw')
         }else{
             drawStatusEl = getStatusEl('waitingRollup')
@@ -265,7 +266,7 @@ export default function Tickets() {
   return (
     <>
 
-        <Card title="My Tickets" subTitle={currentBlock.number?.toString()} reload={async ()=>{setCurrentBlock(); await getNftList();}}>
+        <Card title="My Tickets" subTitle={currentBlock.number?.toString()} reload={async ()=>{setCurrentBlock(); await initNftList();}}>
             <List list={nftList} isLoading={isLoading}>
                 <table className='table table-hover'>
                     <thead>

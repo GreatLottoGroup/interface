@@ -62,6 +62,8 @@ export default function useWrite() {
         let [result, request] = await simulate(req);
 
         let tx;
+        let status;
+
         if(request && result){
             try {
                 tx = await writeContract(config, request)
@@ -96,13 +98,14 @@ export default function useWrite() {
             setIsPending(false)
             setIsConfirm(true)
             //console.log(transactionReceipt)
-            setStatus(transactionReceipt.status);
+            status = transactionReceipt.status;
+            setStatus(status);
             setTransaction({
                 ...trans,
                 hash: tx,
-                status: transactionReceipt.status
+                status
             }, [], true)
-            if(transactionReceipt.status == 'success'){
+            if(status == 'success'){
                 setGlobalToast({
                     status: 'success',
                     subTitle: 'Transaction Confirmed',
@@ -111,7 +114,7 @@ export default function useWrite() {
             }
         }
 
-        return tx;
+        return [tx, status];
 
     }
 

@@ -154,6 +154,15 @@ const _errorHandle = (err, errType) => {
     }
 }
 
+const getBlockTime = (blockNumber, currentBlock) => {
+    blockNumber = BigInt(blockNumber);
+    if(blockNumber && currentBlock?.number && blockNumber >= currentBlock.number - BlockPeriods){
+        return Number((blockNumber - currentBlock.number) * PerBlockTime + currentBlock.timestamp) * 1000
+    }else{
+        return 0
+    }
+}
+
 export  {
     chains,
 
@@ -200,4 +209,6 @@ export  {
     ExecutorRewardSaveRate,
 
     ServerUrl,
+
+    getBlockTime,
 }

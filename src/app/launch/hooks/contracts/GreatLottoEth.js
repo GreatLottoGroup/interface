@@ -18,7 +18,7 @@ export default function useGreatLottoEth() {
     const coinBase = useGreatLottoCoinBase(GreatEthContractAddress)
 
     const wrap = async (amount) => {
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: GreatEthContractAddress,
             abi: GreatEthABI,
@@ -30,7 +30,7 @@ export default function useGreatLottoEth() {
     }
 
     const unwrap = async (amount) => {
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: GreatEthContractAddress,
             abi: GreatEthABI,

@@ -22,13 +22,16 @@ export default function useBenefitPoolBase(poolAddress) {
 
     const { getExecutorReward: _getExecutorReward, getExecutorCost: _getExecutorCost } = useEstimateCost()
 
-    const executeBenefit = async (isEth) => {
-        let tx = await write({
+    const executeBenefit = async (isEth, gas) => {
+        let [tx, ] = await write({
             account: accountAddress,
             address: poolAddress,
             abi: BenefitPoolBaseABI,
             functionName: 'executeBenefit',
             args: [isEth, await getDeadline()],
+            // 增加 20%
+            gas: gas + gas / 5n
+
         })
         return tx;
     }

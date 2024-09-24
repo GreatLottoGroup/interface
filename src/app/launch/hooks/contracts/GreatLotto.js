@@ -56,7 +56,7 @@ export default function useGreatLotto() {
             channelId,
             deadline: await getDeadline()
         }
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: GreatLottoContractAddress,
             abi: [...GreatLottoABI, ...GreatLottoCoinABI],
@@ -94,7 +94,7 @@ export default function useGreatLotto() {
             channelId,
             deadline
         };
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: GreatLottoContractAddress,
             abi: [...GreatLottoABI, ...GreatLottoCoinABI],
@@ -106,34 +106,38 @@ export default function useGreatLotto() {
 
     }
 
-    const draw = async (blockNumber) => {
+    const draw = async (blockNumber, gas) => {
 
-        let tx = await write({
+        let [tx, status] = await write({
             account: accountAddress,
             address: GreatLottoContractAddress,
             abi: GreatLottoABI,
             functionName: 'draw',
             args: [blockNumber, await getDeadline()],
+            // 增加 20%
+            gas: gas + gas / 5n
         })
 
-        return tx;
+        return [tx, status];
     }
 
-    const rollupCollection = async (blockNumbers) => {
+    const rollupCollection = async (blockNumbers, gas) => {
         
         if(!blockNumbers || blockNumbers.length == 0){
             return false;
         }
         
-        let tx = await write({
+        let [tx, status] = await write({
             account: accountAddress,
             address: GreatLottoContractAddress,
             abi: GreatLottoABI,
             functionName: 'rollupCollection',
             args: [blockNumbers, await getDeadline()],
+            // 增加 20%
+            gas: gas + gas / 5n
         })
 
-        return tx;
+        return [tx, status];
     }
 
     const getDrawReward = async (blockNumber, isEth) => {

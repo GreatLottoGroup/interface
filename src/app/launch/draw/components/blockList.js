@@ -8,11 +8,12 @@ import Card from '@/launch/components/card'
 import List from '@/launch/components/list'
 
 import { DrawGroupBalls } from '@/launch/hooks/balls'
-import { BlockPeriods, shortAddress } from '@/launch/hooks/globalVars'
+import { BlockPeriods, shortAddress, getBlockTime } from '@/launch/hooks/globalVars'
 import { usePageNav, PageNav } from '@/launch/hooks/pageNav'
 import {useTargetBlock} from '@/launch/hooks/targetBlock'
 import { drawTicketList } from '@/launch/hooks/drawNumbers'
 import { glc, gleth, amount } from "@/launch/components/coinShow"
+import { dateFormatLocal } from '@/launch/hooks/dateFormat'
 
 export default function BlockList({currentBlock}) {
 
@@ -20,14 +21,13 @@ export default function BlockList({currentBlock}) {
 
     const [showList, setShowList] = useState([])
     const [curStatus, setCurStatus] = useState('all')
-    const {listStatus, getBlockListFromServer, getBlockListWithStatusFromServer, searchBlockFromServer, getTicketsFromServer} = useTargetBlock()
+    const {listStatus, getBlockListFromServer, getBlockListByStatusFromServer, searchBlockFromServer, getTicketsByTokensFromServer} = useTargetBlock()
 
     const [isLoading, setIsLoading] = useState(false);
 
     const [drawDetailShow, setDrawDetailShow] = useState({})
 
     const blockSearchEl = useRef(null)
-    const statusSearchEl = useRef(null)
 
     const { getPageNavInfo, pageCurrent, pageCount, setPageCurrent, pageSize } = usePageNav()
 
@@ -37,7 +37,7 @@ export default function BlockList({currentBlock}) {
         // drawNumber
         if(info.status != 'drawn' && info.blockNumber <= maxNumber){
             let numberList = [];
-            let ticketList = await getTicketsFromServer(info.tickets);
+            let ticketList = await getTicketsByTokensFromServer(info.tickets);
             for (let ti = 0; ti < ticketList.length; ti++) {
                 let t = ticketList[ti];
                 numberList = [...numberList, ...t.numbers]
@@ -71,9 +71,9 @@ export default function BlockList({currentBlock}) {
         page = page || pageCurrent;
         
         if(status == 'all'){
-            ({result, count} = await getBlockListFromServer(pageSize, page));
+            ({result, count} = await getBlockListFromServer(page, pageSize));
         }else{
-            ({result, count} = await getBlockListWithStatusFromServer(status, pageSize, page));
+            ({result, count} = await getBlockListByStatusFromServer(status, null, page, pageSize));
         }
 
         getPageNavInfo(count);
@@ -96,6 +96,15 @@ export default function BlockList({currentBlock}) {
         setIsLoading(false)
     }
 
+    const getBlockDrawTime =  (blockNumber) => {
+        const time = getBlockTime(blockNumber, currentBlock)
+        if(time){
+            return dateFormatLocal(time)
+        }else{
+            return '-'
+        }
+    }
+
     useEffect(()=>{
 
         console.log('useEffect~')
@@ -108,24 +117,20 @@ export default function BlockList({currentBlock}) {
     return (
     <>
         <Card title="Block List" subTitle={currentBlock.number?.toString()} reload={()=>{
-            setCurStatus('all');
-            setPageCurrent(1);
+            initBlockList();
         }}>
             <div className='row my-3'>
-                <div className='col-4'>
-                    <div className="input-group input-group-sm">
-                        <select className="form-select" ref={statusSearchEl}>
-                            {Object.keys(listStatus).map((v, i) => 
-                                <option key={i} value={v}>{listStatus[v].name}</option>
-                            )}
-                        </select>
-                        <button className="btn btn-outline-secondary" type="button" onClick={()=>{
-                            let status = statusSearchEl.current.value;
-                            console.log(status)
-                            setCurStatus(status);
-                            setPageCurrent(1);
-                        }}> Search Status </button>
-                    </div>
+                <div className='col-3'>
+                    <select className="form-select form-select-sm" onChange={(e)=>{
+                        let status = e.target.value;
+                        console.log(status)
+                        setCurStatus(status);
+                        setPageCurrent(1);
+                    }}>
+                        {Object.keys(listStatus).map((v, i) => 
+                            <option key={i} value={v} selected={v == curStatus}>{listStatus[v].name}</option>
+                        )}
+                    </select>
                 </div>
                 <div className='col'></div>
                 <div className='col-4'>
@@ -161,8 +166,8 @@ export default function BlockList({currentBlock}) {
                                 <div>Tickets: {amount(item.tickets.length, true)}</div>
                             </td>
                             <td>
-                                <div className='mb-1'>Block Prize: {glc(item.blockPrize)}</div>
-                                <div>Block Eth Prize: {gleth(item.blockEthPrize)}</div>
+                                <div className='mb-1'>Block Prize: {glc(item.blockBalance)}</div>
+                                <div>Block Eth Prize: {gleth(item.blockBalanceEth)}</div>
                             </td>
                             <td>{listStatus[item.status].status}</td>
                             <td>
@@ -209,7 +214,7 @@ export default function BlockList({currentBlock}) {
                                         </Modal.Body>
                                     </Modal>
                                 </>
-                                ) : '-'}
+                                ) : getBlockDrawTime(item.blockNumber)}
                             </td>
                         </tr>
                     )}

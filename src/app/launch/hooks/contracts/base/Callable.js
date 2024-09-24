@@ -14,7 +14,7 @@ export default function useCallable() {
 
     const transferCaller = async (addr, newCaller) => {
         console.log(addr, newCaller);
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: addr,
             abi: CallableABI,

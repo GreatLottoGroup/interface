@@ -13,7 +13,7 @@ export default function useGreatLottoCoinBase(coinAddr) {
     const coin = useCoin(coinAddr);
 
     const withdraw = async (token, amount) => {
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: coinAddr,
             abi: GreatCoinABI,
@@ -24,7 +24,7 @@ export default function useGreatLottoCoinBase(coinAddr) {
     }
 
     const recover = async () => {
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: coinAddr,
             abi: GreatCoinABI,

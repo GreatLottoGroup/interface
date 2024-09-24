@@ -90,7 +90,7 @@ export default function usePrizePool() {
             amount = parseAmount(amount, getTokenDecimals(token));
         }
         console.log('amount:', amount)
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: PrizePoolContractAddress,
             abi: PrizePoolABI,
@@ -119,7 +119,7 @@ export default function usePrizePool() {
             return false;
         }
 
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: PrizePoolContractAddress,
             abi: PrizePoolABI,
@@ -132,7 +132,7 @@ export default function usePrizePool() {
     }
 
     const investmentRedeem = async (token, shares) => {
-        let tx = await write({
+        let [tx, ] = await write({
             account: accountAddress,
             address: PrizePoolContractAddress,
             abi: PrizePoolABI,

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 
 import { Multiple, Periods} from './components/multiple'
 import { BallSelect, BallGroup, sumCount} from './components/ball'
-import BlockNumberSelect from './components/blockNumber2'
+import BlockNumberSelect from './components/blockNumber'
 import { PayCoin } from './components/payCoin'
 import Issue from './components/issue'
 import Channel from './components/channel'
