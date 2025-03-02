@@ -23,6 +23,7 @@ export default function useBenefitPoolBase(poolAddress) {
     const { getExecutorReward: _getExecutorReward, getExecutorCost: _getExecutorCost } = useEstimateCost()
 
     const executeBenefit = async (isEth, gas) => {
+        gas = BigInt(gas);
         let [tx, ] = await write({
             account: accountAddress,
             address: poolAddress,

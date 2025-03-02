@@ -5,6 +5,7 @@ import { useAccount } from 'wagmi'
 import Card from '@/launch/components/card'
 import useSalesChannel from '@/launch/hooks/contracts/SalesChannel'
 import WriteBtn from '@/launch/components/writeBtn'
+import { Stack, TextField, Typography, ButtonGroup } from '@mui/material'
 
 export default function MyChannel() {
 
@@ -58,22 +59,39 @@ export default function MyChannel() {
     <>  
         <Card title="My Sales Channel" reload={getMyChannel}>
             {channelData?.chnId && (
-            <>
-                <p className="card-text mb-1">Channel Id: {channelData.chnId.toString()}</p>
-                <p className="card-text mb-1">Channel Name: {channelData.name}</p>
-                <p className="card-text">Channel Status: {statusEl(channelData.status)}</p>
-            </>
+                <Stack spacing={1} sx={{mb: 2}}>
+                    <Typography variant="subtitle1">Channel Id: {channelData.chnId.toString()}</Typography>
+                    <Typography variant="subtitle1">Channel Name: {channelData.name}</Typography>
+                    <Typography variant="subtitle1">Channel Status: {statusEl(channelData.status)}</Typography>
+                </Stack>
             )}
             {(channelData?.status || !channelData.chnId) && (
-                <div className="input-group mb-1 mt-4">
-                    <input type="text" className="form-control" placeholder='Channel Name...' ref={channelNameEl}/>
+                <ButtonGroup fullWidth
+                    sx={{
+                        '& .MuiButtonGroup-grouped': {
+                            minWidth: '160px !important',
+                            width: 'auto',
+                            whiteSpace: 'nowrap'
+                        },
+                        '& .MuiOutlinedInput-root': {
+                            borderTopRightRadius: 0,
+                            borderBottomRightRadius: 0
+                        }
+                    }}
+                >
+                    <TextField
+                        size="small"
+                        label="Channel Name"
+                        inputRef={channelNameEl}
+                        fullWidth
+                    />
                     {!channelData.chnId && (
-                        <WriteBtn action={registerChannelExecute} isLoading={isLoading || isPending}>Register My Channel</WriteBtn>
+                        <WriteBtn action={registerChannelExecute} isLoading={isLoading || isPending} variant="outlined" size="small">Register My Channel</WriteBtn>
                     )}
                     {channelData?.status && (
-                        <WriteBtn action={changeChannelNameExecute} isLoading={isLoading || isPending}>Change Channel Name</WriteBtn>
+                        <WriteBtn action={changeChannelNameExecute} isLoading={isLoading || isPending} variant="outlined" size="small">Change Channel Name</WriteBtn>
                     )}
-                </div>
+                </ButtonGroup>
             )}
 
         </Card>

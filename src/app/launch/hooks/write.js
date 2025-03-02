@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useConfig  } from 'wagmi'
 import { simulateContract, writeContract, signTypedData, waitForTransactionReceipt, getTransactionReceipt } from '@wagmi/core'
-import { hexToSignature } from 'viem'
+import { parseSignature } from 'viem'
 import { dateFormatLocalWithoutZone} from '@/launch/hooks/dateFormat'
 import { useContext } from 'react';
 import { SetTransactionContext } from '../hooks/transactionsContext';
@@ -138,7 +138,7 @@ export default function useWrite() {
 
         let s;
         if(signature){
-            s = hexToSignature(signature);
+            s = parseSignature(signature);
         }
 
         console.log(s);

@@ -1,18 +1,23 @@
-.transaction-bar{
-    width:20rem;
+.trans-action-bar{
+     width: 100%;
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+}
+.trans-action-title{
+    font-size: 0.875rem;
+    color: #666;
 }
 .trans-action{
     line-height: 2rem;
-    font-size: 0.8rem;
 
 }
-.trans-status{
-    font-size: 0.8rem;
-}
+
 .trans-time{
-    font-size: 0.5rem;
+    font-size: 0.8rem;
 }
 .transaction-action{
     --bs-btn-padding-y: 0.1rem;
     --bs-btn-padding-x: 0.4rem;
 }
+

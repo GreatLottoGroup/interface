@@ -1,24 +1,20 @@
 'use client';
 
+import { Stack, CircularProgress, Typography } from '@mui/material';
+
 export default function List({children, list, isLoading}) {
-
   return (
-    <>
-
-        {isLoading ? (
-            <p className='card-text text-center my-2'>
-                <span className="spinner-border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </span>          
-            </p>
-        ) : (list.length > 0 ? children : (
-            <p className='card-text text-center my-2 fw-semibold'>
-                No Data
-            </p>
-        ))}
-
-    </>
-
+    <Stack alignItems={isLoading || list.length == 0 ? "center" : "flex-start"} spacing={2}>
+      {isLoading ? (
+        <CircularProgress size={24} />
+      ) : (
+        list.length > 0 ? children : (
+          <Typography variant="subtitle1" color="text.secondary">
+            No Data
+          </Typography>
+        )
+      )}
+    </Stack>
   )
 }
 

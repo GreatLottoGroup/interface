@@ -1,19 +1,25 @@
 'use client';
 
-import Modal from 'react-bootstrap/Modal';
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useContext } from 'react'
 import { useConfig } from 'wagmi'
 import { getBlockNumber } from '@wagmi/core'
+import { 
+    Stack, Box, Select, MenuItem, TextField, Button, ButtonGroup,
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+    Dialog, DialogTitle, DialogContent, Typography, SwipeableDrawer
+} from '@mui/material';
+
 import Card from '@/launch/components/card'
 import List from '@/launch/components/list'
-
-import { DrawGroupBalls } from '@/launch/hooks/balls'
-import { BlockPeriods, shortAddress, getBlockTime } from '@/launch/hooks/globalVars'
+import { DrawGroupBalls } from '@/launch/components/balls'
+import { BlockPeriods, getBlockTime, BottomNavHeight } from '@/launch/hooks/globalVars'
 import { usePageNav, PageNav } from '@/launch/hooks/pageNav'
 import {useTargetBlock} from '@/launch/hooks/targetBlock'
 import { drawTicketList } from '@/launch/hooks/drawNumbers'
-import { glc, gleth, amount } from "@/launch/components/coinShow"
+import { glc, gleth, amount, address } from "@/launch/components/coinShow"
 import { dateFormatLocal } from '@/launch/hooks/dateFormat'
+import BlockStatus from '@/launch/components/blockStatus'
+import { IsMobileContext } from '@/hooks/mediaQueryContext';
 
 export default function BlockList({currentBlock}) {
 
@@ -28,6 +34,8 @@ export default function BlockList({currentBlock}) {
     const [drawDetailShow, setDrawDetailShow] = useState({})
 
     const blockSearchEl = useRef(null)
+
+    const isMobile = useContext(IsMobileContext);
 
     const { getPageNavInfo, pageCurrent, pageCount, setPageCurrent, pageSize } = usePageNav()
 
@@ -105,6 +113,102 @@ export default function BlockList({currentBlock}) {
         }
     }
 
+    const detailTableContent = (item) => {
+        return (
+        <>
+            <TableContainer>
+                <Table sx={{ width: '100%' }} size="small">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Award</TableCell>
+                            <TableCell>Award Eth</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>
+                                <Typography variant="subtitle1" gutterBottom>
+                                    Normal Award Sum Amount: {glc(item.normalAwardSumAmount)}
+                                </Typography>
+                                <Typography variant="subtitle1" gutterBottom>
+                                    Top Bonus Count: {amount(item.topBonusMultiples || 0)}
+                                </Typography>
+                                {(item.isDraw || item.isRollup) && (
+                                    <Typography variant="subtitle1">
+                                        Top Bonus Sum Amount: {glc(item.topBonusSumAmount)}
+                                    </Typography>
+                                )}
+                            </TableCell>
+                            <TableCell>
+                                <Typography variant="subtitle1" gutterBottom>
+                                    Normal Award Sum Amount: {gleth(item.normalAwardSumAmountByEth)}
+                                </Typography>
+                                <Typography variant="subtitle1" gutterBottom>
+                                    Top Bonus Count: {amount(item.topBonusMultiplesByEth || 0)}
+                                </Typography>
+                                {(item.isDraw || item.isRollup) && (
+                                    <Typography variant="subtitle1">
+                                        Top Bonus Sum Amount: {gleth(item.topBonusSumAmountByEth)}
+                                    </Typography>
+                                )}
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            {(item.isDraw || item.isRollup) && (
+                <Typography variant="subtitle1" sx={{ mt: 2 }}>
+                    Opener: {address(item.opener)}
+                </Typography>   
+            )}
+        </>
+        )
+    }
+
+    const drawDetailContent = (item) => {
+        const hasDetail = item.drawNumber && item.drawNumber.length > 0 && item.drawNumber[0] > 0
+        return (
+        <>
+            <BlockStatus status={item.status} hasDetail={hasDetail} toggleDetailShow={hasDetail ? ()=>{toggleDetailShow(item.blockNumber, true)} : null } />    
+            {hasDetail && (
+                isMobile ? (
+                    <SwipeableDrawer
+                        anchor="bottom"
+                        open={drawDetailShow[item.blockNumber.toString()]}
+                        onClose={()=>{toggleDetailShow(item.blockNumber, false)}}
+                        sx={{
+                            '& .MuiDrawer-paper': {
+                                bottom: `${BottomNavHeight}px`,
+                            }
+                        }}
+                    >
+                        <Box sx={{ p: 2 }}>
+                            <Typography variant="h6">
+                                Block Number: {item.blockNumber.toString()}
+                            </Typography>
+                            {detailTableContent(item)}
+                        </Box>
+                    </SwipeableDrawer>
+                ) : (
+                    <Dialog 
+                        open={drawDetailShow[item.blockNumber.toString()]} 
+                        maxWidth="lg" 
+                        onClose={()=>{toggleDetailShow(item.blockNumber, false)}}
+                    >
+                        <DialogTitle>
+                            Block Number: {item.blockNumber.toString()}
+                        </DialogTitle>
+                        <DialogContent>
+                            {detailTableContent(item)}
+                        </DialogContent>
+                    </Dialog>
+                )
+            )}
+        </>
+        )
+    }
+
+
     useEffect(()=>{
 
         console.log('useEffect~')
@@ -119,113 +223,111 @@ export default function BlockList({currentBlock}) {
         <Card title="Block List" subTitle={currentBlock.number?.toString()} reload={()=>{
             initBlockList();
         }}>
-            <div className='row my-3'>
-                <div className='col-3'>
-                    <select className="form-select form-select-sm" onChange={(e)=>{
-                        let status = e.target.value;
-                        console.log(status)
-                        setCurStatus(status);
-                        setPageCurrent(1);
-                    }}>
-                        {Object.keys(listStatus).map((v, i) => 
-                            <option key={i} value={v} selected={v == curStatus}>{listStatus[v].name}</option>
-                        )}
-                    </select>
-                </div>
-                <div className='col'></div>
-                <div className='col-4'>
-                    <div className="input-group input-group-sm">
-                        <input type="number" className="form-control" placeholder="Block Number..." ref={blockSearchEl}/>
-                        <button className="btn btn-outline-secondary" type="button" onClick={()=>{
-                            let blockNumber = blockSearchEl.current.value
-                            if(blockNumber){
-                                setCurStatus(null);
+            <Stack spacing={2} sx={{ mt: 2 }}>
+                <Stack direction="row" spacing={2} alignItems="center">
+                    <Box sx={{ minWidth: 200 }}>
+                        <Select
+                            size="small"
+                            fullWidth
+                            value={curStatus}
+                            onChange={(e)=>{
+                                let status = e.target.value;
+                                console.log(status)
+                                setCurStatus(status);
                                 setPageCurrent(1);
-                                searchBlock(blockNumber);
-                                blockSearchEl.current.value = ''
-                            }
-                        }}> Search Block </button>
-                    </div>
-                </div>
-            </div>
-            <List list={showList} isLoading={isLoading}>
-                <table className='table table-hover'>
-                    <thead>
-                        <tr>
-                            <th>Block Info</th>
-                            <th>Block Prize</th>
-                            <th>Status</th>
-                            <th>Draw Info</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {showList.map((item, i) => 
-                        <tr key={i}>
-                            <td>
-                                <div className='mb-1'>Block Number: {amount(item.blockNumber, true)}</div>
-                                <div>Tickets: {amount(item.tickets.length, true)}</div>
-                            </td>
-                            <td>
-                                <div className='mb-1'>Block Prize: {glc(item.blockBalance)}</div>
-                                <div>Block Eth Prize: {gleth(item.blockBalanceEth)}</div>
-                            </td>
-                            <td>{listStatus[item.status].status}</td>
-                            <td>
-                                {item.drawNumber && item.drawNumber.length > 0 && item.drawNumber[0] > 0 ? (
-                                <>
-                                    <DrawGroupBalls drawNumbers={item.drawNumber}/>
-                                    <a className="bi bi-card-list link-secondary link-primary-hover cursor-pointer fs-5 ms-3 align-middle" onClick={()=>{
-                                        toggleDetailShow(item.blockNumber, true)
-                                    }}></a>
-                                    <Modal show={drawDetailShow[item.blockNumber.toString()]} size='lg' centered onHide={()=>{toggleDetailShow(item.blockNumber, false)}}>
-                                        <Modal.Header closeButton>
-                                            <Modal.Title>Block Number: {item.blockNumber.toString()}</Modal.Title>
-                                        </Modal.Header>
-                                        <Modal.Body>
-                                            <table className='table'>
-                                                <thead>
-                                                    <tr>
-                                                        <th>Award</th>
-                                                        <th>Award Eth</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>
-                                                            <p className='mb-1'>Normal Award Sum Amount: {glc(item.normalAwardSumAmount)}</p>
-                                                            <p className='mb-1'>Top Bonus Count: {amount(item.topBonusMultiples || 0)}</p>
-                                                            {(item.isDraw || item.isRollup) && (
-                                                                <p className='mb-1'>Top Bonus Sum Amount: {glc(item.topBonusSumAmount)}</p>
-                                                            )}
-                                                        </td>
-                                                        <td>
-                                                            <p className='mb-1'>Normal Award Sum Amount: {gleth(item.normalAwardSumAmountByEth)}</p>
-                                                            <p className='mb-1'>Top Bonus Count: {amount(item.topBonusMultiplesByEth || 0)}</p>
-                                                            {(item.isDraw || item.isRollup) && (
-                                                                <p className='mb-1'>Top Bonus Sum Amount: {gleth(item.topBonusSumAmountByEth)}</p>
-                                                            )}
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                            {(item.isDraw || item.isRollup) && (
-                                                <p className='mt-2 mb-1'>Opener: {amount(shortAddress(item.opener), true)}</p>
-                                            )}
-                                        </Modal.Body>
-                                    </Modal>
-                                </>
-                                ) : getBlockDrawTime(item.blockNumber)}
-                            </td>
-                        </tr>
-                    )}
-                    </tbody>
-                </table>
-                <PageNav pageCount={pageCount} pageCurrent={pageCurrent} setPageCurrent={setPageCurrent} />
-            </List>
+                            }}
+                        >
+                            {Object.keys(listStatus).map((v, i) => 
+                                <MenuItem key={i} value={v}>{listStatus[v].name}</MenuItem>
+                            )}
+                        </Select>
+                    </Box>
+                    <Stack direction="row" sx={{ width: '100%', justifyContent: 'flex-end' }}>
+                        <ButtonGroup variant="outlined" size="small">
+                            <TextField
+                                size="small"
+                                fullWidth
+                                placeholder="Block Number..."
+                                type="number"
+                                inputRef={blockSearchEl}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderTopRightRadius: 0,
+                                        borderBottomRightRadius: 0
+                                    }
+                                }}
+                            />
+                            <Button
+                                onClick={()=>{
+                                    let blockNumber = blockSearchEl.current.value
+                                    if(blockNumber){
+                                        setCurStatus(null);
+                                        setPageCurrent(1);
+                                        searchBlock(blockNumber);
+                                        blockSearchEl.current.value = ''
+                                    }
+                                }}
+                            >
+                                Search
+                            </Button>
+                        </ButtonGroup>
+                    </Stack>
+                </Stack>
+
+                <List list={showList} isLoading={isLoading}>
+                    <TableContainer>
+                        <Table sx={{ width: '100%' }} size="small">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Block Info</TableCell>
+                                    <TableCell>Block Prize</TableCell>
+                                    <TableCell>Status</TableCell>
+                                    <TableCell>Draw Info</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                            {showList.map((item, i) => 
+                                <TableRow key={i} 
+                                    sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
+                                >
+                                    <TableCell>
+                                        <Typography variant="subtitle1" gutterBottom>
+                                            Block Number: {amount(item.blockNumber, true)}
+                                        </Typography>
+                                        <Typography variant="subtitle1">
+                                            Tickets: {amount(item.tickets.length, true)}
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Typography variant="subtitle1" gutterBottom>
+                                            Block Prize: {glc(item.blockBalance)}
+                                        </Typography>
+                                        <Typography variant="subtitle1">
+                                            Block Eth Prize: {gleth(item.blockBalanceEth)}
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell>{drawDetailContent(item)}</TableCell>
+                                    <TableCell>
+                                        {item.drawNumber && item.drawNumber.length > 0 && item.drawNumber[0] > 0 ? (
+                                        <>
+                                            <Stack direction="row" spacing={1} alignItems="center">
+                                                <DrawGroupBalls drawNumbers={item.drawNumber}/>
+                                            </Stack>
+                                        </>
+                                        ) : getBlockDrawTime(item.blockNumber)}
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                            </TableBody>
+                        </Table>
+                        <Box sx={{ mt: 2 }}>
+                            <PageNav pageCount={pageCount} pageCurrent={pageCurrent} setPageCurrent={setPageCurrent} />
+                        </Box>
+                    </TableContainer>
+                </List>
+            </Stack>
         </Card>
-
     </>
-
     )
 }
 

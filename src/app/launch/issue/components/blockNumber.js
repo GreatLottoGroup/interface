@@ -1,16 +1,15 @@
 'use client';
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { useConfig } from 'wagmi'
 import { getBlockNumber } from '@wagmi/core'
 import { dateFormatLocal } from '@/launch/hooks/dateFormat'
 import { IssueInterval, getBlockTime} from '@/launch/hooks/globalVars'
+import { FormControl, Select, MenuItem, Typography } from '@mui/material';
 
-
-export default function BlockNumberSelect({setLotteryBlockNumber, currentBlock}) {
+export default function BlockNumberSelect({setLotteryBlockNumber, lotteryBlockNumber, currentBlock}) {
 
     const config = useConfig();
-    const lotteryBlockCycleEl = useRef(null)
 
     const getFirstCycleNumber = (curBlockNumber, offset) => {
         offset = offset || 3n
@@ -23,7 +22,11 @@ export default function BlockNumberSelect({setLotteryBlockNumber, currentBlock})
 
         for(let i=0; i<100; i++){
             let bn = firstNumber + BigInt(i)*IssueInterval
-            options.push(<option key={bn} value={bn}>{bn.toString()} &nbsp;&nbsp;&nbsp; {dateFormatLocal(getBlockTime(bn, currentBlock))}</option>);
+            options.push(
+                <MenuItem key={bn} value={bn}>
+                    {bn.toString()} &nbsp;&nbsp;&nbsp; {dateFormatLocal(getBlockTime(bn, currentBlock))}
+                </MenuItem>
+            );
         }
         return options;
     }
@@ -50,17 +53,16 @@ export default function BlockNumberSelect({setLotteryBlockNumber, currentBlock})
     return (
         <>
             <div className="mb-2">
-                <div>
-                    <span className='fw-semibold'>Lottery block</span> 
-                    <select className='form-select mt-1 mb-3' ref={lotteryBlockCycleEl} onChange={(e)=>{
-                        changeCycle(e.target.value)
-                    }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>Lottery block</Typography>
+                <FormControl fullWidth size="small">
+                    <Select
+                        onChange={(e) => changeCycle(e.target.value)}
+                        value={lotteryBlockNumber}
+                    >
                         {currentBlock?.number && intiCycleOptions(currentBlock.number)}
-                    </select>
-                </div>            
+                    </Select>
+                </FormControl>           
             </div>
         </>
-
-        
     )
 }

@@ -12,6 +12,8 @@ import WriteBtn from '@/launch/components/writeBtn'
 import { SetGlobalToastContext } from '@/launch/hooks/globalToastContext'
 import { glc } from "@/launch/components/coinShow"
 
+import { Stack, TextField, Select, FormControl, MenuItem, ButtonGroup, Typography, InputLabel } from '@mui/material'
+
 export default function MyCoinBase({isEth, children}) {
 
     const { address: accountAddress } = useAccount()
@@ -97,24 +99,67 @@ export default function MyCoinBase({isEth, children}) {
   return (
     <>
         <Card title={title} reload={getCoinBalance}>
-            <p className="card-text mb-2">Balance: {glc(coinBalance)}</p>
+            <Stack spacing={2}>
+                <Stack spacing={1}>
+                    <Typography variant="subtitle1" >Balance: {glc(coinBalance)}</Typography>
 
-            <div className="input-group mb-2">
-                <input type="number" className="form-control" placeholder='Amount...' ref={withdrawAmountEl}/>
-                <select className="form-select" ref={withdrawCoinEl}>
-                    <option value="">Coin...</option>
-                    {Object.keys(withdrawCoinBalances).map( name =>
-                        <option key={name} value={name}>{name} ( {formatAmount(withdrawCoinBalances[name], CoinList[name].decimals)} )</option>
-                    )}
-                </select>
-                <WriteBtn action={withdrawExecute} isLoading={isLoading || isPending} > Withdraw </WriteBtn>
-            </div>
-            
-            {Children.map(children, child => {
-                if(isValidElement(child)){
-                    return cloneElement(child, {setCoinBalance});
-                }
-            })}
+                    <ButtonGroup fullWidth
+                        sx={{
+                            mt: 2,
+                            '& .MuiButtonGroup-grouped': {
+                                minWidth: '100px !important',
+                                width: 'auto',
+                                whiteSpace: 'nowrap'
+                            },
+                            '& .MuiOutlinedInput-root': {
+                                borderTopRightRadius: 0,
+                                borderBottomRightRadius: 0
+                            },
+                            '& .MuiFormControl-root:not(:first-child)': {
+                                marginLeft: '-1px',
+                                '& .MuiOutlinedInput-root': {
+                                    borderTopLeftRadius: 0,
+                                    borderBottomLeftRadius: 0
+                                }
+                            }
+                        }}
+                    >
+                        <TextField
+                            size="small"
+                            type="number"
+                            label="Amount"
+                            inputRef={withdrawAmountEl}
+                            fullWidth
+                        />
+                        <FormControl fullWidth size="small">
+                            <InputLabel>Coin</InputLabel>
+                            <Select
+                                inputRef={withdrawCoinEl}
+                                label="Coin"
+                            >
+                            {Object.keys(withdrawCoinBalances).map(name =>
+                                <MenuItem key={name} value={name}>
+                                    {name} ({formatAmount(withdrawCoinBalances[name], CoinList[name].decimals)})
+                                </MenuItem>
+                            )}
+                            </Select>
+                        </FormControl>
+                        <WriteBtn 
+                            action={withdrawExecute} 
+                            isLoading={isLoading || isPending} 
+                            variant="outlined"
+                            size="small"
+                        >
+                            Withdraw
+                        </WriteBtn>
+                    </ButtonGroup>
+                </Stack>
+                {Children.map(children, child => {
+                    if(isValidElement(child)){
+                        return cloneElement(child, {setCoinBalance});
+                    }
+                })}
+            </Stack>
         </Card>
     </>
 

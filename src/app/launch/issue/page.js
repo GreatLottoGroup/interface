@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
+import { Stack, Box, Button, Typography } from '@mui/material';
+import { IsMobileContext } from '@/hooks/mediaQueryContext';
 
 import { Multiple, Periods} from './components/multiple'
 import { BallSelect, BallGroup, sumCount} from './components/ball'
@@ -29,6 +31,8 @@ export default function IssueTicket() {
 
     const {currentBlock, setCurrentBlock} = useCurrentBlock()
     const { getMintShares } = useDaoCoin()
+
+    const isMobile = useContext(IsMobileContext);
 
     const sumTotalCount = () => {
         return sumCount(numberList) * BigInt(multiple * periods);
@@ -65,68 +69,101 @@ export default function IssueTicket() {
 
 
   return (
-
     <>
-
+    
         <BallSelect numberList={numberList} setNumberList={setNumberList}/>
 
         <BallGroup numberList={numberList} setNumberList={setNumberList}/>
 
+        <div className='border px-3 py-3 mb-3'>
+            <Stack direction={isMobile ? 'column' : 'row'} spacing={isMobile ? 1 : 3}>
+                <Stack direction='row' spacing={3} sx={{ width: isMobile ? '100%' : '60%' }}>
+                    <Box sx={{ width: '50%' }}>                        
+                        <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 0.5 }}>Current Block Number</Typography>
+                        <div className='mt-2 mb-2'>
+                            {currentBlock?.number?.toString()}
+                            <Button
+                                variant="outlined"
+                                color="inherit"
+                                size="small"
+                                sx={{ ml: 2 }}
+                                onClick={()=>{setCurrentBlock()}}
+                            >
+                                ReLoad
+                            </Button>
+                        </div>
+                    </Box>
+                    <Box sx={{ width: '50%' }}>
+                        <BlockNumberSelect setLotteryBlockNumber={setLotteryBlockNumber} lotteryBlockNumber={lotteryBlockNumber} currentBlock={currentBlock}/>
+                    </Box>
+                </Stack>
+                <Stack direction='row' spacing={3} sx={{ width: isMobile ? '100%' : '40%' }}>
+                    <Box sx={{ width: '50%'}}>
+                        <Periods periods={periods} setPeriods={setPeriods} />
+                    </Box>
 
-        <div className='border px-3 py-3 mb-3 row'>
-            <div className='col-2'>
-                <div className='fw-semibold'>Current Block Number</div>
-                <div className='mt-1 mb-3'>
-                    {currentBlock?.number?.toString()}
-                    <a className='btn btn-outline-secondary btn-sm ms-3' onClick={()=>{setCurrentBlock()}}>ReLoad</a>
-                </div>
-            </div>
-
-            <div className='col-4 mx-2'>
-                <BlockNumberSelect setLotteryBlockNumber={setLotteryBlockNumber} currentBlock={currentBlock}/>
-            </div>
-            <div className='col-2 mx-2'>
-                <Periods periods={periods} setPeriods={setPeriods} />
-            </div>
-            <div className='col-2 mx-2'>
-                <Multiple multiple={multiple} setMultiple={setMultiple} />
-            </div>
+                    <Box sx={{ width: '50%'}}>
+                        <Multiple multiple={multiple} setMultiple={setMultiple} />
+                    </Box>
+                </Stack>
+            </Stack>
         </div>
-        <div className='border px-3 py-3 mb-3 row'>
-            <div className='col'>
+        
+        <div className='border px-3 py-3 mb-3'>
+            <Stack spacing={1}>
+                <Box>
+                    <Typography component="span" variant="subtitle1" sx={{ fontWeight: 600, mr: 1 }}>Sum Count:</Typography>
+                    <Typography component="span" variant="subtitle1" sx={{ fontWeight: 600, mr: 1 }}>{amount(sumTotalCount(), true)}</Typography>
+                    <Typography component="span" color="text.secondary"> = {sumCount(numberList).toString()} (Balls) * {periods} (Periods) * {multiple} (Multiple)</Typography>
+                </Box>
+                <Box>
+                    <Typography component="span" variant="subtitle1" sx={{ fontWeight: 600, mr: 1 }}>Sum Price:</Typography>
+                    <Typography component="span" variant="subtitle1" sx={{ fontWeight: 600, mr: 1 }}>{isEth ? eth(sumTotalPrice()) : usd(sumTotalPrice(), true)}</Typography>
+                    <Typography component="span" color="text.secondary"> = {sumTotalCount().toString()} (Sum Count) * {getPricePerCount()} (Per Count Price)</Typography>
+                </Box>
+                <Box>
+                    <Typography component="span" variant="subtitle1" sx={{ fontWeight: 600, mr: 1 }}>DAO Reward:</Typography>
+                    <Typography component="span" variant="subtitle1" sx={{ fontWeight: 600, mr: 1 }}>{gldc(daoReward)}</Typography>
+                </Box>
 
-                <div className='ms-2 mb-2'>
-                    <span className='fw-semibold pe-1'>Sum Count: </span>
-                    <span className='fw-semibold pe-2'>{amount(sumTotalCount(), true)}</span>
-                    <span className='text-body-tertiary'> = {sumCount(numberList).toString()} (Balls) * {periods} (Periods) * {multiple} (Multiple)</span>
-                </div>
-                <div className='ms-2 mb-2'>
-                    <span className='fw-semibold pe-1'>Sum Price: </span>
-                    <span className='fw-semibold pe-2'>{isEth ? eth(sumTotalPrice()) : usd(sumTotalPrice(), true)}</span>
-                    <span className='text-body-tertiary'> = {sumTotalCount().toString()} (Sum Count) * {getPricePerCount()} (Per Count Price)</span> 
-                </div>
-                <div className='ms-2 mb-2'>
-                    <span className='fw-semibold pe-1'>DAO Reward: </span>
-                    <span className='fw-semibold pe-2'>{gldc(daoReward)}</span>
-                </div>
-
-                <TotalShow lotteryBlockNumber={lotteryBlockNumber}  periods={periods} currentBlock={currentBlock} isEth={isEth}/>
-            </div>
+                <TotalShow 
+                    lotteryBlockNumber={lotteryBlockNumber}  
+                    periods={periods} 
+                    currentBlock={currentBlock} 
+                    isEth={isEth}
+                />
+            </Stack>
         </div>
 
-        <div className='border px-3 py-3 mb-3 row'>
+        <div className='border px-3 py-3 mb-3'>
+            <Stack direction={isMobile ? 'column' : 'row'} spacing={2}>
+                <Stack sx={{ width: isMobile ? '100%' : '75%' }}>
+                    <PayCoin 
+                        payCoin={payCoin} 
+                        setPayCoin={setPayCoin} 
+                        setCurrentBlock={setCurrentBlock} 
+                        isEth={isEth} 
+                        setIsEth={setIsEth}
+                    />
+                </Stack>
 
-            <PayCoin payCoin={payCoin} setPayCoin={setPayCoin} setCurrentBlock={setCurrentBlock} isEth={isEth} setIsEth={setIsEth}/>
-
-            <div className='col-3 overflow-hidden'>
-                <Channel channel={channel} setChannel={setChannel}/>
-                <Issue numberList={numberList} setNumberList={setNumberList} multiple={multiple} periods={periods} lotteryBlockNumber={lotteryBlockNumber} payCoin={payCoin} setPayCoin={setPayCoin} setCurrentBlock={setCurrentBlock} channel={channel} isEth={isEth}/>
-            </div>
-
+                <Stack sx={{ width: isMobile ? '100%' : '25%', justifyContent: 'center' }} >
+                    <Channel channel={channel} setChannel={setChannel}/>
+                    <Issue 
+                        numberList={numberList} 
+                        setNumberList={setNumberList} 
+                        multiple={multiple} 
+                        periods={periods} 
+                        lotteryBlockNumber={lotteryBlockNumber} 
+                        payCoin={payCoin} 
+                        setPayCoin={setPayCoin} 
+                        setCurrentBlock={setCurrentBlock} 
+                        channel={channel} 
+                        isEth={isEth}
+                    />
+                </Stack>
+            </Stack>
         </div>
-
-
     </>
-
   )
 }

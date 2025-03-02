@@ -28,6 +28,8 @@ const InvestmentMinRedeemShares = 10000
 
 const ExecutorRewardSaveRate = 1n
 
+const BottomNavHeight = 56;
+
 const chains = {
     "31337": "hardhat",
     "1": "mainnet",
@@ -93,7 +95,7 @@ var C = function(n, m){
 };
 
 const shortAddress = (address) => {
-    return address ? (address.slice(0,4) + '...' + address.slice(-4)) : ''
+    return address ? (address.slice(0,6) + '...' + address.slice(-4)) : ''
 }
 
 const formatAmount = (amount, decimals) => {
@@ -211,4 +213,6 @@ export  {
     ServerUrl,
 
     getBlockTime,
+
+    BottomNavHeight,
 }

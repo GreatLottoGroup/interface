@@ -3,16 +3,26 @@
 import { useContext } from 'react';
 import Link from 'next/link'
 import { useSelectedLayoutSegment } from 'next/navigation';
+// 导入 MUI 组件
+import { AppBar, Toolbar, Typography, Box, Button } from '@mui/material';
 
 import BrandLogo from './brandLogo'
 import Setting from './setting'
 
-
 import { DarkContext } from '@/hooks/darkContext';
+import { IsMobileContext, IsTabletContext, IsDesktopContext } from '@/hooks/mediaQueryContext';
 
 export default function Header({children, navList}) {
 
     const isDark = useContext(DarkContext);
+    const isMobile = useContext(IsMobileContext);
+    const isTablet = useContext(IsTabletContext);
+    const isDesktop = useContext(IsDesktopContext);
+
+    console.log('isMobile: ', isMobile);
+    console.log('isTablet: ', isTablet);
+    console.log('isDesktop: ', isDesktop);
+
 
     let segment = useSelectedLayoutSegment()
     console.log('segment: ', segment);
@@ -25,28 +35,55 @@ export default function Header({children, navList}) {
     );
 
     return (
-  
-    <div className="container">
-        <header className="p-3 mb-3 border-bottom">
-            <div className="navbar navbar-expand d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
-                <Link href="/" className={"d-flex align-items-center col-md-2 mb-2 mb-md-0 text-decoration-none navbar-brand " + (isDark ? 'text-light' : 'text-dark')}>
-                    <BrandLogo />
-                    <span className="fs-4 ms-2">Great Lotto</span>
+        <AppBar 
+            position="static" 
+            elevation={0} 
+            sx={{ 
+                borderBottom: 1, 
+                borderColor: 'divider',
+                background: 'transparent',  // 移除底色
+                color: 'inherit',
+                marginBottom: '1rem',
+            }}
+        >
+            <Toolbar sx={{ justifyContent: 'space-between' }}>
+                <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <BrandLogo />
+                        <Typography variant="h6" sx={{ ml: 2 }}>
+                            Great Lotto
+                        </Typography>
+                    </Box>
                 </Link>
 
-                <ul className="navbar-nav col-12 col-lg-auto me-lg-auto ms-3 mb-2 justify-content-center mb-md-0">
-                {navListItems}
-                </ul>
+                <Box sx={{ display: 'flex', flexGrow: 1, ml: 3 }}>
+                    {isTablet && 
+                        navList.map((item, index) => (
+                            <Button
+                                key={index}
+                                component={Link}
+                                href={item.href}
+                                color="inherit"
+                                sx={{
+                                    fontSize: '1.1rem',
+                                    textTransform: 'none',
+                                    ...(item.name === segment && {
+                                        borderBottom: 2,
+                                        borderColor: 'currentColor'
+                                    })
+                                }}
+                            >
+                                {item.title}
+                            </Button>
+                        ))
+                    }
+                </Box>
 
                 {children}
 
                 <Setting />
-                
-            </div>
-        </header>
-    </div>
-  
-  
+            </Toolbar>
+        </AppBar>
     )
-  }
+}
   

@@ -14,8 +14,9 @@ import { PayCoin, usePayCoin } from '@/launch/issue/components/payCoin'
 import { glic, usd, glieth, eth } from "@/launch/components/coinShow"
 import useAddress from "@/launch/hooks/address"
 
-export default function Deposit({isEth, setCurrentBlock}) {
+import { Stack, Select, MenuItem, TextField, Typography, ButtonGroup } from '@mui/material'
 
+export default function Deposit({isEth, setCurrentBlock}) {
     const { address: accountAddress } = useAccount()
     const setGlobalToast = useContext(SetGlobalToastContext)
 
@@ -41,17 +42,13 @@ export default function Deposit({isEth, setCurrentBlock}) {
     const { payExecute } = usePayCoin(payCoin, setPayCoin)
 
     const initData = async () => {
-
         setMaxAssets(await maxDeposit());
         setMaxShares(await maxMint());
-
         setPrizeByAssets(await previewDeposit(1))
         setPrizeByShare(await previewMint(1))
-
     }
 
     const updateDepositAssets = async (type, value) => {
-        //console.log(value)
         if(!value || value <= 0){
             depositAmountEl.current.value = '';
             setDepositAssets(0)
@@ -76,7 +73,6 @@ export default function Deposit({isEth, setCurrentBlock}) {
     }
 
     const depositExecute = async () => {
-
         let depositTx;
         let _InvestmentMinDepositAssets = isEth ? InvestmentMinDepositAssetsByEth : InvestmentMinDepositAssets
         if(depositAssets >= _InvestmentMinDepositAssets && depositAssets <= Number(maxAssets) && payCoin && payCoin.name){
@@ -100,66 +96,98 @@ export default function Deposit({isEth, setCurrentBlock}) {
         }else{
             console.log('error---');
         }
-
     }
 
     useEffect(()=>{
-
         console.log('useEffect~')
-
         initData()
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [accountAddress])
 
   return (
     <>
         <Card title={"Deposit with " + (isEth ? 'Eth Coin' : 'Standard Coin')} reload={initData}>
-            <p className="card-text mb-1">Max Deposit: 
-                {isEth ? eth(maxAssets, true) : usd(maxAssets, true)} 
-                <span className="mx-2">/</span>
-                {isEth ? glieth(maxShares, true): glic(maxShares, true)}
-            </p>
-            <p className="card-text mb-3">Deposit Prize: 
-                {isEth ? eth(prizeByShare, true) : usd(prizeByShare, true)} <span className="text-body-tertiary"> per {isEth ? 'GLIETH' : 'GLIC'}</span>  
-                <span className="mx-2">/</span>
-                {isEth ? glieth(prizeByAssets, true) : glic(prizeByAssets, true)} <span className="text-body-tertiary"> per {isEth ? 'ETH' : 'USD'}</span>
-            </p>
-            <div className='row mb-3'>
+            <Stack spacing={2}>
+                <Stack spacing={1}>
+                    <Typography variant="subtitle1">
+                        Max Deposit: 
+                        {isEth ? eth(maxAssets, true) : usd(maxAssets, true)} 
+                        <span className="mx-2">/</span>
+                        {isEth ? glieth(maxShares, true): glic(maxShares, true)}
+                    </Typography>
+                    <Typography variant="subtitle1">
+                        Deposit Prize: 
+                        {isEth ? eth(prizeByShare, true) : usd(prizeByShare, true)} 
+                        <Typography component="span" color="text.secondary"> per {isEth ? 'GLIETH' : 'GLIC'}</Typography>  
+                        <span className="mx-2">/</span>
+                        {isEth ? glieth(prizeByAssets, true) : glic(prizeByAssets, true)} 
+                        <Typography component="span" color="text.secondary"> per {isEth ? 'ETH' : 'USD'}</Typography>
+                    </Typography>
+                </Stack>
+
                 <PayCoin payCoin={payCoin} setPayCoin={setPayCoin} isEth={isEth} setCurrentBlock={setCurrentBlock}/>
-            </div>
-            <div className='row'>
-                <div className='col me-3'>
-                    <div className="input-group">
-                        <select className='form-select' value={amountType} onChange={(e)=>{
-                            let type = e.currentTarget.value;
+
+                <ButtonGroup fullWidth
+                    sx={{
+                        mt: 2,
+                        '& .MuiButtonGroup-grouped': {
+                            minWidth: '150px !important',
+                            width: 'auto',
+                            whiteSpace: 'nowrap'
+                        },
+                        '& .MuiOutlinedInput-root': {
+                            borderTopRightRadius: 0,
+                            borderBottomRightRadius: 0
+                        },
+                        '& .MuiFormControl-root:not(:first-child)': {
+                            marginLeft: '-1px',
+                            '& .MuiOutlinedInput-root': {
+                                borderTopLeftRadius: 0,
+                                borderBottomLeftRadius: 0
+                            }
+                        }
+                    }}
+                >
+                    <Select
+                        size="small"
+                        value={amountType}
+                        onChange={(e)=>{
+                            let type = e.target.value;
                             setAmountType(type);
                             updateDepositAssets(type, depositAmountEl.current.value)
-                        }}>
-                            <option value="assets">Assets</option>
-                            <option value="shares">Shares</option>
-                        </select>
-                        <input type="number" className="form-control w-50" ref={depositAmountEl} onChange={(e)=>{
-                            updateDepositAssets(amountType, e.currentTarget.value)
-                        }}/>
-                    </div>
-                    <p className="card-text mx-0 mt-2">
-                        {amountType == 'assets' ? (
-                            <>Share: {isEth ? glieth(mintShares, true) : glic(mintShares, true)}</>
-                        ) : (
-                            <>Assets: {isEth ? eth(depositAssets, true) : usd(depositAssets, true)}</>
-                        )}
-                    </p>
-                </div>
-                <div className='col-6'>
-                    <WriteBtn action={depositExecute} isLoading={isLoading || isPending} >Deposit ( {depositAssets} {payCoin?.name} )</WriteBtn>
-                </div>
-            </div>
-
+                        }}
+                    >
+                        <MenuItem value="assets">Assets</MenuItem>
+                        <MenuItem value="shares">Shares</MenuItem>
+                    </Select>
+                    <TextField
+                        size="small"
+                        type="number"
+                        inputRef={depositAmountEl}
+                        label="Amount"
+                        onChange={(e)=>{
+                            updateDepositAssets(amountType, e.target.value)
+                        }}
+                        fullWidth
+                    />
+                    <WriteBtn 
+                        action={depositExecute} 
+                        isLoading={isLoading || isPending} 
+                        variant="outlined"
+                    >
+                        Deposit ( {depositAssets} {payCoin?.name} )
+                    </WriteBtn>
+                </ButtonGroup>
+                <Typography variant="subtitle1">
+                    {amountType == 'assets' ? (
+                        <>Share: {isEth ? glieth(mintShares, true) : glic(mintShares, true)}</>
+                    ) : (
+                        <>Assets: {isEth ? eth(depositAssets, true) : usd(depositAssets, true)}</>
+                    )}
+                </Typography>
+            </Stack>
         </Card>
-
     </>
-
   )
 }
 

@@ -11,6 +11,8 @@ import WriteBtn from '@/launch/components/writeBtn'
 import { SetGlobalToastContext } from '@/launch/hooks/globalToastContext'
 import { eth } from "@/launch/components/coinShow"
 
+import { Stack, TextField, Typography, ButtonGroup } from '@mui/material'
+
 export default function WrapEthCoin({setCoinBalance}) {
 
     const { address: accountAddress } = useAccount()
@@ -129,20 +131,73 @@ export default function WrapEthCoin({setCoinBalance}) {
 
   return (
     <>
-            <h6 className='card-title mt-3'>Wrap</h6>
-            <p className="card-text mb-2">ETH Balance: {eth(ethBalance)}</p>
-            <div className="input-group mb-2">
-                <input type="number" className="form-control" placeholder='Amount...' ref={wrapAmountEl}/>
-                <WriteBtn action={wrapExecute} isLoading={isLoading || isPending} > Wrap From ETH </WriteBtn>
-            </div>
+        <Stack spacing={1}>
+            <Typography variant="h6" sx={{ mt: 1 }}>Wrap</Typography>
+            <Typography variant="subtitle1">ETH Balance: {eth(ethBalance)}</Typography>
+            <ButtonGroup fullWidth
+                sx={{
+                    mt: 2,
+                    '& .MuiButtonGroup-grouped': {
+                        minWidth: '130px !important',
+                        width: 'auto',
+                        whiteSpace: 'nowrap'
+                    },
+                    '& .MuiOutlinedInput-root': {
+                        borderTopRightRadius: 0,
+                        borderBottomRightRadius: 0
+                    }
+                }}     
+            >
+                <TextField
+                    size="small"
+                    type="number"
+                    label="Amount"
+                    inputRef={wrapAmountEl}
+                    fullWidth
+                />
+                <WriteBtn 
+                    action={wrapExecute} 
+                    isLoading={isLoading || isPending} 
+                    variant="outlined"
+                > 
+                    Wrap From ETH 
+                </WriteBtn>
+            </ButtonGroup>
+        </Stack>
 
-            <h6 className='card-title mt-3'>Unwrap</h6>
-            <p className="card-text mb-2">ETH Pool: {eth(ethPool)}</p>
-            <div className="input-group mb-2">
-                <input type="number" className="form-control" placeholder='Amount...' ref={unwrapAmountEl}/>
-                <WriteBtn action={unwrapExecute} isLoading={isLoading || isPending} > Unwrap to ETH </WriteBtn>
-            </div>
-
+        <Stack spacing={1}>
+            <Typography variant="h6">Unwrap</Typography>
+            <Typography variant="subtitle1">ETH Pool: {eth(ethPool)}</Typography>
+            <ButtonGroup fullWidth
+                sx={{
+                    mt: 2,
+                    '& .MuiButtonGroup-grouped': {
+                        minWidth: '130px !important',
+                        width: 'auto',
+                        whiteSpace: 'nowrap'
+                    },
+                    '& .MuiOutlinedInput-root': {
+                        borderTopRightRadius: 0,
+                        borderBottomRightRadius: 0
+                    }
+                }}   
+            >
+                <TextField
+                    size="small"
+                    type="number"
+                    label="Amount"
+                    inputRef={unwrapAmountEl}
+                    fullWidth
+                />
+                <WriteBtn 
+                    action={unwrapExecute} 
+                    isLoading={isLoading || isPending} 
+                    variant="outlined"
+                > 
+                    Unwrap to ETH 
+                </WriteBtn>
+            </ButtonGroup>
+        </Stack>
     </>
   )
 }

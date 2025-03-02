@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useAccount } from 'wagmi'
-
 import { isOwner } from '@/launch/hooks/globalVars'
 import Card from '@/launch/components/card'
-
 import useSalesChannel from '@/launch/hooks/contracts/SalesChannel'
+import { address } from "@/launch/components/coinShow"
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button } from '@mui/material'
 
 export default function ChannelList({hasActions}) {
 
@@ -65,38 +65,56 @@ export default function ChannelList({hasActions}) {
     return (
     <>  
         <Card title="Sales Channel List" reload={getChannelList}>
-            <table className='table table-hover'>
-                <thead>
-                    <tr>
-                        <th>Id</th>
-                        <th>Name</th>
-                        <th>Address</th>
-                        <th>Status</th>
-                        {hasActions && isOwner(accountAddress) && (
-                            <th>Action</th>
-                        )}
-                    </tr>
-                </thead>
-                <tbody>
-                {channelList.map((item, i) => 
-                    <tr key={i}>
-                        <td>{item.id.toString()}</td>
-                        <td>{item.name}</td>
-                        <td>{item.address}</td>
-                        <td>{statusEl(item.status)}</td>
-                        {hasActions && isOwner(accountAddress) && (
-                            <td>
-                            {item.status ? (
-                                <button type="button" disabled={isLoading || isPending} className='btn btn-danger btn-sm' onClick={()=>{disableChannelExecute(item.id)}}> Disable {(isLoading || isPending) ? '...' : ''}</button>
-                            ) : (
-                                <button type="button" disabled={isLoading || isPending} className='btn btn-success btn-sm' onClick={()=>{enableChannelChannelExecute(item.id)}}> Enable {(isLoading || isPending) ? '...' : ''}</button>
+            <TableContainer >
+                <Table sx={{ minWidth: '100%' }}  size="small" >
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Id</TableCell>
+                            <TableCell>Name</TableCell>
+                            <TableCell>Address</TableCell>
+                            <TableCell>Status</TableCell>
+                            {hasActions && isOwner(accountAddress) && (
+                                <TableCell>Action</TableCell>
                             )}
-                            </td>
-                        )}
-                    </tr>
-                )}
-                </tbody>
-            </table>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                    {channelList.map((item, i) => (
+                        <TableRow key={i} sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}>
+                            <TableCell>{item.id.toString()}</TableCell>
+                            <TableCell>{item.name}</TableCell>
+                            <TableCell>{address(item.address)}</TableCell>
+                            <TableCell>{statusEl(item.status)}</TableCell>
+                            {hasActions && isOwner(accountAddress) && (
+                                <TableCell>
+                                {item.status ? (
+                                    <Button 
+                                        variant="contained" 
+                                        color="error" 
+                                        size="small" 
+                                        disabled={isLoading || isPending}
+                                        onClick={() => disableChannelExecute(item.id)}
+                                    >
+                                        Disable {(isLoading || isPending) ? '...' : ''}
+                                    </Button>
+                                ) : (
+                                    <Button 
+                                        variant="contained" 
+                                        color="success" 
+                                        size="small" 
+                                        disabled={isLoading || isPending}
+                                        onClick={() => enableChannelChannelExecute(item.id)}
+                                    >
+                                        Enable {(isLoading || isPending) ? '...' : ''}
+                                    </Button>
+                                )}
+                                </TableCell>
+                            )}
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
         </Card>
     </>
     )

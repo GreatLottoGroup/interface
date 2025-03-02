@@ -1,5 +1,5 @@
 'use client';
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 
 import { useConfig } from 'wagmi'
 import { getBlockNumber } from '@wagmi/core'
@@ -22,6 +22,8 @@ export default function Issue({numberList, setNumberList, multiple, periods, lot
 
     const setGlobalToast = useContext(SetGlobalToastContext);
 
+    const [actionLoading, setActionLoading] = useState(false);
+
     const checkData = (curbn) => {
         let err;
         if(numberList.length < 1) {
@@ -39,43 +41,48 @@ export default function Issue({numberList, setNumberList, multiple, periods, lot
     const issueTicketExecute = async () => {
 
         // console.log(channel)
+        setActionLoading(true);
 
-        const curBlockNumber = await getBlockNumber(config);
-        console.log(curBlockNumber);
+        try{
+            const curBlockNumber = await getBlockNumber(config);
+            console.log(curBlockNumber);
 
-        // check data
-        let checkErr = checkData(curBlockNumber);
-        if(checkErr){
-            setGlobalToast({
-                status: 'error',
-                subTitle: 'Issue',
-                message: checkErr
-            }) 
-            return false;
-        }
-        
-        // issue test
-        let [totalCount, totalPrize] = await quoteTicket(numberList, multiple, periods, isEth);
-        if(sumCount(numberList) != totalCount){
-            setGlobalToast({
-                status: 'error',
-                subTitle: 'Issue',
-                message: 'totalCount is error: ' + totalCount
-            })
-            return false;
-        }
+            // check data
+            let checkErr = checkData(curBlockNumber);
+            if(checkErr){
+                setGlobalToast({
+                    status: 'error',
+                    subTitle: 'Issue',
+                    message: checkErr
+                }) 
+                return false;
+            }
+            
+            // issue test
+            let [totalCount, totalPrize] = await quoteTicket(numberList, multiple, periods, isEth);
+            if(sumCount(numberList) != totalCount){
+                setGlobalToast({
+                    status: 'error',
+                    subTitle: 'Issue',
+                    message: 'totalCount is error: ' + totalCount
+                })
+                return false;
+            }
 
-        let txIssue = await payExecute(async function(){
-            return await issueTicket(numberList, multiple, periods, payCoin.address, lotteryBlockNumber, channel);
-        }, async function(){
-            return await issueTicketWithSign(numberList, multiple, periods, payCoin.address, lotteryBlockNumber, channel);
-        }, totalPrize)
+            let txIssue = await payExecute(async function(){
+                return await issueTicket(numberList, multiple, periods, payCoin.address, lotteryBlockNumber, channel);
+            }, async function(){
+                return await issueTicketWithSign(numberList, multiple, periods, payCoin.address, lotteryBlockNumber, channel);
+            }, totalPrize)
 
-        if(txIssue){
-            setNumberList([])
-            setCurrentBlock()
-        }else{
-            console.log('error---');
+            if(txIssue){
+                setNumberList([])
+                setCurrentBlock()
+            }else{
+                console.log('error---');
+            }
+        } finally {
+            setActionLoading(false);
         }
 
     }
@@ -83,7 +90,7 @@ export default function Issue({numberList, setNumberList, multiple, periods, lot
     return (
 
     <>
-        <WriteBtn action={issueTicketExecute} isLoading={issueIsLoading || coinIsLoading || issueIsPending || coinIsPending} className="btn-success btn-lg">Issue Ticket</WriteBtn>
+        <WriteBtn action={issueTicketExecute} isLoading={actionLoading || issueIsLoading || coinIsLoading || issueIsPending || coinIsPending} color="success" size="large">Issue Ticket</WriteBtn>
 
     </>
 

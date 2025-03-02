@@ -7,6 +7,7 @@ import Card from '@/launch/components/card'
 
 import useInvestmentCoinBase from '@/launch/hooks/contracts/base/InvestmentCoinBase'
 import { glic, glieth, rate } from "@/launch/components/coinShow"
+import { Stack, Typography } from '@mui/material';
 
 export default function MyInvestmentCoin({isEth, currentBlock, children}) {
 
@@ -36,9 +37,11 @@ export default function MyInvestmentCoin({isEth, currentBlock, children}) {
   return (
     <>
         <Card title={"My Investment " + (isEth ? 'Eth Coin' : 'Coin')} reload={initData}>
-            <p className="card-text mb-1">Balance: {isEth ? glieth(coinBalance) : glic(coinBalance)}</p>
-            <p className="card-text mb-1">Benefit Rate: {benefitRate ? rate(Number(benefitRate)/10**8) : 'No Benefit'}</p>
-            {children}
+            <Stack direction="column" spacing={1}>
+                <Typography variant="subtitle1">Balance: {isEth ? glieth(coinBalance) : glic(coinBalance)}</Typography>
+                <Typography variant="subtitle1">Benefit Rate: {benefitRate ? rate(Number(benefitRate)/10**8) : 'No Benefit'}</Typography>
+                {children}
+            </Stack>
         </Card>
     </>
 

@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react'
-import Toast from 'react-bootstrap/Toast';
+import { Snackbar, Alert, AlertTitle, CircularProgress } from '@mui/material';
+import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
+import BackupOutlinedIcon from '@mui/icons-material/BackupOutlined';
 
 export function useGlobalToast(){
     const [globalToast, setGlobalToast] = useState({}); 
@@ -26,43 +28,63 @@ export function GlobalToast({globalToast, setGlobalToast}) {
     const getToastStatus = (status) => {
         let s = {}
         if(status == 'success'){
-            s.color = 'text-success';
-            s.icon = 'bi-check-circle';
+            s.color = 'success';
+            s.icon = null;
         }else if(status == 'error'){
-            s.color = 'text-danger';
-            s.icon = 'bi-x-circle';
+            s.color = 'error';
+            s.icon = <CancelOutlinedIcon fontSize="inherit"/>;
         }else if(status == 'pending'){
-            s.color = 'text-warning';
-            s.icon = 'bi-cloud-upload';
+            s.color = 'warning';
+            s.icon = <BackupOutlinedIcon fontSize="inherit"/>;
         }else if(status == 'info'){
-            s.color = 'text-primary';
-            s.icon = 'bi-exclamation-circle';
+            s.color = 'info';
+            s.icon = null;
         }
         return s;
     }
 
-  return (
-    <>        
-        <div className="position-fixed bottom-0 end-0 p-3">
 
-            <Toast onClose={()=>setGlobalToast({})} show={!!globalToast?.message} delay={globalToast?.status == 'error' ? 15000 : 5000} autohide={globalToast?.status != 'pending'}>
-                <Toast.Header className={getToastStatus(globalToast?.status)?.color}>
-                    <i className={"bi me-2 " + getToastStatus(globalToast?.status)?.icon}></i>
-                    <strong className="me-auto text-capitalize">{globalToast?.title ?? globalToast?.status ?? 'Info'}</strong>
-                    <small className='text-capitalize'>{globalToast?.subTitle}</small>
-                </Toast.Header>
-                <Toast.Body>
-                    {globalToast?.status == 'pending' && (
-                        <div className="spinner-border spinner-border-sm me-2 "></div>
-                    )}
-                    <span className='text-capitalize'>{globalToast?.message}</span>
-                </Toast.Body>
-            </Toast>
+    const handleClose = (event, reason) => {
+        if (reason === 'clickaway') {
+          return;
+        }
+        setGlobalToast({});
+      };
 
-        </div>
+    const toastStatus = getToastStatus(globalToast?.status);
+    
 
-    </>
-
-  )
+    return (
+        <Snackbar
+            open={!!globalToast?.message}
+            onClose={globalToast?.status !== 'pending' ? handleClose : null}
+            autoHideDuration={globalToast?.status === 'error' ? 15000 : 5000}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            sx={{ width: '400px', zIndex: 99999, left: 'auto' }}
+        >
+            {globalToast?.message && (
+                <Alert
+                    onClose={handleClose}
+                    severity={toastStatus.color}
+                    icon={toastStatus.icon || ''}
+                    sx={{ width: '100%', backgroundColor: '#fff' }}
+                    variant="outlined" 
+                >
+                    <AlertTitle sx={{ textTransform: 'capitalize', mt: 0 }}>
+                        {globalToast?.title ?? globalToast?.status ?? 'Info'}
+                        <span style={{ fontSize: '0.8rem', opacity: 0.8, marginLeft: '10px' }}>
+                            {globalToast?.subTitle}
+                        </span>
+                    </AlertTitle>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {globalToast?.status === 'pending' && (
+                            <CircularProgress size={20} color="warning"/>
+                        )}
+                        <span style={{ textTransform: 'capitalize' }}>{globalToast?.message}</span>
+                    </div>
+                </Alert>
+            )}
+        </Snackbar>
+    )
 }
 

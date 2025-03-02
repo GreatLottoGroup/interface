@@ -1,12 +1,17 @@
 'use client';
 
-import { GreatCoinDecimals, CoinList, formatAmount } from '@/launch/hooks/globalVars'
+import { GreatCoinDecimals, CoinList, formatAmount, shortAddress } from '@/launch/hooks/globalVars'
 import './colorTheme.css'
 import './coinShow.css'
 import Image from 'next/image'
 import Tooltips from './tooltips';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 
-const _coinShow = (value, isFormat, fixed, coinName, className, coinIcon, coinAddr) => {
+const infoContent = (
+    <InfoOutlinedIcon sx={{verticalAlign: 'bottom', fontSize: '1rem', marginLeft: '0.2rem', opacity: 0.5}}/>
+)
+
+const _coinShow = (value, isFormat, fixed, coinName, className, coinIcon, coinAddr, info) => {
     if(value && !isFormat){
         value = formatAmount(value, CoinList[coinName]?.decimals || GreatCoinDecimals)
     }else{
@@ -17,23 +22,31 @@ const _coinShow = (value, isFormat, fixed, coinName, className, coinIcon, coinAd
         value = Number(value).toFixed(fixed);
     }
 
-    const coin = (
+    const coinEl = (
         <span className={'badge coin-name ' + className}>
             {coinIcon && (
                 <Image src={coinIcon} alt={coinName} width='1' height='1' className='coin-icon me-1'/>
             )}
             {coinName}
+            {info && infoContent}
         </span>
     );
 
+    const valueEl = (
+        <span className="badge text-bg-light coin-amount">
+            {value}
+            {info && infoContent}
+        </span>
+    )
+
     return (
-        <span className="badge-group">
-            {value && (
-                <span className="badge text-bg-light coin-amount">{value}</span>
-            )}
+        <span className="badge-group coin-group">
+            {value && ( info ? (
+                <Tooltips title={info} placement="top">{valueEl}</Tooltips>
+            ) : valueEl)}
             {coinName && (coinAddr ? (
-                <Tooltips title={coinAddr} placement="top">{coin}</Tooltips>
-            ) : coin)}
+                <Tooltips title={coinAddr} placement="top">{coinEl}</Tooltips>
+            ) : coinEl)}
         </span>
     )
 }
@@ -71,15 +84,15 @@ const glic = (value, isFormat, coinAddr) => {
 const glieth = (value, isFormat, coinAddr) => {
     return _coinShow(value, isFormat, 5, 'GLIETH', 'info-bg-subtle', null, coinAddr);
 }
-const amount = (value, isFormat, coinName) => {
+const amount = (value, isFormat, coinName, info) => {
     if(coinName){
-        return _coinShow(value, isFormat, 2, coinName, 'dark-bg-subtle');
+        return _coinShow(value, isFormat, 2, coinName, 'dark-bg-subtle', null, null, info);
     }else{
-        return _coinShow(value, isFormat);
+        return _coinShow(value, isFormat, 2, null, null, null, null, info);
     }
 }
 const rate = (value) => {
-    return _coinShow(value + ' %', true);
+    return _coinShow(value + '%', true);
 }
 const gwei = (value) => {
     return amount(formatAmount(value, 9), true, 'Gwei');
@@ -106,6 +119,10 @@ const coinShow = (coinName, value, isFormat, coinAddr) => {
     return coinEl
 }
 
+const address = (addr) => {
+    const sAddr = shortAddress(addr);
+    return _coinShow(sAddr, true, null, null, null, null, null, addr);
+}
 
 export {
     dai,
@@ -122,5 +139,6 @@ export {
     gleth,
     amount,
     rate,
-    coinShow
+    coinShow,
+    address
 }

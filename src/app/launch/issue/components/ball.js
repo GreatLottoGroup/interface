@@ -1,8 +1,16 @@
 'use client';
 
-import { useState, useRef } from 'react'
-import { GroupBalls, BlueBalls, BraveBalls, RedBalls } from '@/launch/hooks/balls'
-import { BlueCount, BlueMax, RedCount, RedMax, C  } from '@/launch/hooks/globalVars'
+import { useState, useRef, useContext, useEffect } from 'react'
+import { GroupBalls, BlueBalls, BraveBalls, RedBalls } from '@/launch/components/balls'
+import { BlueCount, BlueMax, RedCount, RedMax, C, BottomNavHeight } from '@/launch/hooks/globalVars'
+import { 
+    SwipeableDrawer, Table, TableBody, TableRow, TableCell, Button, Paper, 
+    Typography, IconButton, Box, TextField, Stack 
+} from '@mui/material';
+import { IsMobileContext } from '@/hooks/mediaQueryContext';
+import { SetBottomSpaceContext } from '@/hooks/bottomSpaceContext';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 
 
 const noteCount = (blueBrave, blue, red) => {
@@ -29,6 +37,8 @@ export function BallSelect({numberList, setNumberList}) {
 
     const blueRandomCount = useRef(null);
     const redRandomCount = useRef(null);
+    
+    const isMobile = useContext(IsMobileContext);
 
     const ballSort = (list) => {
         list.sort((a,b) => {return a-b;});
@@ -161,109 +171,264 @@ export function BallSelect({numberList, setNumberList}) {
 
 
     return (
+        <>
+            <Box sx={{ p: 3, mb: 3, border: '1px solid', borderColor: 'divider' }}>
+                <Stack direction={isMobile ? 'column' : 'row'} spacing={3}>
+                    <Box sx={{ width: isMobile ? '100%' : '70%' }}>
+                        <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Typography variant="h6">
+                            6 Blue Balls or more
+                            </Typography>
+                            <Box>
+                                <Button 
+                                    variant="outlined" 
+                                    size="small" 
+                                    sx={{ mr: 2 }}
+                                    onClick={() => {setBlueBraveBallList([]); setBlueBallList(getNumberList(BlueMax));}}
+                                >
+                                    Select All
+                                </Button>
+                                <Button 
+                                    variant="outlined" 
+                                    color="inherit" 
+                                    size="small"
+                                    onClick={() => {setBlueBraveBallList([]); setBlueBallList([]);}}
+                                >
+                                    Deselect All
+                                </Button>
+                            </Box>
+                        </Box>
+                        <Box>
+                            {initBlueBallList()}
+                        </Box>
+                    </Box>
 
-    <>
+                    <Box sx={{ width: isMobile ? '100%' : '30%' }}>
+                        <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Typography variant="h6">
+                            1 Red Ball or more
+                            </Typography>
+                            <Box>
+                                <Button 
+                                    variant="outlined" 
+                                    color="error" 
+                                    size="small" 
+                                    sx={{ mr: 2 }}
+                                    onClick={() => {setRedBallList(getNumberList(RedMax))}}
+                                >
+                                    Select All
+                                </Button>
+                                <Button 
+                                    variant="outlined" 
+                                    color="inherit" 
+                                    size="small"
+                                    onClick={() => {setRedBallList([])}}
+                                >
+                                    Deselect All
+                                </Button>
+                            </Box>
+                        </Box>
+                        <Box>
+                            {initRedBallList()}
+                        </Box>
+                    </Box>
+                </Stack>
+            </Box>
 
-        <div className='border px-3 py-3 mb-3 row'>
-            <div className='col-8'>
-                <div className='row my-2'>
-                    <div className='col-7'>
-                        <h5>Please select at least 6 blue balls and 1 red ball ~</h5>
+            <Box sx={{ px: 3, py: 3 }}>
+                <Stack direction="row" spacing={1} alignItems="center">
+                    <TextField
+                        size="small"
+                        type="number"
+                        label="Blue"
+                        defaultValue={BlueCount}
+                        sx={{ width: '8rem', input: { min: BlueCount, max: BlueMax, step: 1 } }}
+                        inputRef={blueRandomCount}
+                    />
+                    <TextField
+                        size="small"
+                        type="number"
+                        label="Red"
+                        defaultValue={RedCount}
+                        sx={{ width: '8rem', input: { min: RedCount, max: RedMax, step: 1 } }}
+                        inputRef={redRandomCount}
+                    />
+                    <Button 
+                        variant="outlined" 
+                        color="inherit"
+                        onClick={() => {randomBall()}}
+                    >
+                        Random Balls
+                    </Button>
+                </Stack>
+            </Box>
+
+            <Box sx={{ p: 1, mb: 3, border: '1px solid', borderColor: 'divider' }}>
+                <Stack spacing={2} direction="row">
+                    <Stack spacing={2} direction="row" sx={{ width: "80%", alignItems: 'center' }}>
+                        {blueBraveBallList.length > 0 && (
+                            <div>
+                                <BraveBalls numberList={blueBraveBallList}/>
+                            </div>
+                        )}
+                        <div>
+                            <BlueBalls numberList={blueBallList}/>
+                        </div>
+                        <div>
+                            <RedBalls numberList={redBallList}/>
+                        </div>
+                    </Stack>
+                    <div>
+                        <Box sx={{ my: 1 }}>
+                            Count: {noteCount(blueBraveBallList, blueBallList, redBallList).toString()}
+                        </Box>
+                        <Button
+                            variant="outlined"
+                            color="success"
+                            disabled={noteCount(blueBraveBallList, blueBallList, redBallList) == 0n}
+                            onClick={() => {addToNumberList([blueBraveBallList, blueBallList, redBallList])}}
+                        >
+                            Confirm
+                        </Button>
                     </div>
-                    <div className='col text-end'>
-                        <a className='btn btn-outline-primary btn-sm me-3' onClick={()=>{setBlueBraveBallList([]);setBlueBallList(getNumberList(BlueMax));}}>Select All</a>
-                        <a className='btn btn-outline-secondary btn-sm me-5' onClick={()=>{setBlueBraveBallList([]);setBlueBallList([]);}}>Deselect All</a>
-                    </div>
-                </div>
-                <div>
-                    {initBlueBallList()}
-                </div>
-            </div>
-
-            <div className='col-4'>
-                <div className='my-2 text-end'>
-                    <a className='btn btn-outline-danger btn-sm me-3' onClick={()=>{setRedBallList(getNumberList(RedMax))}}>Select All</a>
-                    <a className='btn btn-outline-secondary btn-sm me-5' onClick={()=>{setRedBallList([])}}>Deselect All</a>
-                </div>
-                <div>
-                    {initRedBallList()}                   
-                </div>
-            </div>  
-            
-        </div>
-        <div className='px-3 py-3 row'>
-            <div className='col-4'>
-                <div className="input-group mb-3">
-                    <span className="input-group-text">Blue</span>
-                    <input type="number" className="form-control" defaultValue={BlueCount} step="1" min={BlueCount} max={BlueMax} ref={blueRandomCount}/>
-                    <span className="input-group-text">Red</span>
-                    <input type="number" className="form-control" defaultValue={RedCount} step="1" min={RedCount} max={RedMax} ref={redRandomCount} />
-                    <button className="btn btn-outline-secondary" type="button" onClick={()=>{randomBall()}}>Random Balls</button>
-                </div>
-            </div>
-        </div>
-        <div className='border px-3 py-3 mb-3 row'>
-            
-            {blueBraveBallList.length > 0 ? (
-                <div className='col-3'>
-                    <BraveBalls numberList={blueBraveBallList}/>
-                </div>
-            ) : ''}
-
-            <div className='col'>
-                <BlueBalls numberList={blueBallList}/>
-            </div>
-
-            <div className='col-3'>
-                <RedBalls numberList={redBallList}/>
-            </div> 
-
-            <div className='col-2'>
-                <div className='my-3'>
-                    Count: {noteCount(blueBraveBallList, blueBallList, redBallList).toString()}
-                </div>
-                <div>
-                    <button type="button" className='btn btn-outline-success' disabled={noteCount(blueBraveBallList, blueBallList, redBallList)==0n}  onClick={() => {addToNumberList([blueBraveBallList, blueBallList, redBallList])}}>Confirm</button>
-                </div>
-            </div> 
-        </div>
-
-    </>
-
+                </Stack>
+            </Box>
+        </>
     )
 }
 
 export function BallGroup({numberList, setNumberList}) {
+    const headerHeight = 52; // 标题栏高度
+    const maxContentHeight = 160;
 
+    const isMobile = useContext(IsMobileContext);
+    const setBottomSpace = useContext(SetBottomSpaceContext);
+    const [contentHeight, setContentHeight] = useState(headerHeight);
+    const tableRef = useRef(null);
+    
     const removeFromNumberList = (index) => {
         setNumberList(numberList.filter((l, i) => {
             return i != index;
         }))
     }
 
-    return (
+    const ballGroupContent = () => (
+        <>
+            <Table ref={tableRef}>
+                <TableBody>
+                    {numberList.map((item, index) => (
+                        <TableRow 
+                            key={index}
+                            sx={{
+                                '&:last-child td': { borderBottom: 'none' }
+                            }}
+                        >
+                            <TableCell sx={{ width: '80%' }}>
+                                <GroupBalls numberLists={item}/>
+                            </TableCell>
+                            <TableCell>
+                                <div className='mb-2'>
+                                    Count: {noteCount(item[0], item[1], item[2]).toString()}
+                                </div>
+                                <Button 
+                                    variant="outlined" 
+                                    color="error" 
+                                    size="small"
+                                    onClick={() => {removeFromNumberList(index)}}
+                                >
+                                    Remove
+                                </Button>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </>
+    );
 
-        <div className='border px-3 py-3 mb-3 row'>
-            <table className='table table-hover'>
-            <tbody>
-            {numberList.map((item, index) => (
-                <tr key={index}>
-                    <td className='col'>
-                        <GroupBalls numberLists={item}/>
-                    </td>
-                    <td className='col-2'>
-                        <div className='mb-2'>
-                            Count: {noteCount(item[0], item[1], item[2]).toString()}
-                        </div>
-                        <div>
-                            <a className='btn btn-sm btn-outline-danger' onClick={() => {removeFromNumberList(index)}}>Remove</a>
-                        </div>
-                    </td>
-                </tr>
-            ))}
-            </tbody>
-            </table>
-        </div>
+    const getContentHeight = () => {
+        const tableHeight =!!tableRef.current? tableRef.current.getBoundingClientRect().height : 0;
+        const contentHeight = tableHeight + headerHeight;
+        return contentHeight;
+    }
 
-    )
+    const getMaxContentHeight = (contentHeight) => {
+        return Math.min(contentHeight, maxContentHeight);
+    }
+
+    const [open, setOpen] = useState(false);
+    const toggleDrawer = (newOpen) => () => {
+        setOpen(newOpen);
+    };
+
+    useEffect(() => {
+        if (isMobile) {
+            const contentHeight = getContentHeight();
+            const maxHeight = getMaxContentHeight(contentHeight);
+            setBottomSpace(maxHeight);
+            setContentHeight(contentHeight);
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isMobile, numberList]);
+
+    return isMobile ? (
+        <SwipeableDrawer
+            anchor="bottom"
+            open={open}
+            onClose={toggleDrawer(false)}
+            onOpen={toggleDrawer(true)}
+            ModalProps={{
+                keepMounted: true,
+            }}
+            sx={{
+                '& .MuiDrawer-paper': {
+                    bottom: `${BottomNavHeight}px`,
+                    height: open ? `${contentHeight}px` : `${getMaxContentHeight(contentHeight)}px`,
+                    overflow: 'hidden',
+                    transform: 'none !important',
+                    transition: 'height 225ms cubic-bezier(0, 0, 0.2, 1) !important'
+                }
+            }}
+        >
+            <Paper elevation={3} sx={{
+                visibility: 'visible',
+                pointerEvents: 'auto'   
+            }}>
+                <Box 
+                    onClick={toggleDrawer(!open)}
+                    sx={{ 
+                        border: 'solid rgba(0, 0, 0, 0.12)',
+                        borderWidth: '1px 0px 1px 0px'
+                    }}
+                >
+                    <Typography 
+                        variant="h6" 
+                        sx={{ 
+                            px: 2,
+                            py: 1.5,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            width: '100%'
+                        }}
+                    >
+                        Selected Balls ( {numberList.length} groups )
+                        <IconButton size="small">
+                            {open ? <KeyboardArrowDownIcon /> : <KeyboardArrowUpIcon />}
+                        </IconButton>
+                    </Typography>
+                </Box>
+                <Box sx={{                     
+                    maxHeight: open ? 'auto' : `${maxContentHeight - headerHeight}px`,
+                    overflow: 'auto'
+                }}>
+                    {ballGroupContent()}
+                </Box>
+            </Paper>
+        </SwipeableDrawer>
+    ) : (
+        <Box sx={{ p: 1, mb: 3, border: '1px solid', borderColor: 'divider' }}>
+            {ballGroupContent()}
+        </Box>
+    );
 }

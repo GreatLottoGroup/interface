@@ -1,5 +1,6 @@
 'use client';
 import { useContext, useState, useEffect } from 'react';
+import { useAccount } from 'wagmi'
 
 import  useCoin  from '@/launch/hooks/coin'
 import './payCoin.css'
@@ -10,6 +11,9 @@ import WriteBtn from '@/launch/components/writeBtn'
 import { SetGlobalToastContext } from '@/launch/hooks/globalToastContext'
 import usdtABI from '@/abi/usdt_abi.json'
 import { coinShow } from "@/launch/components/coinShow"
+
+import { Stack, Radio, RadioGroup, FormControlLabel, FormControl, Select, MenuItem, Checkbox, InputLabel, CircularProgress } from '@mui/material';
+import { IsMobileContext } from '@/hooks/mediaQueryContext';
 
 export function usePayCoin(payCoin, setPayCoin) {
 
@@ -113,11 +117,14 @@ export function usePayCoin(payCoin, setPayCoin) {
 }
 
 export function PayCoin({payCoin, setPayCoin, setCurrentBlock, isEth, setIsEth}) {
+    const { address: accountAddress } = useAccount()
+
 
     const { getAllowance, increaseAllowance, getBalance, isLoading, isPending } = useCoin();
     const { getApproveSpender, CoinList, getIsEthCoin } = useAddress();
     
     const [coinList, setCoinList] = useState([]);
+    const [isSelectLoading, setIsSelectLoading] = useState(false);
 
     const getCoinList = (isEth) => {
         let list = getCoinListByIsEth(isEth, CoinList);
@@ -125,23 +132,27 @@ export function PayCoin({payCoin, setPayCoin, setCurrentBlock, isEth, setIsEth})
     }
 
     const changeCoin = async (coin) => {
-        if(!coin){
-            setPayCoin({});
-        }else{
-            let coinData = {...CoinList[coin]}
-            coinData.name = coin
+        setIsSelectLoading(true);
+        try {
+            if(!coin){
+                setPayCoin({});
+            }else{
+                let coinData = {...CoinList[coin]}
+                coinData.name = coin
 
-            let allowance = await getAllowance(getApproveSpender(coin), coinData.address)
+                let allowance = await getAllowance(getApproveSpender(coin), coinData.address)
+                coinData.allowance = allowance
 
-            coinData.allowance = allowance
+                let balance = await getBalance(null, coinData.address)
+                coinData.balance = balance
 
-            let balance = await getBalance(null, coinData.address)
-            coinData.balance = balance
-
-            setPayCoin(coinData);
-            if(setIsEth){
-                setIsEth(getIsEthCoin(coinData.name));
+                setPayCoin(coinData);
+                if(setIsEth){
+                    setIsEth(getIsEthCoin(coinData.name));
+                }
             }
+        } finally {
+            setIsSelectLoading(false);
         }
     }
 
@@ -168,65 +179,104 @@ export function PayCoin({payCoin, setPayCoin, setCurrentBlock, isEth, setIsEth})
 
         console.log('useEffect~')
         getCoinList(isEth);  
-
+        setPayCoin({});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [accountAddress])
+
+    const isMobile = useContext(IsMobileContext);
 
     return (
-        <>
-            <div className='col me-3'>
+        <Stack 
+            direction={isMobile ? "column" : "row"} 
+            spacing={2}
+        >
+            <Stack sx={{ width: isMobile ? '100%' : '50%' }}>
                 {setIsEth && (
+                    <FormControl>
+                        <RadioGroup
+                            row
+                            value={isEth}
+                            onChange={(e) => {
+                                const newValue = e.target.value === 'true';
+                                setIsEth(newValue);
+                                getCoinList(newValue);
+                            }}
+                        >
+                            <FormControlLabel 
+                                value={false} 
+                                control={<Radio />} 
+                                label="Stable Coin" 
+                            />
+                            <FormControlLabel 
+                                value={true} 
+                                control={<Radio />} 
+                                label="ETH Coin" 
+                            />
+                        </RadioGroup>
+                    </FormControl>
+                )}
+
+                <Stack spacing={isMobile ? 2 : 1} direction={isMobile ? "row" : "column"}>
+                    <FormControl sx={{ mt: 3, width: '70%' }} size="small">
+                        <InputLabel>Select Coin</InputLabel>
+                        <Select
+                            value={payCoin.name || ''}
+                            onChange={(e) => changeCoin(e.target.value)}
+                            label="Select Coin"
+                            disabled={isSelectLoading}
+                            endAdornment={isSelectLoading && (
+                                <CircularProgress 
+                                    size={20} 
+                                    sx={{ 
+                                        position: 'absolute',
+                                        right: 25,
+                                        top: 'calc(50% - 10px)'
+                                    }} 
+                                />
+                            )}
+                        >
+                            {coinList.map(name =>
+                                <MenuItem key={name} value={name}>{name}</MenuItem>
+                            )}
+                        </Select>
+                    </FormControl>
+
+                    {(payCoin.name == 'DAI' || payCoin.name == 'USDC' || payCoin.name == 'GLC' || payCoin.name == 'GLETH') && 
+                     (payCoin?.allowance < payCoin?.balance) && (
+                        <FormControlLabel
+                            sx={{ width: '30%' }}
+                            control={
+                                <Checkbox
+                                    checked={payCoin?.isPermit || false}
+                                    onChange={(e) => {
+                                        let coinData = {...payCoin}
+                                        coinData.isPermit = e.target.checked
+                                        setPayCoin(coinData)
+                                    }}
+                                />
+                            }
+                            label="Permit Pay"
+                        />
+                    )}
+                </Stack>
+                
+            </Stack>
+
+            <Stack sx={{ 
+                width: isMobile ? '100%' : '50%', 
+                overflow: 'hidden'
+            }}>
+                {payCoin?.name && (
                     <>
-                        <div className="form-check form-check-inline">
-                            <input className="form-check-input" type="radio" checked={!isEth} id="coinTypeStable" onChange={(e)=>{
-                                setIsEth(false);
-                                getCoinList(false);
-                            }}/>
-                            <label className="form-check-label" htmlFor="coinTypeStable">Stable Coin</label>
-                        </div>
-                        <div className="form-check form-check-inline">
-                            <input className="form-check-input" type="radio" checked={isEth} id="coinTypeEth" onChange={(e)=>{
-                                setIsEth(true);
-                                getCoinList(true);
-                            }}/>
-                            <label className="form-check-label" htmlFor="coinTypeEth">ETH Coin</label>
-                        </div>
+                        <div className='mb-1'>Balance: {coinShow(payCoin.name, payCoin.balance, null, payCoin.address)}</div>
+                        <div className='mb-2'>Allowance: {coinShow(payCoin.name, ((payCoin?.allowance > payCoin?.balance) ? payCoin?.balance : payCoin?.allowance), null, payCoin.address)}</div>
+
+                        {(payCoin?.allowance < payCoin?.balance) && (!payCoin?.isPermit) && (
+                            <WriteBtn action={increaseCoinAllowance} isLoading={isLoading || isPending} className="increaseBtn" color="success" size="small" variant="outlined"> Increase Allowance </WriteBtn>
+                        )}
                     </>
                 )}
-
-                <select className="form-select mb-3 mt-2" onChange={(e) =>{changeCoin(e.target.value)}}>
-                    <option value=''>Select Coin...</option>
-                    {coinList.map(name =>
-                        <option key={name} value={name}>{name}</option>
-                    )}
-                </select>
-
-                {(payCoin.name == 'DAI' || payCoin.name == 'USDC' || payCoin.name == 'GLC' || payCoin.name == 'GLETH') && (payCoin?.allowance < payCoin?.balance) && (
-                    <div className="form-check">
-                        <input className="form-check-input" type="checkbox" checked={payCoin?.isPermit} id="permitPayCheck" onChange={(e)=>{
-                            let coinData = {...payCoin}
-                            coinData.isPermit = e.target.checked
-                            //console.log(coinData)
-                            setPayCoin(coinData)
-                        }}/>
-                        <label className="form-check-label" htmlFor="permitPayCheck">Permit Pay</label>
-                    </div>
-                )}
-
-            </div>
-            <div className='col-6 overflow-hidden'>
-                {payCoin?.name && (
-                <>
-                    <div className='mb-1'>Balance: {coinShow(payCoin.name, payCoin.balance, null, payCoin.address)}</div>
-                    <div className='mb-1'>Allowance: {coinShow(payCoin.name, ((payCoin?.allowance > payCoin?.balance) ? payCoin?.balance : payCoin?.allowance), null, payCoin.address)}</div>
-
-                    {(payCoin?.allowance < payCoin?.balance) && (!payCoin?.isPermit) && (
-                        <WriteBtn action={increaseCoinAllowance} isLoading={isLoading || isPending} className="btn-outline-success btn-sm me-4 increaseBtn"> Increase Allowance </WriteBtn>
-                    )}
-                </>
-                )}
-            </div>
-        </>
+            </Stack>
+        </Stack>
     )
-
 }

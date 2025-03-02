@@ -7,7 +7,7 @@ import WriteBtn from '@/launch/components/writeBtn'
 import { glc, gleth, eth, usd, rate } from "@/launch/components/coinShow"
 import { parseAmount } from '@/launch/hooks/globalVars'
 import useEstimateCost from '@/launch/hooks/estimateCost'
-
+import { Stack, Typography } from '@mui/material';
 
 export default function BenefitPool({poolBalance, setPoolBalance, isEth, useBenefitPool}) {
     
@@ -62,14 +62,16 @@ export default function BenefitPool({poolBalance, setPoolBalance, isEth, useBene
   return (
     <>
         <Card title={"Benefit Pool with " + (isEth ? 'Eth Coin' : 'Standard Coin')} reload={getBenefitPoolBalance}>
-            <p className="card-text mb-1">Balance: {isEth ? gleth(poolBalance) : glc(poolBalance)}</p>
-            {poolBalance && poolBalance >= minBenefitBalance && (
-                <>
-                <p className="card-text mb-1">Executor Cost ≈ : {isEth ? eth(executorCost) : usd(executorCost)}</p>
-                <p className="card-text mb-1">Executor Reward ≈ : {isEth ? gleth(executorReward) : glc(executorReward)} {rate('+ ' + getRewardGap(executorReward, executorCost))}</p>
-                <WriteBtn action={executeShareBenefit} isLoading={isLoading || isPending} className="mt-3">Share Benefit</WriteBtn>
-                </>
-            )}
+            <Stack direction="column" spacing={1}>
+                <Typography variant="subtitle1">Balance: {isEth ? gleth(poolBalance) : glc(poolBalance)}</Typography>
+                {poolBalance && poolBalance >= minBenefitBalance && (
+                    <Stack direction="column" spacing={1}>
+                        <Typography variant="subtitle1">Executor Cost ≈ : {isEth ? eth(executorCost) : usd(executorCost)}</Typography>
+                        <Typography variant="subtitle1">Executor Reward ≈ : {isEth ? gleth(executorReward) : glc(executorReward)} {rate('+ ' + getRewardGap(executorReward, executorCost))}</Typography>
+                        <WriteBtn action={executeShareBenefit} isLoading={isLoading || isPending} className="mt-3" variant="outlined">Share Benefit</WriteBtn>
+                    </Stack>
+                )}
+            </Stack>
         </Card>
     </>
 

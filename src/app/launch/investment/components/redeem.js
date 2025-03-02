@@ -11,6 +11,8 @@ import { SetGlobalToastContext } from '@/launch/hooks/globalToastContext'
 import { glic, usd, glieth, eth } from "@/launch/components/coinShow"
 import useAddress from "@/launch/hooks/address"
 
+import { Stack, TextField, Typography, ButtonGroup } from '@mui/material'
+
 export default function Redeem({isEth, setCurrentBlock}) {
 
     const { address: accountAddress } = useAccount()
@@ -98,37 +100,62 @@ export default function Redeem({isEth, setCurrentBlock}) {
   return (
     <>
         <Card title={"Redeem with " + (isEth ? 'Eth Coin' : 'Standard Coin')} reload={initData}>
-            <p className="card-text mb-1">Max Redeem: 
-                {isEth ? glieth(maxShares, true) : glic(maxShares, true)}
-                <span className="mx-2">/</span>
-                {isEth ? eth(maxAssets, true) : usd(maxAssets, true)}
-            </p>
-            <p className="card-text mb-3">Redeem Value: 
-                {isEth ? glieth(valueByAssets, true) : glic(valueByAssets, true)} <span className="text-body-tertiary"> per {isEth ? 'ETH' : 'USD'}</span>
-                <span className="mx-2">/</span>
-                {isEth ? eth(valueByShare, true) : usd(valueByShare, true)}  <span className="text-body-tertiary"> per {isEth ? 'GLIETH' : 'GLIC'}</span>
-            </p>
-            <div className='row'>
-                <div className='col me-3'>
-                    <div className="input-group">
-                        <span className="input-group-text">Shares</span>
-                        <input type="number" className="form-control w-50" ref={redeemAmountEl} onChange={(e)=>{
-                            updateRedeemAssets(e.currentTarget.value)
-                        }}/>
-                    </div>
-                    <p className="card-text mx-0 mt-2">
-                        <>Assets: {withdrawAssets} * 90% = {isEth ? eth(Number(withdrawAssets) * 0.9, true) : usd(Number(withdrawAssets) * 0.9, true)}</>
-                    </p>
-                </div>
-                <div className='col-6'>
-                    <WriteBtn action={redeemExecute} isLoading={isLoading || isPending} > Redeem ( {redeemShares} ) </WriteBtn>
-                </div>
-            </div>
+            <Stack spacing={2}>
+                <Stack spacing={1}>
+                    <Typography variant="subtitle1">
+                        Max Redeem: 
+                        {isEth ? glieth(maxShares, true) : glic(maxShares, true)}
+                        <span className="mx-2">/</span>
+                        {isEth ? eth(maxAssets, true) : usd(maxAssets, true)}
+                    </Typography>
+                    <Typography variant="subtitle1">
+                        Redeem Value: 
+                        {isEth ? glieth(valueByAssets, true) : glic(valueByAssets, true)} 
+                        <Typography component="span" color="text.secondary"> per {isEth ? 'ETH' : 'USD'}</Typography>
+                        <span className="mx-2">/</span>
+                        {isEth ? eth(valueByShare, true) : usd(valueByShare, true)}  
+                        <Typography component="span" color="text.secondary"> per {isEth ? 'GLIETH' : 'GLIC'}</Typography>
+                    </Typography>
+                </Stack>
 
+                <ButtonGroup fullWidth
+                    sx={{
+                        mt: 2,
+                        '& .MuiButtonGroup-grouped': {
+                            minWidth: '150px !important',
+                            width: 'auto',
+                            whiteSpace: 'nowrap'
+                        },
+                        '& .MuiOutlinedInput-root': {
+                            borderTopRightRadius: 0,
+                            borderBottomRightRadius: 0
+                        }
+                    }}
+                >
+                    <TextField
+                        size="small"
+                        type="number"
+                        label="Shares"
+                        inputRef={redeemAmountEl}
+                        onChange={(e) => {
+                            updateRedeemAssets(e.target.value)
+                        }}
+                        fullWidth
+                    />
+                    <WriteBtn 
+                        action={redeemExecute} 
+                        isLoading={isLoading || isPending} 
+                        variant="outlined"
+                    > 
+                        Redeem ( {redeemShares} ) 
+                    </WriteBtn>
+                </ButtonGroup>
+                <Typography variant="subtitle1">
+                    Assets: {withdrawAssets} * 90% = {isEth ? eth(Number(withdrawAssets) * 0.9, true) : usd(Number(withdrawAssets) * 0.9, true)}
+                </Typography>
+            </Stack>
         </Card>
-
     </>
-
   )
 }
 

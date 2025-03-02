@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import WriteBtn from '@/launch/components/writeBtn'
+import { Card as MuiCard, CardContent, Typography, Box, CircularProgress } from '@mui/material';
 
 export default function Card({children, title, subTitle, reload, className}) {
 
@@ -14,29 +15,49 @@ export default function Card({children, title, subTitle, reload, className}) {
     }
 
   return (
-    <>
-
-        <div className={"card " + className}>
-            <div className="card-body position-relative">
-                {reload && (
-                    <WriteBtn action={reloadExecute} isLoading={isReloading} className="btn-sm btn-light position-absolute end-0 me-3"> ReLoad </WriteBtn>
-                )}
-                <h5 className="card-title">{title}
-                    {subTitle && (
-                        <span className='badge text-bg-light ms-3 px-2'>{subTitle}</span>                    
-                    )}
-                </h5>
-                {isReloading ? (
-                    <p className='card-text text-center my-2'>
-                        <span className="spinner-border" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                        </span>          
-                    </p>) : children}
-            </div>
-        </div>
-
-    </>
-
+    <MuiCard className={className} variant="outlined">
+      <CardContent sx={{ position: 'relative' }}>
+        {reload && (
+          <Box sx={{ position: 'absolute', right: 16, top: 16 }}>
+            <WriteBtn 
+              action={reloadExecute} 
+              isLoading={isReloading} 
+              variant="outlined" 
+              color="inherit" 
+              size="small"
+              hasLoadingProgress={false}
+            >
+              ReLoad
+            </WriteBtn>
+          </Box>
+        )}
+        <Typography variant="h6" component="div" sx={{ mb: 1 }}>
+          {title}
+          {subTitle && (
+            <Box component="span" sx={{
+              ml: 2,
+              px: 1,
+              py: 0.5,
+              bgcolor: 'grey.100',
+              borderRadius: 1,
+              fontSize: '0.8em'
+            }}>
+              {subTitle}
+            </Box>
+          )}
+        </Typography>
+        {isReloading ? (
+          <Box sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            mt: 2
+          }}>
+            <CircularProgress size={24}/>
+          </Box>
+        ) : children}
+      </CardContent>
+    </MuiCard>
   )
 }
 

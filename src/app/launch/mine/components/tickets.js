@@ -1,28 +1,30 @@
 'use client';
 
 import './tickets.css'
-import Modal from 'react-bootstrap/Modal';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Stack, Typography, Box, Dialog, DialogTitle, DialogContent, Chip, SwipeableDrawer } from '@mui/material';
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { useConfig, useAccount } from 'wagmi'
 
 import { drawTicketList } from '@/launch/hooks/drawNumbers'
 import { dateFormatLocal } from '@/launch/hooks/dateFormat'
 
-import { BlockPeriods, IssueInterval, getBlockTime } from '@/launch/hooks/globalVars'
+import { BlockPeriods, IssueInterval, getBlockTime, BottomNavHeight } from '@/launch/hooks/globalVars'
 import useAddress from "@/launch/hooks/address"
 
-import { Ball } from '@/launch/hooks/balls'
+import { Ball } from '@/launch/components/balls'
 import { usePageNav, PageNav } from '@/launch/hooks/pageNav'
 
 import useGreatLottoNft from '@/launch/hooks/contracts/GreatLottoNft'
 import useCurrentBlock  from '@/launch/hooks/currentBlock'
 import Card from '@/launch/components/card'
 import List from '@/launch/components/list'
-import {getStatusEl} from '@/launch/hooks/targetBlock'
-import { coinShow, glc, gleth, amount } from "@/launch/components/coinShow"
+import { coinShow, glc, gleth, amount, address } from "@/launch/components/coinShow"
 import Tooltips from "@/launch/components/tooltips"
 import {useTargetBlock} from '@/launch/hooks/targetBlock'
+import BlockStatus from '@/launch/components/blockStatus'
+import ConfirmationNumberOutlinedIcon from '@mui/icons-material/ConfirmationNumberOutlined';
+import { IsMobileContext } from '@/hooks/mediaQueryContext';
 
 export default function Tickets() {
 
@@ -45,7 +47,9 @@ export default function Tickets() {
     const { getPageNavInfo, pageCurrent, pageCount, setPageCurrent, pageSize } = usePageNav()
 
     const {getBlockListByNumbersFromServer, getTicketsByOwnerFromServer} = useTargetBlock()
-    
+
+    const isMobile = useContext(IsMobileContext);
+
     const getNftList = async (page) => {
 
         page = page || pageCurrent;
@@ -209,16 +213,12 @@ export default function Tickets() {
             return (
             <>
                  {(bonus == 0 && topBonus == 0) ? (
-                    <span className='badge danger-bg-subtle'>Losing Lottery</span>
+                    <Chip label="Losing Lottery" color="error" size="small" variant="outlined" />
                 ) : (
-                <>
-                    <div className='mb-1'>
-                        <Tooltips title="Normal Award">{isEth ? gleth(bonus) : glc(bonus)}</Tooltips>
-                    </div>
-                    <div>
-                        <Tooltips title="Top Bonus Count">{amount(topBonus, true)}</Tooltips>
-                    </div>
-                </>
+                    <Stack direction="column" spacing={1}>
+                        <Typography>Normal Award: {isEth ? gleth(bonus) : glc(bonus)}</Typography>
+                        <Typography>Top Bonus: {amount(topBonus, true)}</Typography>
+                    </Stack>
                 )}
             </>
             )
@@ -226,23 +226,23 @@ export default function Tickets() {
     }
 
     const getDrawStatus = (block) => {
-        let drawStatusEl;
+        let drawStatus;
         if(!currentBlock.number){
             return;
         }
         if(block.blockNumber >= Number(currentBlock.number - BlockPeriods)){
-            drawStatusEl = getStatusEl('waitingDraw')
+            drawStatus = 'waitingDraw'
         }else if(block.isDraw){
-            drawStatusEl = getStatusEl('drawn')
+            drawStatus = 'drawn'
         }else if(block.isRollup){
-            drawStatusEl = getStatusEl('rolled')
+            drawStatus = 'rolled'
         }else if(block.blockNumber >= Number(currentBlock.number - 256n)){
-            drawStatusEl = getStatusEl('waitingDraw')
+            drawStatus = 'waitingDraw'
         }else{
-            drawStatusEl = getStatusEl('waitingRollup')
+            drawStatus = 'waitingRollup'
         }
 
-        return drawStatusEl
+        return drawStatus
         
     }
 
@@ -253,6 +253,151 @@ export default function Tickets() {
         setIsLoading(false)
     }
 
+    const ticketDialogContent = (item) => {
+        return (
+            <>
+                <Typography color="text.secondary" gutterBottom>GreatLottoNFT: {address(GreatNftContractAddress)}</Typography>
+                <Typography color="text.secondary" gutterBottom>GreatLottoNFTSVG: {address(NFTSVGAddress)}</Typography>
+                <Stack direction={isMobile ? "column" : "row"} spacing={2} alignItems="flex-start" sx={{mt: 3}}>
+                    <Box sx={{display: 'flex', width: '100%', justifyContent: 'center'}}>
+                        {tickets[item.tokenId.toString()] ? (
+                            <a target='_blank' href={getOpenSeaUrl(item.tokenId.toString())}>
+                                <div className='nft-ticket-svg text-center' dangerouslySetInnerHTML={{__html:tickets[item.tokenId.toString()]}}></div>
+                            </a>
+                        ) : (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
+                                <div className="spinner-border" role="status">
+                                    <span className="visually-hidden">Loading...</span>
+                                </div>
+                            </Box>                                    
+                        )}
+                    </Box>
+                    <Stack direction={isMobile ? "row" : "column"} spacing={isMobile ? 2 : 1} alignItems="flex-start" useFlexGap sx={{ flexWrap: 'wrap' }}>  
+                        <Typography noWrap>TokenId: {amount(item.tokenId, true)}</Typography>
+                        <Typography noWrap>Multiple: {amount(item.multiple, true)}</Typography>
+                        <Typography noWrap>Periods: {amount(item.periods, true)}</Typography>
+                        <Typography noWrap>Target Block: {amount(item.targetBlockNumber, true)}</Typography>
+                        <Typography noWrap>Counts: {amount(item.count, true)}</Typography>
+                        <Typography noWrap>Price: {coinShow(getTokenName(item.payToken), item.amount, !item.isEth)}</Typography>
+                        <Typography noWrap>Channel: {amount(item.channelId, true)}</Typography>
+                    </Stack>
+                </Stack>
+            </>
+        )
+    }
+
+    const ticketContent = (item) => {
+        return (
+            <>
+                <Chip icon={<ConfirmationNumberOutlinedIcon />} label={"TokenId: " + item.tokenId.toString()} onClick={()=>{getTicket(item.tokenId);toggleTicketShow(item.tokenId, true)}} size="small" />
+                {isMobile ? (
+                    <SwipeableDrawer
+                        anchor="bottom"
+                        open={ticketsShow[item.tokenId.toString()]}
+                        onClose={()=>{toggleTicketShow(item.tokenId, false)}}
+                        sx={{
+                            '& .MuiDrawer-paper': {
+                                bottom: `${BottomNavHeight}px`,
+                            }
+                        }}
+                    >
+                        <Box sx={{ p: 2 }}>
+                            <Typography variant="h6" gutterBottom sx={{mb: 2}}>Ticket Detail</Typography>
+                            {ticketDialogContent(item)}
+                        </Box>
+                    </SwipeableDrawer>
+                ) : (
+                    <Dialog
+                        open={ticketsShow[item.tokenId.toString()]}
+                        maxWidth="lg"
+                        onClose={()=>{toggleTicketShow(item.tokenId, false)}}
+                    >
+                        <DialogTitle>Ticket Detail</DialogTitle>
+                        <DialogContent>
+                            {ticketDialogContent(item)}
+                        </DialogContent>
+                    </Dialog>
+                )}
+            </>
+        )
+    }
+
+    const drawDetailDialogContent = (item) => {
+        return (
+            <TableContainer>
+                <Table sx={{ width: '100%' }} size="small">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Target Block</TableCell>
+                            <TableCell>Winning Numbers</TableCell>
+                            {!isMobile && (<TableCell>Status</TableCell>)}
+                            {!isMobile && (<TableCell>Award</TableCell>)}
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                    {currentBlock.number && (item.targetBlocks.map((block, i)=>                                
+                        <TableRow key={i} sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                            <TableCell>
+                                <Stack direction="column" spacing={1} alignItems="flex-start">
+                                    {amount(block.blockNumber, true)}
+                                    {isMobile && (
+                                        <BlockStatus status={getDrawStatus(block)} hasDetail={false} />
+                                    )}
+                                    {isMobile && (
+                                        <>{getDrawDetail(item.numbers, block, item.isEth)}</>
+                                    )}
+                                </Stack>
+                            </TableCell>
+                            <TableCell>{getWinNumbers(item.numbers, block)}</TableCell>
+                            {!isMobile && (<TableCell>
+                                <BlockStatus status={getDrawStatus(block)} hasDetail={false} />
+                            </TableCell>)}
+                            {!isMobile && (<TableCell>{getDrawDetail(item.numbers, block, item.isEth)}</TableCell>)}
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        )
+    }
+
+    const drawDetailContent = (item) => {
+        return (
+            <>
+                <BlockStatus status={getDrawStatus(item.targetBlocks[0])} hasDetail={true} toggleDetailShow={()=>{toggleStatusShow(item.tokenId, true)}} />
+                {isMobile ? (
+                    <SwipeableDrawer
+                        anchor="bottom"
+                        open={statusShow[item.tokenId.toString()]}
+                        onClose={()=>{toggleStatusShow(item.tokenId, false)}}
+                        sx={{
+                            '& .MuiDrawer-paper': {
+                                bottom: `${BottomNavHeight}px`,
+                            }
+                        }}
+                    >
+                        <Box sx={{ p: 2 }}>
+                            <Typography variant="h6" gutterBottom sx={{mb: 2}}>Draw Status TokenId: {item.tokenId.toString()}</Typography>
+                            {drawDetailDialogContent(item)}
+                        </Box>
+                    </SwipeableDrawer>
+                ) : (
+                    <Dialog 
+                        open={statusShow[item.tokenId.toString()]} 
+                        maxWidth="lg" 
+                        onClose={()=>{toggleStatusShow(item.tokenId, false)}}
+                    >
+                        <DialogTitle>
+                            Draw Status TokenId: {item.tokenId.toString()}
+                        </DialogTitle>
+                        <DialogContent>
+                            {drawDetailDialogContent(item)}
+                        </DialogContent>
+                    </Dialog>
+                )}
+            </>
+        )
+    }
 
     useEffect(()=>{
 
@@ -265,109 +410,56 @@ export default function Tickets() {
 
   return (
     <>
-
         <Card title="My Tickets" subTitle={currentBlock.number?.toString()} reload={async ()=>{setCurrentBlock(); await initNftList();}}>
             <List list={nftList} isLoading={isLoading}>
-                <table className='table table-hover'>
-                    <thead>
-                        <tr>
-                            <th className="col-1">Ticket</th>
-                            <th>Numbers</th>
-                            <th className="col-3">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {nftList.map((item, index) => (
-                        <tr key={index}>
-                            <td>
-                                <a className="bi bi-ticket-detailed fs-4 d-inline-block nft-ticket link-secondary link-primary-hover" onClick={()=>{getTicket(item.tokenId);toggleTicketShow(item.tokenId, true)}}></a>
-                                <Modal show={ticketsShow[item.tokenId.toString()]} size='lg' centered onHide={()=>{toggleTicketShow(item.tokenId, false)}}>
-                                    <Modal.Header closeButton>
-                                        <Modal.Title>Ticket Detail</Modal.Title>
-                                    </Modal.Header>
-                                    <Modal.Body>
-                                        <div className='mb-1 text-body-tertiary'>GreatLottoNFT: {GreatNftContractAddress}</div>
-                                        <div className='mb-1 text-body-tertiary'>GreatLottoNFTSVG: {NFTSVGAddress}</div>
-                                        <div className='row mt-3'>
-                                            <div className='col'>
-                                                {tickets[item.tokenId.toString()] ? (
-                                                    <a target='_blank' href={getOpenSeaUrl(item.tokenId.toString())}>
-                                                        <div className='nft-ticket-svg text-center' dangerouslySetInnerHTML={{__html:tickets[item.tokenId.toString()]}}></div>
-                                                    </a>
-                                                ) : (
-                                                    <div className="text-center mt-5">
-                                                        <div className="spinner-border" role="status">
-                                                            <span className="visually-hidden">Loading...</span>
-                                                        </div>
-                                                    </div>                                    
-                                                )}
-                                            </div>
-                                            <div className='col'>
-                                                <div className='mb-1'>TokenId: {amount(item.tokenId, true)}</div>
-                                                <div className='mb-1'>Multiple: {amount(item.multiple, true)}</div>
-                                                <div className='mb-1'>Periods: {amount(item.periods, true)}</div>
-                                                <div className='mb-1'>Target Block: {amount(item.targetBlockNumber, true)}</div>
-                                                <div className='mb-1'>Counts: {amount(item.count, true)}</div>
-                                                <div className='mb-1'>Price: {coinShow(getTokenName(item.payToken), item.amount, !item.isEth)}</div>
-                                                <div className='mb-1'>Channel: {amount(item.channelId, true)}</div>
-                                            </div>
-                                        </div>
-                                    </Modal.Body>
-                                </Modal>
-                            </td>
-                            <td>
-                                {item.numbers.map((ball, bi) => (
-                                    <div key={bi}>
-                                        {ball[0].map((num, i) => (
-                                            <Ball number={num} key={i} type="brave" isDraw={getIsDrawFormDrawList(item.targetBlocks, num, true)}/>
-                                        ))}
-                                        {ball[1].map((num, i) => (
-                                            <Ball number={num} key={i} type="blue" isDraw={getIsDrawFormDrawList(item.targetBlocks, num, true)}/>
-                                        ))}
-                                        {ball[2].map((num, i) => (
-                                            <Ball number={num} key={i} type="red" isDraw={getIsDrawFormDrawList(item.targetBlocks, num, false)}/>
-                                        ))}
-                                    </div>
-                                ))}
-                            </td>
-                            <td>
-                                <span>{getDrawStatus(item.targetBlocks[0])}</span>
-                                <a className="bi bi-card-list link-secondary link-primary-hover cursor-pointer fs-4 ms-3 align-middle" onClick={()=>{
-                                    toggleStatusShow(item.tokenId, true)
-                                }}></a>
-                                <Modal show={statusShow[item.tokenId.toString()]} size='lg' centered onHide={()=>{toggleStatusShow(item.tokenId, false)}}>
-                                    <Modal.Header closeButton>
-                                        <Modal.Title>Draw Status TokenId: {item.tokenId.toString()}</Modal.Title>
-                                    </Modal.Header>
-                                    <Modal.Body>
-                                    <table className='table table-hover'>
-                                        <thead>
-                                            <tr>
-                                                <th className="col-2">Target Block</th>
-                                                <th>Winning Numbers</th>
-                                                <th className="col-2">Status</th>
-                                                <th className="col-3">Award</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                        {currentBlock.number && (item.targetBlocks.map((block, i)=>                                
-                                            <tr key={i}>
-                                                <td>{amount(block.blockNumber, true)}</td>
-                                                <td>{getWinNumbers(item.numbers, block)}</td>
-                                                <td>{getDrawStatus(block)}</td>
-                                                <td>{getDrawDetail(item.numbers, block, item.isEth)}</td>
-                                            </tr>
-                                        ))}
-                                        </tbody>
-                                    </table>
-                                    </Modal.Body>
-                                </Modal>
-                            </td>
-                        </tr>
-                    ))}
-                    </tbody>
-                </table>
-                <PageNav pageCount={pageCount} pageCurrent={pageCurrent} setPageCurrent={setPageCurrent} />
+                <TableContainer>
+                    <Table sx={{ width: '100%' }} size="small">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Ticket</TableCell>
+                                <TableCell>Numbers</TableCell>
+                                {!isMobile && (<TableCell>Status</TableCell>)}
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                        {nftList.map((item, index) => (
+                            <TableRow key={index} 
+                                sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
+                            >
+                                <TableCell>
+                                    <Stack direction="column" spacing={1} alignItems="flex-start">
+                                        {ticketContent(item)}
+                                        {isMobile && drawDetailContent(item)}
+                                    </Stack>
+                                </TableCell>
+                                <TableCell>
+                                    {item.numbers.map((ball, bi) => (
+                                        <Stack key={bi} direction="row" spacing={1} alignItems="center" sx={{minWidth: 300, flexWrap: 'wrap'}}>
+                                            {ball[0].map((num, i) => (
+                                                <Ball number={num} key={i} type="brave" isDraw={getIsDrawFormDrawList(item.targetBlocks, num, true)}/>
+                                            ))}
+                                            {ball[1].map((num, i) => (
+                                                <Ball number={num} key={i} type="blue" isDraw={getIsDrawFormDrawList(item.targetBlocks, num, true)}/>
+                                            ))}
+                                            {ball[2].map((num, i) => (
+                                                <Ball number={num} key={i} type="red" isDraw={getIsDrawFormDrawList(item.targetBlocks, num, false)}/>
+                                            ))}
+                                        </Stack>
+                                    ))}
+                                </TableCell>
+                                {!isMobile && (
+                                    <TableCell>
+                                        {drawDetailContent(item)}
+                                    </TableCell>
+                                )}
+                            </TableRow>
+                        ))}
+                        </TableBody>
+                    </Table>
+                    <Box sx={{ mt: 2 }}>
+                        <PageNav pageCount={pageCount} pageCurrent={pageCurrent} setPageCurrent={setPageCurrent} />
+                    </Box>
+                </TableContainer>
             </List>
         </Card> 
 

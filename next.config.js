@@ -12,6 +12,10 @@ const nextConfig = {
         ignoreBuildErrors: true,
     },
 
+    server: {
+        host: '0.0.0.0',  // 允许所有网络接口访问
+    },
+
     webpack: (config) => {
         config.resolve.fallback = { fs: false, net: false, tls: false };
         return config;

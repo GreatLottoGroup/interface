@@ -7,6 +7,7 @@ import useAddress from "@/launch/hooks/address"
 import Card from '@/launch/components/card'
 import WriteBtn from '@/launch/components/writeBtn'
 import List from '@/launch/components/list'
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Stack } from '@mui/material'
 
 import useGreatLotto from '@/launch/hooks/contracts/GreatLotto'
 import {useTargetBlock} from '@/launch/hooks/targetBlock'
@@ -119,35 +120,38 @@ export default function Rollup({setCurrentBlock}) {
 
     return (
     <>
-
         <Card title="Rollup Tickets" reload={getRollupList}>
             <List list={rollupBlocks} isLoading={isRollupBlockLoading}>
-                <table className='table table-hover'>
-                    <thead>
-                        <tr>
-                            <th>Rollup Block</th>
-                            <th>Block Prize</th>
-                            <th>Block Eth Prize</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {rollupBlocks.map((block, index) => (
-                            <tr key={index}>
-                                <td>{amount(block.blockNumber, true)}</td>
-                                <td>{glc(block.blockBalance) || 0}</td>
-                                <td>{gleth(block.blockBalanceEth) || 0}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>      
-                <p className='card-text mt-2 mb-1 fw-semibold'>Rollup Cost ≈ : {isEthReward ? eth(rollupCost) : usd(rollupCost)}</p>
-                <p className='card-text mt-2 mb-1 fw-semibold'>Rollup Reward ≈ : {isEthReward ? gleth(rollupReward) : glc(rollupReward)} {rate('+ ' + getRewardGap(rollupReward, rollupCost))}</p>
-                <WriteBtn action={rollupExecute} isLoading={isLoading || isPending} className="btn-lg">Rollup</WriteBtn>
+                <TableContainer >
+                    <Table sx={{ width: '100%' }} size="small">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Rollup Block</TableCell>
+                                <TableCell>Block Prize</TableCell>
+                                <TableCell>Block Eth Prize</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {rollupBlocks.map((block, index) => (
+                                <TableRow key={index} 
+                                    sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
+                                >
+                                    <TableCell>{amount(block.blockNumber, true)}</TableCell>
+                                    <TableCell>{glc(block.blockBalance) || 0}</TableCell>
+                                    <TableCell>{gleth(block.blockBalanceEth) || 0}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>      
+                <Stack direction="column" spacing={1} alignItems="flex-start" sx={{mt: 2}}>
+                    <Typography variant="subtitle1">Rollup Cost ≈ : {isEthReward ? eth(rollupCost) : usd(rollupCost)}</Typography>
+                    <Typography variant="subtitle1">Rollup Reward ≈ : {isEthReward ? gleth(rollupReward) : glc(rollupReward)} {rate('+ ' + getRewardGap(rollupReward, rollupCost))}</Typography>
+                    <WriteBtn action={rollupExecute} isLoading={isLoading || isPending}  size="large" variant="outlined">Rollup</WriteBtn>
+                </Stack>
             </List>
         </Card>
-
     </>
-
     )
 }
 

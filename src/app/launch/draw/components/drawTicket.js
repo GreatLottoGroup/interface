@@ -4,10 +4,14 @@ import { useState, useEffect } from 'react'
 import  useCoin  from '@/launch/hooks/coin'
 import useAddress from "@/launch/hooks/address"
 
-import { DrawGroupBalls } from '@/launch/hooks/balls'
+import { DrawGroupBalls } from '@/launch/components/balls'
 import Card from '@/launch/components/card'
 import WriteBtn from '@/launch/components/writeBtn'
 import List from '@/launch/components/list'
+import { 
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+    Stack, Typography
+} from '@mui/material'
 
 import useGreatLotto from '@/launch/hooks/contracts/GreatLotto'
 import usePrizePool from '@/launch/hooks/contracts/PrizePool'
@@ -16,7 +20,6 @@ import { glc, usd, gleth, eth, amount, rate } from "@/launch/components/coinShow
 import useEstimateCost from '@/launch/hooks/estimateCost'
 
 import {useTargetBlock} from '@/launch/hooks/targetBlock'
-
 
 export default function DrawTicket({setCurrentBlock}) {
 
@@ -169,44 +172,68 @@ export default function DrawTicket({setCurrentBlock}) {
 
         <Card title="Draw Tickets" reload={initDrawList}>
             <List list={drawList} isLoading={isDrawListLoading}>
-                <table className='table table-hover'>
-                    <thead>
-                        <tr>
-                            <th>Draw Block</th>
-                            <th>Draw Number</th>
-                            <th>Standard Coin Award</th>
-                            <th>Eth Coin Award</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {drawList.map((drawBlock, index) => (
-                            <tr key={index}>
-                                <td>{amount(drawBlock.blockNumber, true)}</td>
-                                <td><DrawGroupBalls drawNumbers={drawBlock.drawNumber} /></td>
-                                <td>
-                                    <div className='mb-1'>Sum Amount: {glc(drawBlock.award.normalAwardSumAmount)}</div>
-                                    <div className='mb-1'>Block Prize Pool: {glc(drawBlock.award.blockBalance || 0)}</div>
-                                    <div className='mb-1'>Top Bonus Count: {amount(drawBlock.award.topBonusMultiples || 0, true)}</div>
-                                    <div>Top Prize Pool: {glc(drawBlock.award.rollupBalance)}</div>
-                                </td>
-                                <td>
-                                    <div className='mb-1'>Sum Amount: {gleth(drawBlock.awardByEth.normalAwardSumAmount)}</div>
-                                    <div className='mb-1'>Block Prize Pool: {gleth(drawBlock.awardByEth.blockBalance || 0)}</div>
-                                    <div className='mb-1'>Top Bonus Count: {amount(drawBlock.awardByEth.topBonusMultiples || 0, true)}</div>
-                                    <div>Top Prize Pool: {gleth(drawBlock.awardByEth.rollupBalance)}</div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <p className='card-text mt-2 mb-1 fw-semibold'>Draw Cost ≈ : {isEthReward ? eth(drawCost) : usd(drawCost)}</p>
-                <p className='card-text mt-2 mb-1 fw-semibold'>Draw Reward ≈ : {isEthReward ? gleth(drawReward) : glc(drawReward)} {rate('+ ' + getRewardGap(drawReward, drawCost))}</p>
-                <WriteBtn action={drawExecute} isLoading={isLoading || isPending}  className="btn-lg">Draw</WriteBtn>
+                <TableContainer >
+                    <Table sx={{ width: '100%' }} size="small">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Draw Block</TableCell>
+                                <TableCell>Draw Number</TableCell>
+                                <TableCell>Standard Coin Award</TableCell>
+                                <TableCell>Eth Coin Award</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {drawList.map((drawBlock, index) => (
+                                <TableRow key={index} 
+                                    sx={{ '&:last-child td, &:last-child th': { border: 0 }, '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' } }}
+                                >
+                                    <TableCell>{amount(drawBlock.blockNumber, true)}</TableCell>
+                                    <TableCell><DrawGroupBalls drawNumbers={drawBlock.drawNumber} /></TableCell>
+                                    <TableCell>
+                                        <Typography variant="subtitle1" gutterBottom>
+                                            Sum Amount: {glc(drawBlock.award.normalAwardSumAmount)}
+                                        </Typography>
+                                        <Typography variant="subtitle1" gutterBottom>
+                                            Block Prize Pool: {glc(drawBlock.award.blockBalance || 0)}
+                                        </Typography>
+                                        <Typography variant="subtitle1" gutterBottom>
+                                            Top Bonus Count: {amount(drawBlock.award.topBonusMultiples || 0, true)}
+                                        </Typography>
+                                        <Typography variant="subtitle1">
+                                            Top Prize Pool: {glc(drawBlock.award.rollupBalance)}
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Typography variant="subtitle1" gutterBottom>
+                                            Sum Amount: {gleth(drawBlock.awardByEth.normalAwardSumAmount)}
+                                        </Typography>
+                                        <Typography variant="subtitle1" gutterBottom>
+                                            Block Prize Pool: {gleth(drawBlock.awardByEth.blockBalance || 0)}
+                                        </Typography>
+                                        <Typography variant="subtitle1" gutterBottom>
+                                            Top Bonus Count: {amount(drawBlock.awardByEth.topBonusMultiples || 0, true)}
+                                        </Typography>
+                                        <Typography variant="subtitle1">
+                                            Top Prize Pool: {gleth(drawBlock.awardByEth.rollupBalance)}
+                                        </Typography>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </TableContainer>
+                <Stack direction="column" spacing={1} alignItems="flex-start" sx={{mt: 2}}>
+                    <Typography variant="subtitle1">
+                        Draw Cost ≈ : {isEthReward ? eth(drawCost) : usd(drawCost)}
+                    </Typography>
+                    <Typography variant="subtitle1">
+                        Draw Reward ≈ : {isEthReward ? gleth(drawReward) : glc(drawReward)} {rate('+ ' + getRewardGap(drawReward, drawCost))}
+                    </Typography>
+                    <WriteBtn action={drawExecute} isLoading={isLoading || isPending} size="large" variant="outlined">Draw</WriteBtn>
+                </Stack>
             </List>
         </Card>
-
     </>
-
     )
 }
 

@@ -1,7 +1,7 @@
 
 import { useAccount, useConfig } from 'wagmi'
 import { readContract } from '@wagmi/core'
-
+import {Chip} from '@mui/material'
 import  useWrite  from '@/launch/hooks/write';
 
 import useAddress from "@/launch/hooks/address"
@@ -101,11 +101,11 @@ export default function useSalesChannel() {
     const statusEl = (status) => {
         if(status){
             return (
-                <span className="badge text-bg-success">Working</span>
+                <Chip label="Working" color="success" size="small" variant="outlined" />
             )
         }else{
             return (
-                <span className="badge text-bg-danger">Disabled</span>
+                <Chip label="Disabled" color="error" size="small" variant="outlined" />
             )
         }
     }

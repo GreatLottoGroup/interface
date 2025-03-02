@@ -3,9 +3,9 @@
 import Header from "@/components/header"    
 import Footer from "./components/footer"
 import TransactionBar from './components/transactionBar'
+import BottomNav from "./components/bottomNav";
 
-
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useContext } from 'react';
 import { useAccount } from 'wagmi'
 import { isOwner } from '@/launch/hooks/globalVars'
 
@@ -15,7 +15,9 @@ import { SetTransactionContext } from './hooks/transactionsContext';
 import { GlobalToast, useGlobalToast } from './hooks/globalToast'
 import { SetGlobalToastContext } from './hooks/globalToastContext'
 
-import { ConnectKitButton } from "connectkit";
+import ConnectKitButtonCustom from './components/connectKitButtonCustom'
+
+import { IsMobileContext } from '@/hooks/mediaQueryContext';
 
 import './template.css'
 
@@ -42,6 +44,8 @@ export default function Template({ children }) {
 
     const {globalToast, setGlobalToast} = useGlobalToast()
 
+    const isMobile = useContext(IsMobileContext);
+
     useEffect(() => {
         setConnectedStatus(isConnected);
         if(isConnected && isOwner(accountAddress)){
@@ -58,10 +62,11 @@ export default function Template({ children }) {
         <SetTransactionContext.Provider value={setTransaction}>
             <SetGlobalToastContext.Provider value={setGlobalToast}>
                 <Header navList={navList}>
-                    <ConnectKitButton /> 
+                    <ConnectKitButtonCustom />
                     <TransactionBar transactions={transactions} checkTransactions={checkTransactions} hasPendingTrans={hasPendingTrans} delTransaction={delTransaction}/>
                 </Header>
-                <div className='container px-5'>{children}</div>
+                <BottomNav/>
+                <div className='container'>{children}</div>
                 <GlobalToast globalToast={globalToast} setGlobalToast={setGlobalToast}></GlobalToast>
                 <Footer></Footer>
             </SetGlobalToastContext.Provider>
@@ -69,9 +74,10 @@ export default function Template({ children }) {
     ) : (
         <>
             <Header navList={navList}>
-                <ConnectKitButton /> 
+                <ConnectKitButtonCustom /> 
             </Header>
-            <div className='container px-5'><ConnectKitButton /></div>
+            <BottomNav/>
+            <div className='container'><ConnectKitButtonCustom /></div>
             <Footer></Footer>
         </>
 
