@@ -88,7 +88,7 @@ const amount = (value, isFormat, coinName, info) => {
     if(coinName){
         return _coinShow(value, isFormat, 2, coinName, 'dark-bg-subtle', null, null, info);
     }else{
-        return _coinShow(value, isFormat, 2, null, null, null, null, info);
+        return _coinShow(value, isFormat, null, null, null, null, null, info);
     }
 }
 const rate = (value) => {
