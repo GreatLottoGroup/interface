@@ -10,7 +10,7 @@ import useGreatLottoCoinBase from '@/launch/hooks/contracts/base/GreatLottoCoinB
 import Card from '@/launch/components/card'
 import WriteBtn from '@/launch/components/writeBtn'
 import { SetGlobalToastContext } from '@/launch/hooks/globalToastContext'
-import { glc } from "@/launch/components/coinShow"
+import { glc, gleth } from "@/launch/components/coinShow"
 
 import { Stack, TextField, Select, FormControl, MenuItem, ButtonGroup, Typography, InputLabel } from '@mui/material'
 
@@ -101,7 +101,7 @@ export default function MyCoinBase({isEth, children}) {
         <Card title={title} reload={getCoinBalance}>
             <Stack spacing={2}>
                 <Stack spacing={1}>
-                    <Typography variant="subtitle1" >Balance: {glc(coinBalance)}</Typography>
+                    <Typography variant="subtitle1" >Balance: {isEth ? gleth(coinBalance) : glc(coinBalance)}</Typography>
 
                     <ButtonGroup fullWidth
                         sx={{
