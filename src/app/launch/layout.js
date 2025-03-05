@@ -15,8 +15,18 @@ import { LocaleContext } from '@/hooks/localeContext'
  
 hardhat.name = "Localhost 8545";
 
-holesky.rpcUrls.default.http = ['https://eth-holesky.g.alchemy.com/v2/' + process.env.NEXT_PUBLIC_ALCHEMY_API_KEY];
-sepolia.rpcUrls.default.http = ['https://eth-sepolia.g.alchemy.com/v2/' + process.env.NEXT_PUBLIC_ALCHEMY_API_KEY];
+holesky.rpcUrls.default.http = [
+    'https://eth-holesky.g.alchemy.com/v2/' + process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
+    //'https://holesky.infura.io/v3/' + process.env.NEXT_PUBLIC_INFURA_API_KEY,
+];
+sepolia.rpcUrls.default.http = [
+    'https://eth-sepolia.g.alchemy.com/v2/' + process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
+    //'https://sepolia.infura.io/v3/' + process.env.NEXT_PUBLIC_INFURA_API_KEY,
+];
+mainnet.rpcUrls.default.http = [
+    'https://eth-mainnet.g.alchemy.com/v2/' + process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
+    //'https://mainnet.infura.io/v3/' + process.env.NEXT_PUBLIC_INFURA_API_KEY,
+];
 
 const cnf = getDefaultConfig({
     appName: 'GreatLotto',

@@ -1,0 +1,22 @@
+[
+    {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "nftsvg",
+            "type": "address"
+          }
+        ],
+        "name": "changeNFTSVGAddress",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      }
+  
+  ]

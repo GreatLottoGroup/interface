@@ -10,7 +10,7 @@ export default function Footer() {
         <footer className="row row-cols-2 row-cols-sm-2 row-cols-md-5 py-5 my-5 border-top">
             <div className="col mb-5">
             <a href="/" className="d-flex align-items-center mb-3 text-muted text-decoration-none">
-                <BrandLogo />
+                <BrandLogo sx={{width: 30, height: 30, opacity: 0.5}}/>
             </a>
             <p className="text-muted">&copy; 2023 Company, Inc</p>
             </div>
