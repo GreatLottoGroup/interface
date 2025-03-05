@@ -42,3 +42,7 @@ next-env.d.ts
 certificates
 
 package-lock.json
+
+# Serwist
+public/sw*
+public/swe-worker*

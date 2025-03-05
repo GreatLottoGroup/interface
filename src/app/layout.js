@@ -31,8 +31,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang={locale} data-bs-theme={isDark ? 'dark' : 'light'} >
         <head>
-            <meta charset="utf-8" />
-            <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+            <meta charSet="utf-8" />
+            <meta httpEquiv="X-UA-Compatible" content="IE=edge,chrome=1" />
             <title>Great Lotto</title>
             <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
             <meta name="description" content="Best Lotto in the world" />
@@ -45,12 +45,12 @@ export default function RootLayout({ children }) {
             <meta name="apple-mobile-web-app-title" content="Great Lotto" />
             <meta name="mobile-web-app-capable" content="yes" />
             <meta name="theme-color" content="#ffffff" />		
-
-            <meta content="yes" name="apple-touch-fullscreen"/>
+            <meta name="format-detection" content="telephone=no" />
+            <meta name="apple-touch-fullscreen" content="yes"/>
 
             <link rel="apple-touch-icon" href="/icons/icon-192.png"/>
             <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192.png" />
-            <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-192.png" />
+            <link rel="apple-touch-icon" sizes="512x512" href="/icons/icon-512.png" />
             <link rel="apple-touch-icon-precomposed" sizes="114x114" href="/icons/icon-114.png"></link>
 
             <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32.png" />

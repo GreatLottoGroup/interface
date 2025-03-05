@@ -15,6 +15,7 @@
     "@mui/icons-material": "^6.1.9",
     "@mui/material": "^6.1.9",
     "@mui/material-nextjs": "^6.1.9",
+    "@serwist/next": "^9.0.12",
     "@tanstack/react-query": "^5.29.0",
     "blo": "^1.1.1",
     "bootstrap": "^5.3.2",
@@ -27,7 +28,8 @@
     "react-bootstrap": "^2.10.1",
     "react-dom": "^18",
     "viem": "^2.21.9",
-    "wagmi": "^2.13.3"
+    "wagmi": "^2.13.3",
+    "serwist": "^9.0.12"
   },
   "devDependencies": {
     "eslint": "^8",

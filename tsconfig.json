@@ -7,7 +7,8 @@
     "lib": [
       "dom",
       "dom.iterable",
-      "esnext"
+      "esnext",
+      "webworker"
     ],
     "allowJs": true,
     "skipLibCheck": true,
@@ -26,6 +27,10 @@
       }
     ]
   },
+  "types": [
+      // This allows Serwist to type `window.serwist`.
+      "@serwist/next/typings"
+    ],
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
@@ -33,6 +38,7 @@
     "**/*.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "public/sw.js"
   ]
 }
