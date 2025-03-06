@@ -54,18 +54,22 @@ const CoinList = {
     },
     'DAI': {
         decimals: 18,
-        isPermit: true
+        isPermit: true,
+        icon: '/MCDDai_32.webp'
     },
     'USDC': {
         decimals: 6,
-        isPermit: true
+        isPermit: true,
+        icon: '/centre-usdc_28.webp'
     },
     'USDT': {
-        decimals: 6
+        decimals: 6,
+        icon: '/tethernew_32.webp'
     },
     'WETH': {
         decimals: 18,
-        isEth: true
+        isEth: true,
+        icon: '/weth_28.webp'
     }
 }
 

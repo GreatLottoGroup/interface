@@ -10,7 +10,7 @@ import useGreatLottoCoinBase from '@/launch/hooks/contracts/base/GreatLottoCoinB
 import Card from '@/launch/components/card'
 import WriteBtn from '@/launch/components/writeBtn'
 import { SetGlobalToastContext } from '@/launch/hooks/globalToastContext'
-import { glc, gleth } from "@/launch/components/coinShow"
+import { glc, gleth, coinIcon } from "@/launch/components/coinShow"
 
 import { Stack, TextField, Select, FormControl, MenuItem, ButtonGroup, Typography, InputLabel } from '@mui/material'
 
@@ -42,10 +42,10 @@ export default function MyCoinBase({isEth, children}) {
         for (let i = 0; i < coinList.length; i++) {
             let coin = coinList[i];
             if(coin != 'GLC' && coin != 'GLETH'){
-                cList[coin] = await getBalance(PrizePoolContractAddress, CoinList[coin].address);
+                cList[coin] = await getBalance(coinAddr, CoinList[coin].address);
             }                
         }
-        setWithdrawCoinBalances(cList);
+                setWithdrawCoinBalances(cList);
     }
 
     const withdrawExecute = async () => {
@@ -139,6 +139,7 @@ export default function MyCoinBase({isEth, children}) {
                             >
                             {Object.keys(withdrawCoinBalances).map(name =>
                                 <MenuItem key={name} value={name}>
+                                    {coinIcon(name)}
                                     {name} ({formatAmount(withdrawCoinBalances[name], CoinList[name].decimals)})
                                 </MenuItem>
                             )}

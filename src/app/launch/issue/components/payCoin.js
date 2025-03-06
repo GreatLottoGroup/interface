@@ -10,7 +10,7 @@ import useAddress from "@/launch/hooks/address"
 import WriteBtn from '@/launch/components/writeBtn'
 import { SetGlobalToastContext } from '@/launch/hooks/globalToastContext'
 import usdtABI from '@/abi/usdt_abi.json'
-import { coinShow } from "@/launch/components/coinShow"
+import { coinShow, coinIcon } from "@/launch/components/coinShow"
 
 import { Stack, Radio, RadioGroup, FormControlLabel, FormControl, Select, MenuItem, Checkbox, InputLabel, CircularProgress } from '@mui/material';
 import { IsMobileContext } from '@/hooks/mediaQueryContext';
@@ -140,7 +140,7 @@ export function PayCoin({payCoin, setPayCoin, setCurrentBlock, isEth, setIsEth})
     const getCoinList = (isEth) => {
         let list = getCoinListByIsEth(isEth, CoinList);
         setCoinList(list);
-    }
+     }
 
     const changeCoin = async (coin) => {
         setIsSelectLoading(true);
@@ -244,7 +244,10 @@ export function PayCoin({payCoin, setPayCoin, setCurrentBlock, isEth, setIsEth})
                             )}
                         >
                             {coinList.map(name =>
-                                <MenuItem key={name} value={name}>{name}</MenuItem>
+                                <MenuItem key={name} value={name}>
+                                    {coinIcon(name)}
+                                    {name}
+                                </MenuItem>
                             )}
                         </Select>
                     </FormControl>

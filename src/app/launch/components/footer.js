@@ -59,7 +59,7 @@ export default function Footer() {
               <BrandLogo sx={{width: 30, height: 30, opacity: 0.5}}/>
             </Box>
             <Typography variant="subtitle1" color="text.secondary">
-              © 2022 Company, Inc
+              © 2025 GreatLotto Company, Inc
             </Typography>
           </Box>
 

@@ -6,6 +6,7 @@ import './coinShow.css'
 import Image from 'next/image'
 import Tooltips from './tooltips';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Avatar } from '@mui/material'
 
 const infoContent = (
     <InfoOutlinedIcon sx={{verticalAlign: 'bottom', fontSize: '1rem', marginLeft: '0.2rem', opacity: 0.5}}/>
@@ -21,6 +22,8 @@ const _coinShow = (value, isFormat, fixed, coinName, className, coinIcon, coinAd
     if(fixed > 0){
         value = Number(value).toFixed(fixed);
     }
+
+    coinIcon = coinIcon || CoinList[coinName]?.icon;
 
     const coinEl = (
         <span className={'badge coin-name ' + className}>
@@ -58,16 +61,16 @@ const eth = (value, isFormat) => {
     return _coinShow(value, isFormat, 5, 'ETH', 'dark-bg-subtle');
 }
 const dai = (value, isFormat, coinAddr) => {
-    return _coinShow(value, isFormat, 2, 'DAI', 'warning-bg-subtle', '/MCDDai_32.webp', coinAddr);
+    return _coinShow(value, isFormat, 2, 'DAI', 'warning-bg-subtle', null, coinAddr);
 }
 const usdt = (value, isFormat, coinAddr) => {
-    return _coinShow(value, isFormat, 2, 'USDT', 'success-bg-subtle', '/tethernew_32.webp', coinAddr);
+    return _coinShow(value, isFormat, 2, 'USDT', 'success-bg-subtle', null, coinAddr);
 }
 const usdc = (value, isFormat, coinAddr) => {
-    return _coinShow(value, isFormat, 2, 'USDC', 'primary-bg-subtle', '/centre-usdc_28.webp', coinAddr);
+    return _coinShow(value, isFormat, 2, 'USDC', 'primary-bg-subtle', null, coinAddr);
 }
 const weth = (value, isFormat, coinAddr) => {
-    return _coinShow(value, isFormat, 5, 'WETH', 'danger-bg-subtle', '/weth_28.webp', coinAddr);
+    return _coinShow(value, isFormat, 5, 'WETH', 'danger-bg-subtle', null, coinAddr);
 }
 const glc = (value, isFormat, coinAddr) => {
     return _coinShow(value, isFormat, 2, 'GLC', 'info-bg-subtle', null, coinAddr);
@@ -124,6 +127,21 @@ const address = (addr) => {
     return _coinShow(sAddr, true, null, null, null, null, null, addr);
 }
 
+const coinIcon = (coinName) => {
+    const icon = CoinList[coinName]?.icon;
+    return (
+        <Avatar
+            src={icon}
+            sx={{ width: 18, height: 18, mr: 1, 
+                bgcolor: icon ? '#fff' : '#9eeaf9', 
+                display: 'inline-flex',
+                verticalAlign: 'bottom' }}
+        >
+            {icon ? '' : coinName.slice(0, 1)}
+        </Avatar>
+    );
+}
+
 export {
     dai,
     usdt,
@@ -140,5 +158,7 @@ export {
     amount,
     rate,
     coinShow,
-    address
+    address,
+
+    coinIcon
 }
