@@ -8,6 +8,7 @@ import FacebookIcon from '@mui/icons-material/Facebook';
 import BrandLogo from '@/components/brandLogo'
 import { IsMobileContext } from '@/hooks/mediaQueryContext';
 import { BottomSpaceContext } from '@/hooks/bottomSpaceContext';
+import { BottomNavHeight } from '@/launch/hooks/globalVars'
 
 export default function Footer() {
   const isMobile = useContext(IsMobileContext);
@@ -109,7 +110,7 @@ export default function Footer() {
           </Stack>
         </Box>
       ) : (
-        <Box sx={{ height: 56 + bottomSpace + 'px' }} />
+        <Box sx={{ height: BottomNavHeight + bottomSpace + 'px' }} />
       )}
     </>
   )

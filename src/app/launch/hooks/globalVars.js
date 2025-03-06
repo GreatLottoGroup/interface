@@ -28,7 +28,7 @@ const InvestmentMinRedeemShares = 10000
 
 const ExecutorRewardSaveRate = 1n
 
-const BottomNavHeight = 56;
+const BottomNavHeight = 67;
 
 const chains = {
     "31337": "hardhat",

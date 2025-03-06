@@ -48,7 +48,7 @@ export default function BottomNav() {
     <>
     {isMobile && (
         <StyledEngineProvider injectFirst>
-        <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999 }} elevation={3}>
+        <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 9999, padding: '3px 0 8px 0' }} elevation={3}>
             <BottomNavigation  
                 showLabels
                 value={value}
