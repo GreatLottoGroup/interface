@@ -1,6 +1,6 @@
 'use client';
 import { useContext, useState, useEffect } from 'react';
-import { useAccount } from 'wagmi'
+import { useAccount, useConfig } from 'wagmi'
 
 import  useCoin  from '@/launch/hooks/coin'
 import './payCoin.css'
@@ -15,12 +15,25 @@ import { coinShow } from "@/launch/components/coinShow"
 import { Stack, Radio, RadioGroup, FormControlLabel, FormControl, Select, MenuItem, Checkbox, InputLabel, CircularProgress } from '@mui/material';
 import { IsMobileContext } from '@/hooks/mediaQueryContext';
 
+const usdtIncreaseAllowance = (abi, val, chainId, allowance) => {
+    if(chainId != 11155111){
+        abi = usdtABI;
+    }
+    if(allowance > 0n){
+        val = 0n;
+    }
+    return [abi, val];
+}
+
 export function usePayCoin(payCoin, setPayCoin) {
 
     const { getAllowance, increaseAllowance, getBalance, error, isLoading, isSuccess, isPending, isConfirm } = useCoin();
     const { getApproveSpender, getIsEthCoin } = useAddress();
 
     const setGlobalToast = useContext(SetGlobalToastContext)
+
+    const config = useConfig();
+    const chainId = config.state.chainId;
 
     const updatePayCoin = async (t) => {
         let allowance, balance;
@@ -70,10 +83,7 @@ export function usePayCoin(payCoin, setPayCoin) {
                 let val = payCoin.balance;
                 let abi;
                 if(payCoin.name == 'USDT'){
-                    abi = usdtABI;
-                    if(payCoin.allowance > 0n){
-                        val = 0n;
-                    }
+                    [abi, val] = usdtIncreaseAllowance(abi, val, chainId, payCoin.allowance);
                 }
                 let tx = await increaseAllowance(getApproveSpender(payCoin.name), val, payCoin.address, abi)
                 if(tx){
@@ -118,7 +128,8 @@ export function usePayCoin(payCoin, setPayCoin) {
 
 export function PayCoin({payCoin, setPayCoin, setCurrentBlock, isEth, setIsEth}) {
     const { address: accountAddress } = useAccount()
-
+    const config = useConfig();
+    const chainId = config.state.chainId;
 
     const { getAllowance, increaseAllowance, getBalance, isLoading, isPending } = useCoin();
     const { getApproveSpender, CoinList, getIsEthCoin } = useAddress();
@@ -160,10 +171,7 @@ export function PayCoin({payCoin, setPayCoin, setCurrentBlock, isEth, setIsEth})
         let val = payCoin.balance;
         let abi;
         if(payCoin.name == 'USDT'){
-            abi = usdtABI;
-            if(payCoin.allowance > 0n){
-                val = 0n;
-            }
+            [abi, val] = usdtIncreaseAllowance(abi, val, chainId, payCoin.allowance);
         }
         let approveSpender = getApproveSpender(payCoin.name);
         let tx = await increaseAllowance(approveSpender, val, payCoin.address, abi)
@@ -241,8 +249,7 @@ export function PayCoin({payCoin, setPayCoin, setCurrentBlock, isEth, setIsEth})
                         </Select>
                     </FormControl>
 
-                    {(payCoin.name == 'DAI' || payCoin.name == 'USDC' || payCoin.name == 'GLC' || payCoin.name == 'GLETH') && 
-                     (payCoin?.allowance < payCoin?.balance) && (
+                    {payCoin.isPermit && (payCoin?.allowance < payCoin?.balance) && (
                         <FormControlLabel
                             sx={{ width: '30%' }}
                             control={

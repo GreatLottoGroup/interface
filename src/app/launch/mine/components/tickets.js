@@ -108,7 +108,7 @@ export default function Tickets() {
 
     const getOpenSeaUrl = (tokenId) => {
         let url;
-        if(chainId == '11155111'){
+        if(chainId == 11155111){
             url = 'https://testnets.opensea.io/assets/sepolia/'
         }else{
             url = 'https://opensea.io/assets/'

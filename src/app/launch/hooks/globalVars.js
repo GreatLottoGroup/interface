@@ -127,20 +127,20 @@ const errorHandle = (err) => {
         if(errorData){
             let errorName = errorData.data?.errorName ?? '';
             let args = errorData.data?.args ?? [];
-            result = errorName + "(" + args.join(', ') + ")";
+            result = 'ContractFunctionRevertedError: ' + errorName + "(" + args.join(', ') + ")";
         }
         if(!errorData){
             console.log('CallExecutionError')
             errorData = _errorHandle(err, CallExecutionError);
             if(errorData){
-                result = errorData.cause;
+                result = 'CallExecutionError: ' + errorData.cause;
             }
         }
         if(!errorData){
             console.log('ContractFunctionExecutionError')
             errorData = _errorHandle(err, ContractFunctionExecutionError);
             if(errorData){
-                result = errorData.cause;
+                result = 'ContractFunctionExecutionError: ' + errorData.cause;
             }
         }
     }

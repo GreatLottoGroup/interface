@@ -21,6 +21,8 @@ export default function usePermit() {
     const getSignMessage = async (token, spender, amount, deadline) => {
 
         let chainId = getChainId(config);
+
+        const isDAI = CoinList['DAI']?.address && isAddressEqual(token, CoinList['DAI']?.address);
         
         let name =  await readContract(config, {
             address: token,
@@ -29,10 +31,10 @@ export default function usePermit() {
         });
 
         let version = await readContract(config, {
-            address: token,
-            abi: PermitABI,
-            functionName: 'version'
-        });
+                address: token,
+                abi: PermitABI,
+                functionName: 'version'
+            });
         version = version || '1';
 
         let nonce = await readContract(config, {
@@ -43,7 +45,7 @@ export default function usePermit() {
         });
 
         let signReq;
-        if(CoinList['DAI']?.address && isAddressEqual(token, CoinList['DAI']?.address)){
+        if(isDAI){
             let allowed = amount ? true : false;
             
             // hardhat

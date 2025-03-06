@@ -32,6 +32,10 @@ export default function useAddress() {
         }
     })
 
+    if(chainId === 11155111){
+        _coinList['DAI'].isPermit = false;
+    }
+
     const isGreatCoin = (addr) => {
         return isAddressEqual(addr, addressPackage.contracts.GreatCoinContractAddress);
     }

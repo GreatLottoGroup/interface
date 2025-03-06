@@ -50,7 +50,7 @@ export default function Header({children, navList}) {
                 <Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <BrandLogo />
-                        <Typography variant="h6" sx={{ ml: 2 }}>
+                        <Typography variant="h5" sx={{ ml: 2 }}>
                             Great Lotto
                         </Typography>
                     </Box>
